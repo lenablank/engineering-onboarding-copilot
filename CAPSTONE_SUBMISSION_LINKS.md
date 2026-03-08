@@ -10,9 +10,16 @@
 
 ### 1. GitHub Repository
 
-**Link**: https://github.com/YOUR_USERNAME/YOUR_REPO  
-**Status**: 🚧 To be created (Sprint 0)  
+**Link**: https://github.com/lenablank/engineering-onboarding-copilot  
+**Status**: ✅ Created (Mar 8, 2026)  
 **Shared with**: `quantic-grader` _(to be added)_
+
+**What's included:**
+- Backend code (FastAPI, FREE stack with HuggingFace + Groq)
+- Synthetic test docs (5 files)
+- Technical documentation (architecture, implementation, design/testing)
+- Sprint 0 artifacts (goal, backlog, review)
+- Proof of RAG pipeline ($0 cost)
 
 ---
 
