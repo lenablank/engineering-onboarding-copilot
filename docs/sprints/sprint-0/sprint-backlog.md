@@ -17,11 +17,12 @@
 - [x] Test prove_pipeline_simple.py to verify RAG pipeline works (SUCCESS - $0 cost)
 - [x] Migrate to FREE stack (HuggingFace all-MiniLM-L6-v2 + Groq Llama-3-8b)
 - [x] Update backend code for FREE embeddings (main.py, prove_pipeline_simple.py)
-- [ ] Update documentation files for FREE stack
-- [ ] Create GitHub repository
+- [x] Update documentation files for FREE stack (12 files updated)
+- [x] Create GitHub repository (https://github.com/lenablank/engineering-onboarding-copilot)
+- [x] Clean up README for public repo (removed internal planning references)
 - [ ] Share repo with quantic-grader
-- [ ] Update Sprint 0 review with results
-- [ ] Set up Next.js frontend environment (optional for Sprint 0, can defer to Sprint 1)
+- [x] Update Sprint 0 review with results (test results, FREE stack details documented)
+- [ ] ~~Set up Next.js frontend~~ DEFERRED to Sprint 1 Week 3 (not needed for pipeline proof)
 
 ## Notes
 
