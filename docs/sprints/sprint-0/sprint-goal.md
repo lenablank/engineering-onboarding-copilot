@@ -18,7 +18,7 @@ Lock scope, create Trello board, set up repo skeleton, and prove core RAG pipeli
 - ✅ ~~OpenAI spending limit~~ OBSOLETE - $0 total cost achieved
 - ✅ Core pipeline tested and proven (prove_pipeline_simple.py SUCCESS - $0 cost)
 - ✅ FREE stack migration (HuggingFace local embeddings + Groq for Sprint 1)
-- ⏳ Documentation updated for FREE stack
-- ⏳ GitHub repository created and pushed
+- ✅ Documentation updated for FREE stack
+- ✅ GitHub repository created and pushed
 - ⏳ Repo shared with quantic-grader
-- ⏳ Sprint 0 review completed
+- ✅ Sprint 0 review completed
