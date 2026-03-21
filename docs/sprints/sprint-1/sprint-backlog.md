@@ -114,19 +114,26 @@
 
 ---
 
-#### 7. ⏳ IN PROGRESS: Set up Next.js frontend
+#### 7. ✅ DONE: Set up Next.js frontend
 
-**Status**: In Progress (Mar 21)  
+**Status**: DONE (Mar 21)  
 **Priority**: HIGH  
 **Estimate**: 2-3 hours  
-**Acceptance Criteria**:
+**Completion Notes**: 
+- Next.js 14 app (compatible with Node 18.17.1)
+- TypeScript + Tailwind CSS + ESLint configured
+- App Router with src/ directory structure
+- .env.local.example created (NEXT_PUBLIC_API_URL)
+- Dev server running on localhost:3000
+- Commit: 156134c
 
-- Run `npx create-next-app@latest frontend`
-- TypeScript + Tailwind CSS configured
-- ESLint + Prettier configured
-- Basic layout component
-- Environment variables setup (.env.local)
-- Dev server runs on localhost:3000
+**Acceptance Criteria**: ✅
+- ✅ Run `npx create-next-app@latest frontend`
+- ✅ TypeScript + Tailwind CSS configured
+- ✅ ESLint + Prettier configured
+- ✅ Basic layout component
+- ✅ Environment variables setup (.env.local)
+- ✅ Dev server runs on localhost:3000
 
 ---
 
@@ -310,12 +317,13 @@
 ## 📊 Progress Tracking
 
 **Total Tasks**: 19  
-**Done**: 6 (✅ Tasks #1-6 complete!)  
-**In Progress**: 1 (Task #7 - Next.js setup)  
+**Done**: 7 (✅ Tasks #1-7 complete! Backend + Frontend setup ✅)  
+**In Progress**: 0  
 **Not Started**: 12  
 **Blocked**: 0
 
-**Critical Path Completion**: 6/6 backend tasks done! 🎉
+**Critical Path Completion**: 7/8 MVP tasks done! 🚀  
+**Next**: Task #8 - Ask page UI (last MVP task)
 
 ---
 
@@ -327,11 +335,11 @@
 2. ✅ Groq API signup (Task #3)
 3. ✅ Groq integration (Task #4)
 4. ✅ RAG chain (Task #5)
-5. ✅ /ask endpoint (Task #6)
+6. ✅ Next.js frontend (Task #7)
 
-**NOW IN PROGRESS**:
+**NOW NEXT**:
 
-1. Next.js frontend setup (Task #7)
+1. Ask page UI (Task #8) - chat interface + answer displayp (Task #7)
 2. Ask page UI (Task #8)
 
 ---
