@@ -23,12 +23,14 @@
 **Priority**: HIGH  
 **Estimate**: 3-4 hours  
 **Completion Notes**: Created 15 total markdown files covering:
+
 - Getting started, architecture, testing, deployment, API reference
 - CI/CD pipeline, database setup, security practices, monitoring
 - Code review guidelines, Git workflow, environment configuration
 - Troubleshooting, API authentication, performance optimization
 
 **Acceptance Criteria**: ✅
+
 - ✅ Created 10 additional files (15 total)
 - ✅ Cover realistic engineering topics
 - ✅ Intentionally left gaps for Sprint 2 gap detection
@@ -44,6 +46,7 @@
 **Completion Notes**: Groq API configured with key in backend/.env
 
 **Acceptance Criteria**: ✅
+
 - ✅ Signed up at console.groq.com
 - ✅ Got API key (free tier: 14,400 requests/day)
 - ✅ Added GROQ_API_KEY to backend/.env
@@ -60,6 +63,7 @@
 **Completion Notes**: Integrated Groq llama-3.1-8b-instant via LangChain
 
 **Acceptance Criteria**: ✅
+
 - ✅ Installed langchain-groq package
 - ✅ Tested Groq connectivity with simple prompt
 - ✅ Verified Llama-3-8b-instant model works
@@ -73,7 +77,8 @@
 **Priority**: HIGH  
 **Estimate**: 4-6 hours  
 **Dependencies**: Task #4  
-**Completion Notes**: 
+**Completion Notes**:
+
 - Built VectorStoreService (310 lines) for ChromaDB management
 - Built RAGService (321 lines) with full RAG pipeline
 - 275 chunks indexed from 15 synthetic docs
@@ -81,6 +86,7 @@
 - Senior engineer code review completed with all fixes
 
 **Acceptance Criteria**: ✅
+
 - ✅ Create prompt template with citation instructions
 - ✅ Build retrieval chain (Chroma → retrieve top-k)
 - ✅ Build generation chain (Groq → answer with sources)
@@ -96,7 +102,8 @@
 **Priority**: HIGH  
 **Estimate**: 2-3 hours  
 **Dependencies**: Task #5  
-**Completion Notes**: 
+**Completion Notes**:
+
 - AskRequest and AskResponse Pydantic models
 - POST /ask endpoint with full error handling
 - Startup handler: initializes RAG service + indexes docs
@@ -106,6 +113,7 @@
 - Commit: 484a19e
 
 **Acceptance Criteria**: ✅
+
 - ✅ POST /ask endpoint accepts question
 - ✅ Calls RAG chain
 - ✅ Returns answer + sources + retrieved chunks
@@ -119,7 +127,8 @@
 **Status**: DONE (Mar 21)  
 **Priority**: HIGH  
 **Estimate**: 2-3 hours  
-**Completion Notes**: 
+**Completion Notes**:
+
 - Next.js 14 app (compatible with Node 18.17.1)
 - TypeScript + Tailwind CSS + ESLint configured
 - App Router with src/ directory structure
@@ -128,6 +137,7 @@
 - Commit: 156134c
 
 **Acceptance Criteria**: ✅
+
 - ✅ Run `npx create-next-app@latest frontend`
 - ✅ TypeScript + Tailwind CSS configured
 - ✅ ESLint + Prettier configured
@@ -142,7 +152,8 @@
 **Status**: DONE (Mar 21)  
 **Priority**: HIGH  
 **Estimate**: 4-6 hours  
-**Completion Notes**: 
+**Completion Notes**:
+
 - Chat-style Q&A interface at /ask route
 - Question input with 500 char validation (Pydantic-compatible)
 - POST to backend /ask endpoint with fetch API
@@ -155,6 +166,7 @@
 - Commit: 5b4ad57
 
 **Acceptance Criteria**: ✅
+
 - ✅ Chat-style interface (question input + submit)
 - ✅ Display answer with formatting
 - ✅ Show source citations (file paths + snippets)
@@ -169,7 +181,8 @@
 **Status**: DONE (Mar 21 - completed as part of Task #8)  
 **Priority**: MEDIUM  
 **Estimate**: 2 hours  
-**Completion Notes**: 
+**Completion Notes**:
+
 - Implemented expandable source documents section
 - Shows file paths for all sources
 - Displays chunk count and source count
@@ -177,6 +190,7 @@
 - Clean numbered list with syntax highlighting
 
 **Acceptance Criteria**: ✅
+
 - ✅ Citations shown below answer
 - ✅ Each citation shows: file path, relevant snippet
 - ✅ Retrieved chunks expandable/collapsible
@@ -314,36 +328,46 @@
 
 ---
 
-#### 19. Sprint 1 retrospective
+#### 19. ✅ DONE: Sprint 1 retrospective
 
-**Status**: Not Started  
+**Status**: DONE (Mar 21)  
 **Priority**: HIGH (Required for rubric)  
 **Estimate**: 1 hour  
 **Due**: March 29  
-**Acceptance Criteria**:
+**Completion Notes**:
 
-- Create sprint-retrospective.md
-- What went well
-- What to improve
-- Action items for Sprint 2
+- Comprehensive retrospective document created
+- Covered: What went well, challenges, learnings, action items
+- Documented: Technical achievements, process wins, metrics
+- Sprint 1 Grade: A - MVP complete 8 days ahead of schedule!
+
+**Acceptance Criteria**: ✅
+
+- ✅ Create sprint-retrospective.md
+- ✅ What went well
+- ✅ What to improve
+- ✅ Action items for Sprint 2
 
 ---
 
 ## 📊 Progress Tracking
 
 **Total Tasks**: 19  
-**Done**: 9 (✅ Tasks #1-9 complete! MVP is ready! 🎉)  
+**Done**: 10 (✅ Tasks #1-9, #19 complete! Sprint 1 DONE! 🎉)  
 **In Progress**: 0  
-**Not Started**: 10  
+**Not Started**: 9  
 **Blocked**: 0
 
-**MVP Status**: ✅ **COMPLETE** - Full working Q&A system!  
-- ✅ Backend API with RAG pipeline  
-- ✅ Frontend UI with Ask page  
-- ✅ Citations and source display  
-- ✅ End-to-end tested
+**Sprint 1 Status**: ✅ **COMPLETE**
 
-**Next**: Optional improvements + Sprint retrospective
+- ✅ MVP: Full working Q&A system
+- ✅ Backend API with RAG pipeline
+- ✅ Frontend UI with Ask page
+- ✅ Citations and source display
+- ✅ End-to-end tested
+- ✅ Sprint retrospective completed
+
+**Next**: Sprint 2 - Quality improvements + Gap Detection feature
 
 ---
 
@@ -352,6 +376,7 @@
 **✅ SPRINT 1 MVP COMPLETED!** 🎉
 
 All critical path tasks complete:
+
 1. ✅ Expand synthetic docs (Task #2) - 15 files
 2. ✅ Groq API signup (Task #3)
 3. ✅ Groq integration (Task #4)
@@ -379,4 +404,3 @@ All critical path tasks complete:
 - Error handling improvements (Task #10)
 - First evaluation run (Task #18)
 - Semantic chunking (Task #13)
-
