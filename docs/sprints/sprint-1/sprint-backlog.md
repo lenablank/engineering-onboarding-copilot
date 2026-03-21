@@ -17,85 +17,106 @@
 
 ---
 
-#### 2. ⏳ IN PROGRESS: Expand synthetic docs to 10-15 files
+#### 2. ✅ DONE: Expand synthetic docs to 10-15 files
 
-**Status**: Not Started  
+**Status**: DONE (Mar 15)  
 **Priority**: HIGH  
 **Estimate**: 3-4 hours  
-**Acceptance Criteria**:
+**Completion Notes**: Created 15 total markdown files covering:
+- Getting started, architecture, testing, deployment, API reference
+- CI/CD pipeline, database setup, security practices, monitoring
+- Code review guidelines, Git workflow, environment configuration
+- Troubleshooting, API authentication, performance optimization
 
-- Create 5-10 additional markdown files
-- Cover realistic engineering topics: CI/CD, database setup, API design, security, monitoring
-- Intentionally leave some gaps for Sprint 2 gap detection
-- Each file 500-1500 words
+**Acceptance Criteria**: ✅
+- ✅ Created 10 additional files (15 total)
+- ✅ Cover realistic engineering topics
+- ✅ Intentionally left gaps for Sprint 2 gap detection
+- ✅ Each file 500-1500 words
 
 ---
 
-#### 3. 🚨 BLOCKER: Sign up for Groq API + configure
+#### 3. ✅ DONE: Sign up for Groq API + configure
 
-**Status**: Not Started  
+**Status**: DONE (Mar 16)  
 **Priority**: CRITICAL  
 **Estimate**: 15 minutes  
-**Acceptance Criteria**:
+**Completion Notes**: Groq API configured with key in backend/.env
 
-- Sign up at console.groq.com
-- Get API key (free tier: 14,400 requests/day)
-- Add GROQ_API_KEY to backend/.env
-- Add to .env.example (without actual key)
+**Acceptance Criteria**: ✅
+- ✅ Signed up at console.groq.com
+- ✅ Got API key (free tier: 14,400 requests/day)
+- ✅ Added GROQ_API_KEY to backend/.env
+- ✅ Added to .env.example (without actual key)
 
 ---
 
-#### 4. 🚨 BLOCKER: Integrate Groq LLM for answer generation
+#### 4. ✅ DONE: Integrate Groq LLM for answer generation
 
-**Status**: Not Started  
+**Status**: DONE (Mar 18)  
 **Priority**: CRITICAL  
 **Estimate**: 2-3 hours  
 **Dependencies**: Task #3  
-**Acceptance Criteria**:
+**Completion Notes**: Integrated Groq llama-3.1-8b-instant via LangChain
 
-- Install langchain-groq package
-- Test Groq connectivity with simple prompt
-- Verify Llama-3-8b-instant model works
-- Log first successful LLM response
+**Acceptance Criteria**: ✅
+- ✅ Installed langchain-groq package
+- ✅ Tested Groq connectivity with simple prompt
+- ✅ Verified Llama-3-8b-instant model works
+- ✅ Logged first successful LLM response
 
 ---
 
-#### 5. Build RAG chain with LangChain
+#### 5. ✅ DONE: Build RAG chain with LangChain
 
-**Status**: Not Started  
+**Status**: DONE (Mar 20)  
 **Priority**: HIGH  
 **Estimate**: 4-6 hours  
 **Dependencies**: Task #4  
-**Acceptance Criteria**:
+**Completion Notes**: 
+- Built VectorStoreService (310 lines) for ChromaDB management
+- Built RAGService (321 lines) with full RAG pipeline
+- 275 chunks indexed from 15 synthetic docs
+- Confidence scoring implemented (0.7 threshold)
+- Senior engineer code review completed with all fixes
 
-- Create prompt template with citation instructions
-- Build retrieval chain (Chroma → retrieve top-k)
-- Build generation chain (Groq → answer with sources)
-- Combine into single RAG chain
-- Test with 3-5 sample questions
-- Verify citations appear in answers
+**Acceptance Criteria**: ✅
+- ✅ Create prompt template with citation instructions
+- ✅ Build retrieval chain (Chroma → retrieve top-k)
+- ✅ Build generation chain (Groq → answer with sources)
+- ✅ Combine into single RAG chain
+- ✅ Test with 3-5 sample questions
+- ✅ Verify citations appear in answers
 
 ---
 
-#### 6. Create /ask API endpoint (FastAPI)
+#### 6. ✅ DONE: Create /ask API endpoint (FastAPI)
 
-**Status**: Not Started  
+**Status**: DONE (Mar 21)  
 **Priority**: HIGH  
 **Estimate**: 2-3 hours  
 **Dependencies**: Task #5  
-**Acceptance Criteria**:
+**Completion Notes**: 
+- AskRequest and AskResponse Pydantic models
+- POST /ask endpoint with full error handling
+- Startup handler: initializes RAG service + indexes docs
+- Shutdown handler: proper resource cleanup
+- API version updated to 1.0.0 (Sprint 1)
+- Tested successfully with multiple questions
+- Commit: 484a19e
 
-- POST /ask endpoint accepts question
-- Calls RAG chain
-- Returns answer + sources + retrieved chunks
-- Handles errors gracefully
-- Request/response models with Pydantic
+**Acceptance Criteria**: ✅
+- ✅ POST /ask endpoint accepts question
+- ✅ Calls RAG chain
+- ✅ Returns answer + sources + retrieved chunks
+- ✅ Handles errors gracefully (400/503/500)
+- ✅ Request/response models with Pydantic
 
 ---
 
-#### 7. Set up Next.js frontend
+#### 7. ⏳ IN PROGRESS: Set up Next.js frontend
 
-**Status**: Not Started  
+**Status**: In Progress (Mar 21)  
 **Priority**: HIGH  
 **Estimate**: 2-3 hours  
 **Acceptance Criteria**:
@@ -289,23 +310,29 @@
 ## 📊 Progress Tracking
 
 **Total Tasks**: 19  
-**Done**: 1 (✅ HuggingFace embeddings)  
-**In Progress**: 0  
-**Not Started**: 18  
-**Blocked**: 2 (Groq setup blocking RAG chain)
+**Done**: 6 (✅ Tasks #1-6 complete!)  
+**In Progress**: 1 (Task #7 - Next.js setup)  
+**Not Started**: 12  
+**Blocked**: 0
+
+**Critical Path Completion**: 6/6 backend tasks done! 🎉
 
 ---
 
 ## 🎯 This Week Focus (Mar 21-24)
 
-**MUST COMPLETE** (in order):
+**✅ COMPLETED** (ahead of schedule!):
 
-1. Expand synthetic docs (Task #2)
-2. Groq API signup (Task #3)
-3. Groq integration (Task #4)
-4. RAG chain (Task #5)
+1. ✅ Expand synthetic docs (Task #2) - 15 files
+2. ✅ Groq API signup (Task #3)
+3. ✅ Groq integration (Task #4)
+4. ✅ RAG chain (Task #5)
+5. ✅ /ask endpoint (Task #6)
 
-**STRETCH**: 5. /ask endpoint (Task #6)
+**NOW IN PROGRESS**:
+
+1. Next.js frontend setup (Task #7)
+2. Ask page UI (Task #8)
 
 ---
 
@@ -313,10 +340,11 @@
 
 **MUST COMPLETE**:
 
-1. Next.js setup (Task #7)
-2. Ask page UI (Task #8)
-3. End-to-end testing
-4. Sprint retrospective (Task #19)
+1. Complete Ask page UI (Task #8)
+2. Display citations (Task #9)
+3. Error handling (Task #10)
+4. End-to-end testing (Task #18)
+5. Sprint retrospective (Task #19)
 
 **NICE TO HAVE**:
 
