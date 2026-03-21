@@ -15,6 +15,7 @@
 **Shared with**: `quantic-grader` _(to be added)_
 
 **What's included:**
+
 - Backend code (FastAPI, FREE stack with HuggingFace + Groq)
 - Synthetic test docs (5 files)
 - Technical documentation (architecture, implementation, design/testing)
