@@ -1,13 +1,14 @@
 """
-Engineering Onboarding Copilot API - Sprint 0
+Engineering Onboarding Copilot API - Sprint 1
 FastAPI backend for RAG-powered documentation assistant
 """
-from typing import Any
+from typing import Any, Optional
 from pathlib import Path
 import os
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
@@ -15,12 +16,43 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 
+from app.services.vector_store import VectorStoreService
+from app.services.rag_service import RAGService
+from app.utils.logging import setup_logging
+
+# Load environment variables and setup logging
 load_dotenv()
+setup_logging(level="INFO")
+
+
+# Pydantic models for /ask endpoint
+class AskRequest(BaseModel):
+    """Request model for /ask endpoint."""
+    question: str = Field(
+        ..., 
+        min_length=1, 
+        max_length=500,
+        description="User's question about the documentation",
+        examples=["How do I set up my development environment?"]
+    )
+
+
+class AskResponse(BaseModel):
+    """Response model for /ask endpoint."""
+    answer: str = Field(..., description="Generated answer to the question")
+    confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence score (0-1)")
+    sources: list[str] = Field(..., description="List of source documents used")
+    chunks_used: int = Field(..., description="Number of document chunks retrieved")
+
+
+# Global RAG service instance (initialized on startup)
+rag_service: Optional[RAGService] = None
+
 
 app = FastAPI(
     title="Engineering Onboarding Copilot API",
     description="RAG-powered documentation assistant with Gap Radar",
-    version="0.1.0",
+    version="1.0.0",
 )
 
 app.add_middleware(
@@ -37,10 +69,11 @@ def root() -> dict[str, Any]:
     """Return API information and available endpoints."""
     return {
         "name": "Engineering Onboarding Copilot API",
-        "version": "0.1.0",
-        "status": "Sprint 0 - Proving Pipeline",
+        "version": "1.0.0",
+        "status": "Sprint 1 - Full RAG Pipeline",
         "endpoints": {
             "health": "/health",
+            "ask": "/ask (POST)",
             "prove_pipeline": "/prove-pipeline",
         },
     }
@@ -49,7 +82,56 @@ def root() -> dict[str, Any]:
 @app.get("/health")
 def health() -> dict[str, str]:
     """Health check endpoint for monitoring."""
-    return {"status": "healthy", "version": "0.1.0"}
+    return {"status": "healthy", "version": "1.0.0"}
+
+
+@app.post("/ask", response_model=AskResponse)
+def ask_question(request: AskRequest) -> AskResponse:
+    """
+    Answer questions using the RAG pipeline.
+
+    This endpoint:
+    1. Takes a user question
+    2. Retrieves relevant document chunks from ChromaDB
+    3. Generates an answer using Groq LLM (llama-3.1-8b-instant)
+    4. Returns the answer with confidence score and sources
+
+    Args:
+        request: AskRequest containing the user's question
+
+    Returns:
+        AskResponse with answer, confidence, sources, and chunk count
+
+    Raises:
+        HTTPException: If RAG service is not initialized or if question processing fails
+    """
+    if rag_service is None:
+        raise HTTPException(
+            status_code=503,
+            detail="RAG service not initialized. Please wait for startup to complete."
+        )
+    
+    try:
+        result = rag_service.ask(request.question)
+        
+        # Extract file paths from source dictionaries
+        source_files = [source["file_path"] for source in result.sources]
+        
+        return AskResponse(
+            answer=result.answer,
+            confidence=result.confidence,
+            sources=source_files,
+            chunks_used=result.retrieved_chunks
+        )
+    except ValueError as e:
+        # Input validation errors (question too long, empty, etc.)
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        # Other errors (LLM API failure, vector DB issues, etc.)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to process question: {str(e)}"
+        )
 
 
 @app.post("/prove-pipeline")
@@ -175,6 +257,62 @@ def prove_pipeline() -> dict[str, Any]:
             "error": str(e),
             "error_type": type(e).__name__,
         }
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize RAG service on application startup."""
+    global rag_service
+    
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    try:
+        logger.info("Initializing RAG service...")
+        
+        # Path to synthetic documentation
+        docs_path = Path(__file__).parent.parent.parent / "synthetic-docs"
+        
+        # Initialize vector store service
+        vector_store = VectorStoreService(
+            persist_directory="./chroma_db",
+            collection_name="onboarding_docs"
+        )
+        
+        # Index documents from synthetic docs directory
+        logger.info(f"Indexing documents from {docs_path}")
+        num_chunks = vector_store.index_documents(
+            docs_directory=str(docs_path),
+            force_reindex=False  # Set to True to rebuild the entire index
+        )
+        logger.info(f"Indexed {num_chunks} document chunks")
+        
+        # Initialize RAG service with lower confidence threshold for testing
+        rag_service = RAGService(
+            vector_store=vector_store,
+            confidence_threshold=0.4  # TODO: Tune this value based on testing
+        )
+        
+        logger.info("RAG service initialized successfully!")
+        
+    except Exception as e:
+        logger.error(f"Failed to initialize RAG service: {e}")
+        raise
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Cleanup resources on application shutdown."""
+    global rag_service
+    
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    if rag_service is not None:
+        logger.info("Shutting down RAG service...")
+        rag_service.close()
+        rag_service = None
+        logger.info("RAG service shutdown complete")
 
 
 if __name__ == "__main__":
