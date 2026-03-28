@@ -2,10 +2,17 @@
 
 import { useState } from "react";
 
+interface Source {
+  chunk_id: number;
+  content: string;
+  file_path: string;
+  metadata: Record<string, any>;
+}
+
 interface AskResponse {
   answer: string;
   confidence: number;
-  sources: string[];
+  sources: Source[];
   chunks_used: number;
 }
 
@@ -16,10 +23,36 @@ interface ErrorState {
 
 export default function AskPage() {
   const [question, setQuestion] = useState("");
+  const [submittedQuestion, setSubmittedQuestion] = useState("");
   const [response, setResponse] = useState<AskResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ErrorState | null>(null);
   const [showSources, setShowSources] = useState(false);
+  const [viewingDocument, setViewingDocument] = useState<{ filename: string; content: string } | null>(null);
+  const [loadingDoc, setLoadingDoc] = useState(false);
+
+  const viewFullDocument = async (filename: string) => {
+    setLoadingDoc(true);
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const res = await fetch(`${apiUrl}/docs/${filename}`);
+      
+      if (!res.ok) {
+        throw new Error(`Failed to load document: ${res.statusText}`);
+      }
+      
+      const data = await res.json();
+      setViewingDocument({ filename: data.filename, content: data.content });
+    } catch (err) {
+      console.error("Error loading document:", err);
+      setError({
+        message: err instanceof Error ? err.message : "Failed to load document",
+        type: "error"
+      });
+    } finally {
+      setLoadingDoc(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,9 +97,15 @@ export default function AskPage() {
 
       const data: AskResponse = await res.json();
       setResponse(data);
+      
+      // Save the submitted question to display with the answer
+      setSubmittedQuestion(question.trim());
+      
+      // Clear question field for next question
+      setQuestion("");
 
       // Auto-expand sources if confidence is low
-      if (data.confidence < 0.6) {
+      if (data.confidence < 0.7) {
         setShowSources(true);
       }
     } catch (err) {
@@ -85,6 +124,7 @@ export default function AskPage() {
 
   const handleClear = () => {
     setQuestion("");
+    setSubmittedQuestion("");
     setResponse(null);
     setError(null);
     setShowSources(false);
@@ -207,6 +247,16 @@ export default function AskPage() {
         {/* Answer Display */}
         {response && !loading && (
           <div className="space-y-4">
+            {/* Question Card */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg shadow p-6 border-l-4 border-blue-500">
+              <h2 className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-2">
+                Your Question
+              </h2>
+              <p className="text-slate-800 dark:text-slate-200 text-lg">
+                {submittedQuestion}
+              </p>
+            </div>
+
             {/* Main Answer Card */}
             <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
               {/* Confidence Badge */}
@@ -241,22 +291,40 @@ export default function AskPage() {
 
               {/* Metadata */}
               <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-                <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-400">
-                  <span>📚 {response.chunks_used} chunks retrieved</span>
-                  <span>📄 {response.sources.length} source files</span>
+                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                  <span>📄 Based on {new Set(response.sources.map((s) => s.file_path)).size} documentation {new Set(response.sources.map((s) => s.file_path)).size === 1 ? "file" : "files"}</span>
                 </div>
               </div>
             </div>
 
             {/* Sources Section */}
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg overflow-hidden">
+            <div className={`rounded-lg shadow-lg overflow-hidden ${
+              response.confidence < 0.7 
+                ? 'bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-300 dark:border-amber-700' 
+                : 'bg-white dark:bg-slate-800'
+            }`}>
               <button
                 onClick={() => setShowSources(!showSources)}
                 className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
               >
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-                  Source Documents
-                </h3>
+                <div className="flex-1 text-left">
+                  <h3 className={`text-lg font-semibold ${
+                    response.confidence < 0.7 
+                      ? 'text-amber-900 dark:text-amber-200' 
+                      : 'text-slate-900 dark:text-white'
+                  }`}>
+                    {response.confidence < 0.7 ? "⚠️ Source Material (Review Recommended)" : "Source Material"}
+                  </h3>
+                  <p className={`text-xs mt-1 ${
+                    response.confidence < 0.7 
+                      ? 'text-amber-700 dark:text-amber-400' 
+                      : 'text-slate-500 dark:text-slate-400'
+                  }`}>
+                    {response.confidence < 0.7 
+                      ? "Low confidence - check sources to verify the answer" 
+                      : "Optional: View documentation excerpts for additional context"}
+                  </p>
+                </div>
                 <span className="text-slate-600 dark:text-slate-400">
                   {showSources ? "▼" : "▶"}
                 </span>
@@ -265,24 +333,31 @@ export default function AskPage() {
               {showSources && (
                 <div className="px-6 pb-4">
                   <div className="space-y-2">
-                    {response.sources.map((source, index) => {
-                      const filename = source.split("/").pop() || source;
-                      return (
-                        <div
-                          key={index}
-                          className="px-4 py-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600"
+                    {(() => {
+                      // Group by file to show unique documents
+                      const uniqueFiles = Array.from(
+                        new Set(response.sources.map((s) => s.file_path))
+                      ).map((filePath) => {
+                        const filename = filePath.split("/").pop() || filePath;
+                        const count = response.sources.filter((s) => s.file_path === filePath).length;
+                        return { filePath, filename, count };
+                      });
+
+                      return uniqueFiles.map((file) => (
+                        <button
+                          key={file.filePath}
+                          onClick={() => viewFullDocument(file.filename)}
+                          className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group"
                         >
                           <div className="flex items-center gap-2">
-                            <span className="text-blue-600 dark:text-blue-400 font-mono text-sm">
-                              #{index + 1}
+                            <span className="text-blue-600 dark:text-blue-400 text-sm group-hover:scale-110 transition-transform">📘</span>
+                            <span className="font-medium text-blue-600 dark:text-blue-400 text-sm group-hover:underline">
+                              {file.filename}
                             </span>
-                            <code className="text-sm text-slate-700 dark:text-slate-300 break-all">
-                              {filename}
-                            </code>
                           </div>
-                        </div>
-                      );
-                    })}
+                        </button>
+                      ));
+                    })()}
                   </div>
                   {response.confidence < 0.6 && (
                     <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
@@ -312,6 +387,64 @@ export default function AskPage() {
           </div>
         )}
       </div>
+
+      {/* Document Viewer Modal */}
+      {viewingDocument && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">📘</span>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                    {viewingDocument.filename}
+                  </h2>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    Full documentation
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setViewingDocument(null)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-2xl font-light"
+                title="Close"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="prose dark:prose-invert max-w-none">
+                <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                  {viewingDocument.content}
+                </pre>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-end gap-3 p-6 border-t border-slate-200 dark:border-slate-700">
+              <button
+                onClick={() => setViewingDocument(null)}
+                className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Loading Document Overlay */}
+      {loadingDoc && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl p-6 flex items-center gap-3">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+            <span className="text-slate-700 dark:text-slate-300">Loading document...</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -41,7 +41,7 @@ class AskResponse(BaseModel):
     """Response model for /ask endpoint."""
     answer: str = Field(..., description="Generated answer to the question")
     confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence score (0-1)")
-    sources: list[str] = Field(..., description="List of source documents used")
+    sources: list[dict[str, Any]] = Field(..., description="List of source documents with content")
     chunks_used: int = Field(..., description="Number of document chunks retrieved")
 
 
@@ -57,7 +57,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000", "http://localhost:3001"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -74,6 +74,7 @@ def root() -> dict[str, Any]:
         "endpoints": {
             "health": "/health",
             "ask": "/ask (POST)",
+            "docs": "/docs/{filename} (GET)",
             "prove_pipeline": "/prove-pipeline",
         },
     }
@@ -114,13 +115,10 @@ def ask_question(request: AskRequest) -> AskResponse:
     try:
         result = rag_service.ask(request.question)
         
-        # Extract file paths from source dictionaries
-        source_files = [source["file_path"] for source in result.sources]
-        
         return AskResponse(
             answer=result.answer,
             confidence=result.confidence,
-            sources=source_files,
+            sources=result.sources,  # Return full source objects with content
             chunks_used=result.retrieved_chunks
         )
     except ValueError as e:
@@ -131,6 +129,49 @@ def ask_question(request: AskRequest) -> AskResponse:
         raise HTTPException(
             status_code=500,
             detail=f"Failed to process question: {str(e)}"
+        )
+
+
+@app.get("/docs/{filename}")
+def get_document(filename: str) -> dict[str, Any]:
+    """
+    Retrieve the full content of a documentation file.
+    
+    Args:
+        filename: Name of the markdown file (e.g., "7-database-setup.md")
+    
+    Returns:
+        Dictionary with filename and content
+    
+    Raises:
+        HTTPException: 404 if file not found, 400 if invalid filename
+    """
+    # Security: Only allow filenames without path traversal
+    if "/" in filename or ".." in filename:
+        raise HTTPException(status_code=400, detail="Invalid filename")
+    
+    # Only allow .md files
+    if not filename.endswith(".md"):
+        raise HTTPException(status_code=400, detail="Only markdown files are supported")
+    
+    docs_path = Path(__file__).parent.parent.parent / "synthetic-docs"
+    file_path = docs_path / filename
+    
+    # Check if file exists
+    if not file_path.exists() or not file_path.is_file():
+        raise HTTPException(status_code=404, detail=f"Document '{filename}' not found")
+    
+    try:
+        content = file_path.read_text(encoding="utf-8")
+        return {
+            "filename": filename,
+            "content": content,
+            "path": str(file_path)
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to read document: {str(e)}"
         )
 
 

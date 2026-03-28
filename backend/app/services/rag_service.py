@@ -36,7 +36,7 @@ class RAGService:
     # Configuration constants
     MAX_QUESTION_LENGTH = 500
     DEFAULT_TEMPERATURE = 0.1
-    DEFAULT_MAX_TOKENS = 500
+    DEFAULT_MAX_TOKENS = 1000
     DEFAULT_RETRIEVAL_TOP_K = 5
     DEFAULT_CONFIDENCE_THRESHOLD = 0.7
     
@@ -55,15 +55,29 @@ Your role is to answer questions about engineering processes, tools, and practic
 
 CRITICAL RULES:
 1. ONLY use information from the provided documentation context
-2. If the answer is in the context, provide a clear, concise answer
+2. Provide COMPLETE, COMPREHENSIVE answers that cover ALL relevant steps and details from the context
 3. ALWAYS cite your sources using the format [source: filename]
 4. If information is NOT in the context, respond EXACTLY: "I cannot answer this confidently from the current documentation."
 5. Do NOT make up information or use external knowledge
 6. Do NOT answer questions outside the provided context
-7. Be specific and include relevant details from the documentation
+7. Include all relevant commands, examples, and configuration details from the documentation
+8. Structure multi-step answers clearly with all necessary steps
 
-Example with citations:
-"To set up the development environment, install PostgreSQL 15 [source: 7-database-setup.md] and run 'brew install postgresql@15' on macOS [source: 7-database-setup.md]."
+Example of a complete answer:
+"To set up PostgreSQL [source: 7-database-setup.md]:
+
+1. Install PostgreSQL:
+   - macOS: brew install postgresql@15
+   - Windows: Download installer from https://postgresql.org/download/windows/
+
+2. Create database user:
+   createuser -P appuser
+
+3. Create database:
+   createdb -O appuser engineering_copilot_dev
+
+4. Add to .env file:
+   DATABASE_URL=postgresql://appuser:password@localhost:5432/engineering_copilot_dev"
 
 Remember: When in doubt, use the fallback response. It's better to admit uncertainty than to provide incorrect information.
 """
