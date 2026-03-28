@@ -160,7 +160,7 @@ If any of these are NOT complete:
 ### Agile Artifacts
 
 - [ ] Sprint goals documented for each sprint
-- [ ] Sprint reviews completed (demo to yourself as PO)
+- [ ] Sprint reviews completed (written acceptance notes, no video needed for solo)
 - [ ] Sprint retrospectives documented
 - [ ] Artifacts stored in `/docs/sprints/sprint-{N}/`
 
@@ -180,8 +180,10 @@ Even as a solo developer, maintain formal Scrum structure to align with Quantic 
 
 - Sprint Goal (one-sentence objective)
 - Sprint Backlog (user stories with acceptance criteria)
-- Sprint Review notes (demo to yourself as PO, acceptance decisions)
+- Sprint Review notes (written acceptance decisions, no video recording needed)
 - Sprint Retrospective notes (what went well, what to improve)
+
+**Note**: Only ONE demo video is required - the final 15-20 minute capstone presentation at project completion. Sprint reviews for solo projects are just written documentation.
 
 **Deliverables Location**: Store in `/docs/sprints/sprint-{N}/` with:
 

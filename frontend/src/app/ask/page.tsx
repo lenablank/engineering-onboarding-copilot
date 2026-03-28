@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 
 interface AskResponse {
   answer: string;
@@ -11,11 +11,11 @@ interface AskResponse {
 
 interface ErrorState {
   message: string;
-  type: 'error' | 'warning';
+  type: "error" | "warning";
 }
 
 export default function AskPage() {
-  const [question, setQuestion] = useState('');
+  const [question, setQuestion] = useState("");
   const [response, setResponse] = useState<AskResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ErrorState | null>(null);
@@ -23,15 +23,18 @@ export default function AskPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validation
     if (!question.trim()) {
-      setError({ message: 'Please enter a question', type: 'warning' });
+      setError({ message: "Please enter a question", type: "warning" });
       return;
     }
 
     if (question.length > 500) {
-      setError({ message: 'Question must be 500 characters or less', type: 'warning' });
+      setError({
+        message: "Question must be 500 characters or less",
+        type: "warning",
+      });
       return;
     }
 
@@ -41,32 +44,39 @@ export default function AskPage() {
     setLoading(true);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
       const res = await fetch(`${apiUrl}/ask`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ question: question.trim() }),
       });
 
       if (!res.ok) {
-        const errorData = await res.json().catch(() => ({ detail: 'Unknown error' }));
-        throw new Error(errorData.detail || `HTTP ${res.status}: ${res.statusText}`);
+        const errorData = await res
+          .json()
+          .catch(() => ({ detail: "Unknown error" }));
+        throw new Error(
+          errorData.detail || `HTTP ${res.status}: ${res.statusText}`,
+        );
       }
 
       const data: AskResponse = await res.json();
       setResponse(data);
-      
+
       // Auto-expand sources if confidence is low
       if (data.confidence < 0.6) {
         setShowSources(true);
       }
     } catch (err) {
-      console.error('Error asking question:', err);
+      console.error("Error asking question:", err);
       setError({
-        message: err instanceof Error ? err.message : 'Failed to get answer. Please check if the backend is running.',
-        type: 'error'
+        message:
+          err instanceof Error
+            ? err.message
+            : "Failed to get answer. Please check if the backend is running.",
+        type: "error",
       });
     } finally {
       setLoading(false);
@@ -74,7 +84,7 @@ export default function AskPage() {
   };
 
   const handleClear = () => {
-    setQuestion('');
+    setQuestion("");
     setResponse(null);
     setError(null);
     setShowSources(false);
@@ -96,7 +106,10 @@ export default function AskPage() {
         {/* Question Input */}
         <form onSubmit={handleSubmit} className="mb-6">
           <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
-            <label htmlFor="question" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label
+              htmlFor="question"
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+            >
               Your Question
             </label>
             <textarea
@@ -129,7 +142,7 @@ export default function AskPage() {
                   disabled={loading || !question.trim()}
                   className="px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  {loading ? 'Thinking...' : 'Ask'}
+                  {loading ? "Thinking..." : "Ask"}
                 </button>
               </div>
             </div>
@@ -150,32 +163,40 @@ export default function AskPage() {
 
         {/* Error State */}
         {error && (
-          <div className={`rounded-lg shadow-lg p-6 mb-6 ${
-            error.type === 'error' 
-              ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800' 
-              : 'bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800'
-          }`}>
+          <div
+            className={`rounded-lg shadow-lg p-6 mb-6 ${
+              error.type === "error"
+                ? "bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800"
+                : "bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800"
+            }`}
+          >
             <div className="flex items-start gap-3">
               <span className="text-2xl">
-                {error.type === 'error' ? '❌' : '⚠️'}
+                {error.type === "error" ? "❌" : "⚠️"}
               </span>
               <div>
-                <h3 className={`font-semibold mb-1 ${
-                  error.type === 'error' 
-                    ? 'text-red-800 dark:text-red-400' 
-                    : 'text-yellow-800 dark:text-yellow-400'
-                }`}>
-                  {error.type === 'error' ? 'Error' : 'Warning'}
+                <h3
+                  className={`font-semibold mb-1 ${
+                    error.type === "error"
+                      ? "text-red-800 dark:text-red-400"
+                      : "text-yellow-800 dark:text-yellow-400"
+                  }`}
+                >
+                  {error.type === "error" ? "Error" : "Warning"}
                 </h3>
-                <p className={error.type === 'error' 
-                  ? 'text-red-700 dark:text-red-300' 
-                  : 'text-yellow-700 dark:text-yellow-300'
-                }>
+                <p
+                  className={
+                    error.type === "error"
+                      ? "text-red-700 dark:text-red-300"
+                      : "text-yellow-700 dark:text-yellow-300"
+                  }
+                >
                   {error.message}
                 </p>
-                {error.type === 'error' && (
+                {error.type === "error" && (
                   <p className="text-sm text-red-600 dark:text-red-400 mt-2">
-                    💡 Tip: Make sure the backend server is running on {process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}
+                    💡 Tip: Make sure the backend server is running on{" "}
+                    {process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}
                   </p>
                 )}
               </div>
@@ -197,13 +218,15 @@ export default function AskPage() {
                   <span className="text-sm text-slate-600 dark:text-slate-400">
                     Confidence:
                   </span>
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    response.confidence >= 0.7 
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                      : response.confidence >= 0.5
-                      ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
-                      : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                  }`}>
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      response.confidence >= 0.7
+                        ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                        : response.confidence >= 0.5
+                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                          : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+                    }`}
+                  >
                     {(response.confidence * 100).toFixed(0)}%
                   </span>
                 </div>
@@ -235,15 +258,15 @@ export default function AskPage() {
                   Source Documents
                 </h3>
                 <span className="text-slate-600 dark:text-slate-400">
-                  {showSources ? '▼' : '▶'}
+                  {showSources ? "▼" : "▶"}
                 </span>
               </button>
-              
+
               {showSources && (
                 <div className="px-6 pb-4">
                   <div className="space-y-2">
                     {response.sources.map((source, index) => {
-                      const filename = source.split('/').pop() || source;
+                      const filename = source.split("/").pop() || source;
                       return (
                         <div
                           key={index}
@@ -264,7 +287,9 @@ export default function AskPage() {
                   {response.confidence < 0.6 && (
                     <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
                       <p className="text-sm text-yellow-800 dark:text-yellow-400">
-                        ℹ️ Low confidence score. The answer may not be fully accurate. Consider rephrasing your question or checking the source documents.
+                        ℹ️ Low confidence score. The answer may not be fully
+                        accurate. Consider rephrasing your question or checking
+                        the source documents.
                       </p>
                     </div>
                   )}
@@ -281,7 +306,8 @@ export default function AskPage() {
             <p className="text-sm">
               Ask any question about engineering processes, tools, or practices.
               <br />
-              The system will search through documentation and provide answers with sources.
+              The system will search through documentation and provide answers
+              with sources.
             </p>
           </div>
         )}

@@ -10,7 +10,8 @@ export default function Home() {
             Engineering Onboarding Copilot
           </h1>
           <p className="text-xl text-slate-600 dark:text-slate-400">
-            Your AI-powered guide to engineering processes, tools, and best practices
+            Your AI-powered guide to engineering processes, tools, and best
+            practices
           </p>
         </div>
 

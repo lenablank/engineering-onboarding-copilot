@@ -324,13 +324,13 @@ Store in `/docs/sprints/sprint-{N}/`:
 
 **Tasks**:
 
-- [ ] Create demo script (15-20 min presentation structure)
+- [ ] Create final demo script (15-20 min presentation structure)
 - [ ] Prepare demo questions showcasing:
   - Successful Q&A with citations
   - Gap detection in action
   - Sources transparency
   - Metrics overview
-- [ ] **Record draft demo video** (rehearsal - allows re-recording if needed)
+- [ ] **Record draft capstone demo video** (rehearsal - allows re-recording if needed)
 - [ ] Verify README.md has:
   - Project overview
   - Setup instructions
@@ -343,7 +343,7 @@ Store in `/docs/sprints/sprint-{N}/`:
 
 **Deliverables**:
 
-- Draft demo video recorded (15-20 min)
+- Draft capstone demo video recorded (15-20 min with ID shown, face visible)
 - README.md complete
 - DESIGN_AND_TESTING.md complete
 - Sprint artifacts for all sprints (0, 1, 2, 3)
@@ -362,10 +362,12 @@ Store in `/docs/sprints/sprint-{N}/`:
   - Input validation working
   - CORS configured
   - No stack traces in production
-- [ ] **Record final demo video** (or use draft from Week 3 if sufficient):
-  - Government-issued ID shown clearly
-  - Face visible throughout
-  - Professional presentation
+- [ ] **Record final capstone demo video** (or use draft from Week 3 if sufficient):
+  - 15-20 minutes long
+  - Government-issued ID shown clearly at start
+  - Face visible throughout presentation
+  - Professional screen share + voiceover
+  - Demonstrate all functional capabilities
 - [ ] **ALL WORK COMPLETE BY MAY 24** (personal deadline)
 - [ ] **Capstone submission ready**:
   - CAPSTONE_SUBMISSION_LINKS.md populated
@@ -433,7 +435,6 @@ See Sprint 0 section above for detailed breakdown. Key focus:
 
 ### Per Sprint
 
-- [ ] Sprint goal demo recorded (video or screenshots + notes)
 - [ ] Sprint review notes written (`/docs/sprints/sprint-N/sprint-review.md`)
 - [ ] Sprint retrospective notes written (`/docs/sprints/sprint-N/sprint-retro.md`)
 - [ ] Trello board updated (all done cards moved, next sprint populated)
@@ -442,6 +443,8 @@ See Sprint 0 section above for detailed breakdown. Key focus:
 - [ ] Evaluation run completed (if Sprint 2 or later)
 - [ ] No incomplete user stories marked as "Done" (be honest)
 
+**Note**: No video recording needed for sprint reviews (solo project). Only final capstone demo video required.
+
 ---
 
 ## 📆 Weekly Cadence
@@ -449,7 +452,7 @@ See Sprint 0 section above for detailed breakdown. Key focus:
 **Monday**: Sprint planning (if starting new sprint), review backlog  
 **Wednesday**: Mid-sprint check-in, adjust if blocked  
 **Friday**: Weekly review, update Trello, plan next week  
-**End of Sprint**: Sprint review (demo to self as PO), retrospective (write notes)
+**End of Sprint**: Sprint review (written acceptance notes), retrospective (written reflections)
 
 ---
 
