@@ -45,6 +45,9 @@ class RAGService:
     MIN_SOURCES = 2  # Minimum unique source files
     MIN_SIMILARITY_SCORE = 0.3  # Minimum similarity for any chunk
     
+    # Fallback response message
+    FALLBACK_MESSAGE = "I cannot answer this confidently from the current documentation."
+    
     # System prompt with citation instructions
     SYSTEM_PROMPT = """You are a helpful engineering documentation assistant for an onboarding system.
 
@@ -54,12 +57,15 @@ CRITICAL RULES:
 1. ONLY use information from the provided documentation context
 2. If the answer is in the context, provide a clear, concise answer
 3. ALWAYS cite your sources using the format [source: filename]
-4. If information is NOT in the context, respond: "I cannot answer this confidently from the current documentation."
+4. If information is NOT in the context, respond EXACTLY: "I cannot answer this confidently from the current documentation."
 5. Do NOT make up information or use external knowledge
-6. Be specific and include relevant details from the documentation
+6. Do NOT answer questions outside the provided context
+7. Be specific and include relevant details from the documentation
 
 Example with citations:
 "To set up the development environment, install PostgreSQL 15 [source: 7-database-setup.md] and run 'brew install postgresql@15' on macOS [source: 7-database-setup.md]."
+
+Remember: When in doubt, use the fallback response. It's better to admit uncertainty than to provide incorrect information.
 """
     
     def __init__(
@@ -225,6 +231,34 @@ Answer (with source citations):""")
         
         return "\n".join(context_parts)
     
+    def _create_fallback_response(
+        self,
+        question: str,
+        documents: Optional[List[Document]] = None,
+        confidence: float = 0.0
+    ) -> RAGResponse:
+        """
+        Create a fallback response when unable to answer confidently.
+        
+        Args:
+            question: Original question
+            documents: Retrieved documents (if any)
+            confidence: Calculated confidence score
+            
+        Returns:
+            RAGResponse with fallback message
+        """
+        sources = self._format_sources(documents) if documents else []
+        chunks_count = len(documents) if documents else 0
+        
+        return RAGResponse(
+            question=question,
+            answer=self.FALLBACK_MESSAGE,
+            sources=sources,
+            confidence=confidence,
+            retrieved_chunks=chunks_count
+        )
+    
     def ask(self, question: str) -> RAGResponse:
         """
         Answer a question using RAG pipeline.
@@ -262,13 +296,7 @@ Answer (with source citations):""")
         
         if not docs_with_scores:
             logger.warning("No relevant documents found")
-            return RAGResponse(
-                question=question,
-                answer="I cannot answer this confidently from the current documentation.",
-                sources=[],
-                confidence=0.0,
-                retrieved_chunks=0
-            )
+            return self._create_fallback_response(question)
         
         # Extract documents and calculate confidence
         documents = [doc for doc, _ in docs_with_scores]
@@ -279,15 +307,16 @@ Answer (with source citations):""")
             filename = os.path.basename(doc.metadata.get("source", "unknown"))
             logger.debug(f"  [{idx+1}] {filename} (distance: {score:.3f})")
         
-        # Step 2: Check confidence threshold
+        # Step 2: Check confidence threshold (gating mechanism)
         if confidence < self.confidence_threshold:
-            logger.info(f"Confidence {confidence:.2f} below threshold {self.confidence_threshold}")
-            return RAGResponse(
+            logger.info(
+                f"Confidence {confidence:.2f} below threshold {self.confidence_threshold}. "
+                "Returning fallback response to prevent hallucination."
+            )
+            return self._create_fallback_response(
                 question=question,
-                answer="I cannot answer this confidently from the current documentation.",
-                sources=self._format_sources(documents),
-                confidence=confidence,
-                retrieved_chunks=len(documents)
+                documents=documents,
+                confidence=confidence
             )
         
         # Step 3: Build context and generate answer
