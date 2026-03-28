@@ -40,6 +40,11 @@ class RAGService:
     DEFAULT_RETRIEVAL_TOP_K = 5
     DEFAULT_CONFIDENCE_THRESHOLD = 0.7
     
+    # Confidence calculation thresholds
+    MIN_CONTEXT_WORDS = 50  # Minimum words in retrieved context
+    MIN_SOURCES = 2  # Minimum unique source files
+    MIN_SIMILARITY_SCORE = 0.3  # Minimum similarity for any chunk
+    
     # System prompt with citation instructions
     SYSTEM_PROMPT = """You are a helpful engineering documentation assistant for an onboarding system.
 
@@ -143,7 +148,12 @@ Answer (with source citations):""")
         documents_with_scores: List[Tuple[Document, float]]
     ) -> float:
         """
-        Calculate confidence score based on retrieval similarity.
+        Calculate confidence score based on retrieval quality.
+        
+        Factors considered:
+        1. Similarity scores (higher = better)
+        2. Number of unique sources (more = better)
+        3. Context sufficiency (enough words retrieved)
         
         Args:
             documents_with_scores: List of (document, similarity_score) tuples
@@ -154,12 +164,47 @@ Answer (with source citations):""")
         if not documents_with_scores:
             return 0.0
         
-        # Average similarity score (Chroma returns distance, lower is better)
+        # Factor 1: Average similarity score
         # Convert distance to similarity: similarity = 1 / (1 + distance)
         similarities = [1 / (1 + score) for _, score in documents_with_scores]
         avg_similarity = sum(similarities) / len(similarities)
         
-        return round(avg_similarity, 2)
+        # Check minimum similarity threshold
+        if avg_similarity < self.MIN_SIMILARITY_SCORE:
+            logger.debug(f"Low similarity: {avg_similarity:.2f} < {self.MIN_SIMILARITY_SCORE}")
+            return round(avg_similarity * 0.5, 2)  # Penalize low similarity
+        
+        # Factor 2: Unique sources count (diversity of information)
+        unique_sources = set(
+            doc.metadata.get("source", "unknown") 
+            for doc, _ in documents_with_scores
+        )
+        source_diversity = min(len(unique_sources) / self.MIN_SOURCES, 1.0)
+        
+        # Factor 3: Context sufficiency (total words retrieved)
+        total_words = sum(
+            len(doc.page_content.split()) 
+            for doc, _ in documents_with_scores
+        )
+        context_sufficiency = min(total_words / self.MIN_CONTEXT_WORDS, 1.0)
+        
+        # Weighted combination:
+        # - Similarity: 50% (most important)
+        # - Source diversity: 25%
+        # - Context sufficiency: 25%
+        confidence = (
+            0.5 * avg_similarity +
+            0.25 * source_diversity +
+            0.25 * context_sufficiency
+        )
+        
+        logger.debug(
+            f"Confidence calculation: sim={avg_similarity:.2f}, "
+            f"sources={len(unique_sources)}, words={total_words}, "
+            f"final={confidence:.2f}"
+        )
+        
+        return round(confidence, 2)
     
     def _build_context(self, documents: List[Document]) -> str:
         """
