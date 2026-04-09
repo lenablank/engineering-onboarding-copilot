@@ -28,7 +28,10 @@ export default function AskPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ErrorState | null>(null);
   const [showSources, setShowSources] = useState(false);
-  const [viewingDocument, setViewingDocument] = useState<{ filename: string; content: string } | null>(null);
+  const [viewingDocument, setViewingDocument] = useState<{
+    filename: string;
+    content: string;
+  } | null>(null);
   const [loadingDoc, setLoadingDoc] = useState(false);
 
   const viewFullDocument = async (filename: string) => {
@@ -36,18 +39,18 @@ export default function AskPage() {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
       const res = await fetch(`${apiUrl}/docs/${filename}`);
-      
+
       if (!res.ok) {
         throw new Error(`Failed to load document: ${res.statusText}`);
       }
-      
+
       const data = await res.json();
       setViewingDocument({ filename: data.filename, content: data.content });
     } catch (err) {
       console.error("Error loading document:", err);
       setError({
         message: err instanceof Error ? err.message : "Failed to load document",
-        type: "error"
+        type: "error",
       });
     } finally {
       setLoadingDoc(false);
@@ -97,10 +100,10 @@ export default function AskPage() {
 
       const data: AskResponse = await res.json();
       setResponse(data);
-      
+
       // Save the submitted question to display with the answer
       setSubmittedQuestion(question.trim());
-      
+
       // Clear question field for next question
       setQuestion("");
 
@@ -292,36 +295,52 @@ export default function AskPage() {
               {/* Metadata */}
               <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
                 <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                  <span>📄 Based on {new Set(response.sources.map((s) => s.file_path)).size} documentation {new Set(response.sources.map((s) => s.file_path)).size === 1 ? "file" : "files"}</span>
+                  <span>
+                    📄 Based on{" "}
+                    {new Set(response.sources.map((s) => s.file_path)).size}{" "}
+                    documentation{" "}
+                    {new Set(response.sources.map((s) => s.file_path)).size ===
+                    1
+                      ? "file"
+                      : "files"}
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Sources Section */}
-            <div className={`rounded-lg shadow-lg overflow-hidden ${
-              response.confidence < 0.7 
-                ? 'bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-300 dark:border-amber-700' 
-                : 'bg-white dark:bg-slate-800'
-            }`}>
+            <div
+              className={`rounded-lg shadow-lg overflow-hidden ${
+                response.confidence < 0.7
+                  ? "bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-300 dark:border-amber-700"
+                  : "bg-white dark:bg-slate-800"
+              }`}
+            >
               <button
                 onClick={() => setShowSources(!showSources)}
                 className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
               >
                 <div className="flex-1 text-left">
-                  <h3 className={`text-lg font-semibold ${
-                    response.confidence < 0.7 
-                      ? 'text-amber-900 dark:text-amber-200' 
-                      : 'text-slate-900 dark:text-white'
-                  }`}>
-                    {response.confidence < 0.7 ? "⚠️ Source Material (Review Recommended)" : "Source Material"}
+                  <h3
+                    className={`text-lg font-semibold ${
+                      response.confidence < 0.7
+                        ? "text-amber-900 dark:text-amber-200"
+                        : "text-slate-900 dark:text-white"
+                    }`}
+                  >
+                    {response.confidence < 0.7
+                      ? "⚠️ Source Material (Review Recommended)"
+                      : "Source Material"}
                   </h3>
-                  <p className={`text-xs mt-1 ${
-                    response.confidence < 0.7 
-                      ? 'text-amber-700 dark:text-amber-400' 
-                      : 'text-slate-500 dark:text-slate-400'
-                  }`}>
-                    {response.confidence < 0.7 
-                      ? "Low confidence - check sources to verify the answer" 
+                  <p
+                    className={`text-xs mt-1 ${
+                      response.confidence < 0.7
+                        ? "text-amber-700 dark:text-amber-400"
+                        : "text-slate-500 dark:text-slate-400"
+                    }`}
+                  >
+                    {response.confidence < 0.7
+                      ? "Low confidence - check sources to verify the answer"
                       : "Optional: View documentation excerpts for additional context"}
                   </p>
                 </div>
@@ -336,10 +355,12 @@ export default function AskPage() {
                     {(() => {
                       // Group by file to show unique documents
                       const uniqueFiles = Array.from(
-                        new Set(response.sources.map((s) => s.file_path))
+                        new Set(response.sources.map((s) => s.file_path)),
                       ).map((filePath) => {
                         const filename = filePath.split("/").pop() || filePath;
-                        const count = response.sources.filter((s) => s.file_path === filePath).length;
+                        const count = response.sources.filter(
+                          (s) => s.file_path === filePath,
+                        ).length;
                         return { filePath, filename, count };
                       });
 
@@ -350,7 +371,9 @@ export default function AskPage() {
                           className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group"
                         >
                           <div className="flex items-center gap-2">
-                            <span className="text-blue-600 dark:text-blue-400 text-sm group-hover:scale-110 transition-transform">📘</span>
+                            <span className="text-blue-600 dark:text-blue-400 text-sm group-hover:scale-110 transition-transform">
+                              📘
+                            </span>
                             <span className="font-medium text-blue-600 dark:text-blue-400 text-sm group-hover:underline">
                               {file.filename}
                             </span>
@@ -441,7 +464,9 @@ export default function AskPage() {
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl p-6 flex items-center gap-3">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-            <span className="text-slate-700 dark:text-slate-300">Loading document...</span>
+            <span className="text-slate-700 dark:text-slate-300">
+              Loading document...
+            </span>
           </div>
         </div>
       )}
