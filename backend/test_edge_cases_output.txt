@@ -1,0 +1,13 @@
+/Users/lenablank/Desktop/QUANTIC /Capstone/backend/app/services/vector_store.py:100: LangChainDeprecationWarning: The class `Chroma` was deprecated in LangChain 0.2.9 and will be removed in 1.0. An updated version of the class exists in the `langchain-chroma package and should be used instead. To use it run `pip install -U `langchain-chroma` and import as `from `langchain_chroma import Chroma``.
+  self.vectorstore = Chroma(
+======================================================================
+SPRINT 2 TASK #4: EDGE CASE TESTING
+======================================================================
+
+Initializing RAG service...
+✓ RAG Service initialized
+  - Confidence threshold: 0.6
+  - Retrieval top-K: 5
+
+Indexing documents...
+  0%|          | 0/15 [00:00<?, ?it/s]100%|██████████| 15/15 [00:00<00:00, 878.07it/s]

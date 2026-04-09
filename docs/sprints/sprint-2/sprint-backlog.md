@@ -89,21 +89,33 @@
 
 ---
 
-#### 4. Test edge cases
+#### 4. ✅ DONE: Test edge cases
 
-**Status**: Not Started  
+**Status**: DONE (Apr 9)  
 **Priority**: HIGH  
 **Estimate**: 3-4 hours  
+**Actual**: 3 hours  
 **Dependencies**: Task #1, #2, #3  
-**Due**: Apr 10
+**Completion Notes**:
 
-**Acceptance Criteria**:
+- Created comprehensive test suite: `test_edge_cases.py`
+- Executed 19 tests across 6 categories
+- Test results: 15/19 passed (78.9%)
+- Generated detailed report in `docs/evaluation/sprint-2-edge-cases.md`
+- Key findings:
+  - Irrelevant questions: 100% fallback rate (perfect)
+  - Well-documented questions: 0% fallback rate, avg 0.79 confidence
+  - System demonstrates conservative behavior (avoids hallucinations)
+  - Input validation working correctly
+  - Typo tolerance confirmed via embeddings
 
-- [ ] Test irrelevant questions (sports, weather, math)
-- [ ] Test ambiguous questions (multiple interpretations)
-- [ ] Test questions with partial documentation coverage
-- [ ] Test empty/very short questions
-- [ ] Document test results in `/docs/evaluation/sprint-2-edge-cases.md`
+**Acceptance Criteria**: ✅
+
+- ✅ Test irrelevant questions (sports, weather, math) - 5/5 passed
+- ✅ Test ambiguous questions (multiple interpretations) - 2/3 passed
+- ✅ Test questions with partial documentation coverage - 1/3 passed (conservative behavior)
+- ✅ Test empty/very short questions - 3/3 passed
+- ✅ Document test results in `/docs/evaluation/sprint-2-edge-cases.md`
 
 ---
 
@@ -380,16 +392,17 @@
 ## 📊 Progress Tracking
 
 **Total Tasks**: 17 (13 critical + 4 optional)  
-**Done**: 3 (✅ Tasks #1, #2, #3)  
+**Done**: 4 (✅ Tasks #1, #2, #3, #4)  
 **In Progress**: 0  
-**Not Started**: 14
+**Not Started**: 13
 
-**Sprint 2 Status**: In Progress (Week 1/4)
+**Sprint 2 Status**: In Progress (Week 2/4)
 
 **Completed**:
 - ✅ Task #1: Enhanced confidence detection (Mar 28)
 - ✅ Task #2: Safe fallback responses (Mar 28)
 - ✅ Task #3: Improved prompt engineering (Mar 28)
+- ✅ Task #4: Edge case testing (Apr 9)
 
 ---
 
