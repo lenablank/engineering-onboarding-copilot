@@ -17,7 +17,7 @@ from chromadb.config import Settings
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 from langchain_core.documents import Document
 
 logger = logging.getLogger(__name__)
@@ -193,6 +193,13 @@ class VectorStoreService:
                     collection_name=self.collection_name
                 )
                 logger.info("Created fresh collection")
+        else:
+            # If not force reindexing, check if documents already exist
+            if self.vectorstore is not None:
+                existing_count = self.vectorstore._collection.count()
+                if existing_count > 0:
+                    logger.info(f"Using existing index with {existing_count} documents. Use force_reindex=True to rebuild.")
+                    return existing_count
         
         # Load and chunk documents
         documents = self.load_documents(docs_directory)

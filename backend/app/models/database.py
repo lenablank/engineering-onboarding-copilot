@@ -4,8 +4,7 @@ Database configuration and session management.
 import os
 from typing import Generator
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker, Session, DeclarativeBase
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -22,8 +21,11 @@ engine = create_engine(DATABASE_URL, connect_args=connect_args)
 # Create session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Create base class for models
-Base = declarative_base()
+
+# Create base class for models using SQLAlchemy 2.0 style
+class Base(DeclarativeBase):
+    """Base class for all database models."""
+    pass
 
 
 def get_db() -> Generator[Session, None, None]:
