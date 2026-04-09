@@ -141,7 +141,8 @@
 #### 6. Set up Postgres database
 
 **Status**: Not Started  
-**Priority**: CRITICAL  
+**Priority**: CRITICAL
+
 #### 6. ✅ DONE: Set up database for Gap Radar
 
 **Status**: DONE (Apr 9)  
@@ -169,6 +170,7 @@
 - ✅ Database file created: `gaps.db`
 
 **Technical Implementation**:
+
 - Files created:
   - `app/models/database.py` - Database setup & session management
   - `app/models/gap.py` - DocumentationGap model
@@ -223,7 +225,7 @@
 **Acceptance Criteria**:
 
 - [ ] Create `app/services/gap_service.py`
-- [ ] Function: `log_gap(question, confidence, chunks)` 
+- [ ] Function: `log_gap(question, confidence, chunks)`
 - [ ] Check if question already exists → increment frequency
 - [ ] New questions get status='new', frequency=1
 - [ ] Integrate with RAGService.ask() - auto-log when confidence < threshold
@@ -421,6 +423,7 @@
 **Sprint 2 Status**: In Progress (Week 2/4)
 
 **Completed**:
+
 - ✅ Task #1: Enhanced confidence detection (Mar 28)
 - ✅ Task #2: Safe fallback responses (Mar 28)
 - ✅ Task #3: Improved prompt engineering (Mar 28)
@@ -433,25 +436,33 @@
 ## 🎯 Weekly Breakdown
 
 ### Week 1 (Mar 30 - Apr 5)
+
 **Focus**: Confidence scoring foundation
+
 - Task #1: Confidence detection
 - Task #2: Fallback responses
 
 ### Week 2 (Apr 6 - Apr 12)
+
 **Focus**: Prompt improvements + edge case testing
+
 - Task #3: Prompt engineering
 - Task #4: Edge case testing
 - Task #5: Deployment docs
 
 ### Week 3 (Apr 13 - Apr 19) ⭐ CRITICAL WEEK
+
 **Focus**: Gap Radar implementation
+
 - Task #6: Postgres setup
 - Task #7: Table schema
 - Task #8: Gap logging service
 - Task #9: /gaps dashboard
 
 ### Week 4 (Apr 20 - Apr 26)
+
 **Focus**: Sources page + evaluation
+
 - Task #10: /sources page
 - Task #11: Manual sync
 - Task #12: Evaluation run

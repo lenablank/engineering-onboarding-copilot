@@ -302,8 +302,8 @@ export default function AskPage() {
                       📄 Based on{" "}
                       {new Set(response.sources.map((s) => s.file_path)).size}{" "}
                       documentation{" "}
-                      {new Set(response.sources.map((s) => s.file_path)).size ===
-                      1
+                      {new Set(response.sources.map((s) => s.file_path))
+                        .size === 1
                         ? "file"
                         : "files"}
                     </span>
@@ -321,84 +321,85 @@ export default function AskPage() {
                     : "bg-white dark:bg-slate-800"
                 }`}
               >
-              <button
-                onClick={() => setShowSources(!showSources)}
-                className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
-              >
-                <div className="flex-1 text-left">
-                  <h3
-                    className={`text-lg font-semibold ${
-                      response.confidence < 0.7
-                        ? "text-amber-900 dark:text-amber-200"
-                        : "text-slate-900 dark:text-white"
-                    }`}
-                  >
-                    {response.confidence < 0.7
-                      ? "⚠️ Source Material (Review Recommended)"
-                      : "Source Material"}
-                  </h3>
-                  <p
-                    className={`text-xs mt-1 ${
-                      response.confidence < 0.7
-                        ? "text-amber-700 dark:text-amber-400"
-                        : "text-slate-500 dark:text-slate-400"
-                    }`}
-                  >
-                    {response.confidence < 0.7
-                      ? "Low confidence - check sources to verify the answer"
-                      : "Optional: View documentation excerpts for additional context"}
-                  </p>
-                </div>
-                <span className="text-slate-600 dark:text-slate-400">
-                  {showSources ? "▼" : "▶"}
-                </span>
-              </button>
-
-              {showSources && (
-                <div className="px-6 pb-4">
-                  <div className="space-y-2">
-                    {(() => {
-                      // Group by file to show unique documents
-                      const uniqueFiles = Array.from(
-                        new Set(response.sources.map((s) => s.file_path)),
-                      ).map((filePath) => {
-                        const filename = filePath.split("/").pop() || filePath;
-                        const count = response.sources.filter(
-                          (s) => s.file_path === filePath,
-                        ).length;
-                        return { filePath, filename, count };
-                      });
-
-                      return uniqueFiles.map((file) => (
-                        <button
-                          key={file.filePath}
-                          onClick={() => viewFullDocument(file.filename)}
-                          className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group"
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="text-blue-600 dark:text-blue-400 text-sm group-hover:scale-110 transition-transform">
-                              📘
-                            </span>
-                            <span className="font-medium text-blue-600 dark:text-blue-400 text-sm group-hover:underline">
-                              {file.filename}
-                            </span>
-                          </div>
-                        </button>
-                      ));
-                    })()}
+                <button
+                  onClick={() => setShowSources(!showSources)}
+                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                >
+                  <div className="flex-1 text-left">
+                    <h3
+                      className={`text-lg font-semibold ${
+                        response.confidence < 0.7
+                          ? "text-amber-900 dark:text-amber-200"
+                          : "text-slate-900 dark:text-white"
+                      }`}
+                    >
+                      {response.confidence < 0.7
+                        ? "⚠️ Source Material (Review Recommended)"
+                        : "Source Material"}
+                    </h3>
+                    <p
+                      className={`text-xs mt-1 ${
+                        response.confidence < 0.7
+                          ? "text-amber-700 dark:text-amber-400"
+                          : "text-slate-500 dark:text-slate-400"
+                      }`}
+                    >
+                      {response.confidence < 0.7
+                        ? "Low confidence - check sources to verify the answer"
+                        : "Optional: View documentation excerpts for additional context"}
+                    </p>
                   </div>
-                  {response.confidence < 0.6 && (
-                    <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                      <p className="text-sm text-yellow-800 dark:text-yellow-400">
-                        ℹ️ Low confidence score. The answer may not be fully
-                        accurate. Consider rephrasing your question or checking
-                        the source documents.
-                      </p>
+                  <span className="text-slate-600 dark:text-slate-400">
+                    {showSources ? "▼" : "▶"}
+                  </span>
+                </button>
+
+                {showSources && (
+                  <div className="px-6 pb-4">
+                    <div className="space-y-2">
+                      {(() => {
+                        // Group by file to show unique documents
+                        const uniqueFiles = Array.from(
+                          new Set(response.sources.map((s) => s.file_path)),
+                        ).map((filePath) => {
+                          const filename =
+                            filePath.split("/").pop() || filePath;
+                          const count = response.sources.filter(
+                            (s) => s.file_path === filePath,
+                          ).length;
+                          return { filePath, filename, count };
+                        });
+
+                        return uniqueFiles.map((file) => (
+                          <button
+                            key={file.filePath}
+                            onClick={() => viewFullDocument(file.filename)}
+                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="text-blue-600 dark:text-blue-400 text-sm group-hover:scale-110 transition-transform">
+                                📘
+                              </span>
+                              <span className="font-medium text-blue-600 dark:text-blue-400 text-sm group-hover:underline">
+                                {file.filename}
+                              </span>
+                            </div>
+                          </button>
+                        ));
+                      })()}
                     </div>
-                  )}
-                </div>
-              )}
-            </div>
+                    {response.confidence < 0.6 && (
+                      <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                        <p className="text-sm text-yellow-800 dark:text-yellow-400">
+                          ℹ️ Low confidence score. The answer may not be fully
+                          accurate. Consider rephrasing your question or
+                          checking the source documents.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             )}
           </div>
         )}
