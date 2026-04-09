@@ -19,10 +19,14 @@ from langchain_community.vectorstores import Chroma
 from app.services.vector_store import VectorStoreService
 from app.services.rag_service import RAGService
 from app.utils.logging import setup_logging
+from app.models.database import init_db
+import logging
 
 # Load environment variables and setup logging
 load_dotenv()
 setup_logging(level="INFO")
+
+logger = logging.getLogger(__name__)
 
 
 # Pydantic models for /ask endpoint
@@ -62,6 +66,19 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize database and other startup tasks."""
+    logger.info("Initializing database...")
+    try:
+        init_db()
+        logger.info("✓ Database initialized successfully")
+    except Exception as e:
+        logger.error(f"✗ Database initialization failed: {e}")
+        # Don't fail startup - allow app to run without database
+        # Gap Radar features will be unavailable but RAG still works
 
 
 @app.get("/")

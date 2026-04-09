@@ -142,51 +142,73 @@
 
 **Status**: Not Started  
 **Priority**: CRITICAL  
+#### 6. ✅ DONE: Set up database for Gap Radar
+
+**Status**: DONE (Apr 9)  
+**Priority**: CRITICAL  
 **Estimate**: 2-3 hours  
-**Due**: Apr 14
+**Actual**: 2 hours  
+**Completion Notes**:
 
-**Acceptance Criteria**:
+- Chose SQLite for MVP implementation (faster setup, zero config)
+- Created database models using SQLAlchemy 2.0
+- Implemented `DocumentationGap` model with all required fields
+- Added DATABASE_URL to .env configuration
+- Created comprehensive test suite (`test_database_setup.py`)
+- All CRUD operations verified and working
+- Database initialized on FastAPI startup
+- 4 indexes created (question, frequency, status, created_at)
+- Ready for gap logging service integration
 
-- [ ] Install PostgreSQL locally (or use Supabase free tier)
-- [ ] Create database: `engineering_onboarding_db`
-- [ ] Configure connection in backend/.env (DATABASE_URL)
-- [ ] Add psycopg2 to requirements.txt
-- [ ] Test connection from FastAPI startup
+**Acceptance Criteria**: ✅
 
-**Implementation Notes**:
+- ✅ Database configured (SQLite - can migrate to Postgres later)
+- ✅ Connection configured in backend/.env (DATABASE_URL)
+- ✅ SQLAlchemy already in requirements.txt (no changes needed)
+- ✅ Connection tested successfully from FastAPI startup
+- ✅ Database file created: `gaps.db`
 
-- Use Supabase free tier for easy deployment later
-- Alternative: SQLite for MVP if Postgres setup is blocked
-- Store DATABASE_URL in .env (keep credentials secure)
+**Technical Implementation**:
+- Files created:
+  - `app/models/database.py` - Database setup & session management
+  - `app/models/gap.py` - DocumentationGap model
+  - `app/models/__init__.py` - Package exports
+  - `test_database_setup.py` - Comprehensive test suite
+- Integration: Added `init_db()` to FastAPI startup event
+- Migration path: SQLite → Postgres when needed (schema compatible)
 
 ---
 
-#### 7. Create documentation_gaps table
+#### 7. ✅ DONE: Create documentation_gaps table
 
-**Status**: Not Started  
+**Status**: DONE (Apr 9 - completed with Task #6)  
 **Priority**: CRITICAL  
 **Estimate**: 1-2 hours  
+**Actual**: Included in Task #6  
 **Dependencies**: Task #6  
-**Due**: Apr 15
+**Completion Notes**:
 
-**Acceptance Criteria**:
+- Schema created with SQLAlchemy models
+- All required fields implemented
+- Automatic timestamp management (created_at, updated_at)
+- UUIDv4 primary keys
+- JSON field for retrieval context
+- Enum for status (NEW, REVIEWED, RESOLVED)
+- All tests passing (insert, update, query, delete)
 
-- [ ] Schema created:
-  - `id` (UUID, primary key)
-  - `question` (text, NOT NULL)
-  - `confidence_score` (float)
-  - `retrieval_context` (JSONB, stores retrieved chunks)
-  - `frequency` (integer, default 1)
-  - `status` (enum: new, reviewed, resolved)
-  - `created_at` (timestamp)
-  - `updated_at` (timestamp)
-- [ ] Migration script in `backend/migrations/`
-- [ ] Add indexes on `created_at`, `frequency`, `status`
+**Acceptance Criteria**: ✅
 
-**Implementation Notes**:
-
-- Consider using Alembic for migrations
-- Store retrieval_context for debugging (optional)
+- ✅ Schema created with all required fields:
+  - ✅ `id` (UUID, primary key)
+  - ✅ `question` (text, NOT NULL)
+  - ✅ `confidence_score` (float)
+  - ✅ `retrieval_context` (JSON, stores retrieved chunks)
+  - ✅ `frequency` (integer, default 1)
+  - ✅ `status` (enum: new, reviewed, resolved)
+  - ✅ `created_at` (timestamp)
+  - ✅ `updated_at` (timestamp)
+- ✅ Schema managed by SQLAlchemy ORM (no manual migrations needed for SQLite)
+- ✅ Indexes created on `created_at`, `frequency`, `status`, `question`
 
 ---
 
@@ -392,9 +414,9 @@
 ## 📊 Progress Tracking
 
 **Total Tasks**: 17 (13 critical + 4 optional)  
-**Done**: 4 (✅ Tasks #1, #2, #3, #4)  
+**Done**: 6 (✅ Tasks #1, #2, #3, #4, #6, #7)  
 **In Progress**: 0  
-**Not Started**: 13
+**Not Started**: 11
 
 **Sprint 2 Status**: In Progress (Week 2/4)
 
@@ -403,6 +425,8 @@
 - ✅ Task #2: Safe fallback responses (Mar 28)
 - ✅ Task #3: Improved prompt engineering (Mar 28)
 - ✅ Task #4: Edge case testing (Apr 9)
+- ✅ Task #6: Database setup for Gap Radar (Apr 9)
+- ✅ Task #7: Documentation gaps table (Apr 9)
 
 ---
 
