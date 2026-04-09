@@ -16,6 +16,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.documents import Document
 
 from .vector_store import VectorStoreService
+from .gap_service import GapService
 
 logger = logging.getLogger(__name__)
 
@@ -138,6 +139,9 @@ Remember: Be confident with documented information. Only use the fallback when t
         """
         # Initialize vector store
         self.vector_store = vector_store or VectorStoreService()
+        
+        # Initialize gap logging service
+        self.gap_service = GapService()
         
         # LLM configuration
         self.model = model or os.getenv("LLM_MODEL", "llama-3.1-8b-instant")
@@ -361,6 +365,26 @@ Answer:""")
                 f"Confidence {confidence:.2f} below threshold {self.confidence_threshold}. "
                 "Returning fallback response to prevent hallucination."
             )
+            
+            # Log this as a documentation gap for tracking
+            try:
+                retrieval_context = [
+                    {
+                        "content": doc.page_content[:200],  # First 200 chars
+                        "source": doc.metadata.get("source", "unknown"),
+                        "distance": score
+                    }
+                    for doc, score in docs_with_scores[:3]  # Top 3 chunks only
+                ]
+                self.gap_service.log_gap(
+                    question=question,
+                    confidence_score=confidence,
+                    retrieval_context=retrieval_context
+                )
+            except Exception as e:
+                # Don't fail the request if gap logging fails
+                logger.error(f"Failed to log documentation gap: {e}")
+            
             # Set confidence to near-zero for fallback (question is out of scope)
             fallback_confidence = 0.05  # 5% - signals complete uncertainty
             return self._create_fallback_response(

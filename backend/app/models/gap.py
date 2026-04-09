@@ -5,10 +5,9 @@ This is the core of the "Documentation Gap Radar" feature - our capstone differe
 """
 import uuid
 from datetime import datetime
-from typing import Optional
-from sqlalchemy import Column, String, Float, Integer, DateTime, JSON, Enum as SQLEnum
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.dialects.sqlite import JSON as SQLiteJSON
+from typing import Optional, List, Dict, Any
+from sqlalchemy import String, Float, Integer, DateTime, JSON, Enum as SQLEnum
+from sqlalchemy.orm import Mapped, mapped_column
 import enum
 
 from app.models.database import Base
@@ -38,39 +37,40 @@ class DocumentationGap(Base):
     __tablename__ = "documentation_gaps"
     
     # Primary key - using UUID for better scalability
-    id = Column(
+    id: Mapped[str] = mapped_column(
         String(36),  # UUID as string for SQLite compatibility
         primary_key=True,
         default=lambda: str(uuid.uuid4()),
-        nullable=False
     )
     
     # The question that triggered low confidence
-    question = Column(String(500), nullable=False, index=True)
+    question: Mapped[str] = mapped_column(String(500), index=True)
+    
+    # Hash of normalized question for fast duplicate detection
+    question_hash: Mapped[Optional[str]] = mapped_column(String(64), index=True, default=None)
     
     # Confidence score that was calculated (0.0 to 1.0)
-    confidence_score = Column(Float, nullable=False)
+    confidence_score: Mapped[float] = mapped_column(Float)
     
     # How many times this question (or similar) has been asked
     # Incremented when duplicate/similar question is detected
-    frequency = Column(Integer, default=1, nullable=False, index=True)
+    frequency: Mapped[int] = mapped_column(Integer, default=1, index=True)
     
     # Status tracking for gap resolution
-    status = Column(
+    status: Mapped[GapStatus] = mapped_column(
         SQLEnum(GapStatus),
         default=GapStatus.NEW,
-        nullable=False,
         index=True
     )
     
     # Optional: Store the retrieval context (what chunks were found)
     # This helps debug why confidence was low
     # Stored as JSON: [{"chunk_id": 1, "content": "...", "score": 0.5}, ...]
-    retrieval_context = Column(JSON, nullable=True)
+    retrieval_context: Mapped[Optional[List[Dict[str, Any]]]] = mapped_column(JSON, default=None)
     
     # Timestamps
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     def __repr__(self) -> str:
         """String representation of the gap."""
@@ -91,6 +91,6 @@ class DocumentationGap(Base):
             "frequency": self.frequency,
             "status": self.status.value,
             "retrieval_context": self.retrieval_context,
-            "created_at": self.created_at.isoformat() if self.created_at else None,
-            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
         }

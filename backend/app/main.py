@@ -20,6 +20,7 @@ from app.services.vector_store import VectorStoreService
 from app.services.rag_service import RAGService
 from app.utils.logging import setup_logging
 from app.models.database import init_db
+from app.routes import gaps
 import logging
 
 # Load environment variables and setup logging
@@ -67,6 +68,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Include routers
+app.include_router(gaps.router)
+
 
 @app.on_event("startup")
 async def startup_event():
@@ -87,11 +91,15 @@ def root() -> dict[str, Any]:
     return {
         "name": "Engineering Onboarding Copilot API",
         "version": "1.0.0",
-        "status": "Sprint 1 - Full RAG Pipeline",
+        "status": "Sprint 2 - Gap Radar Implementation",
         "endpoints": {
             "health": "/health",
             "ask": "/ask (POST)",
-            "docs": "/docs/{filename} (GET)",
+            "gaps": "/api/gaps (GET)",
+            "gap_details": "/api/gaps/{id} (GET)",
+            "gap_stats": "/api/gaps/stats (GET)",
+            "update_gap": "/api/gaps/{id}/status (PATCH)",
+            "docs": "/docs (Swagger UI)",
             "prove_pipeline": "/prove-pipeline",
         },
     }
