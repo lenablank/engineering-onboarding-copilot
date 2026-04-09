@@ -345,10 +345,10 @@ async def startup_event():
         )
         logger.info(f"Indexed {num_chunks} document chunks")
         
-        # Initialize RAG service with lower confidence threshold for testing
+        # Initialize RAG service with production confidence threshold
         rag_service = RAGService(
             vector_store=vector_store,
-            confidence_threshold=0.4  # TODO: Tune this value based on testing
+            confidence_threshold=0.7  # Production: 70% minimum confidence
         )
         
         logger.info("RAG service initialized successfully!")

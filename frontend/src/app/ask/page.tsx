@@ -262,27 +262,29 @@ export default function AskPage() {
 
             {/* Main Answer Card */}
             <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
-              {/* Confidence Badge */}
+              {/* Confidence Badge - Only show for actual answers with sources */}
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
                   Answer
                 </h2>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-slate-600 dark:text-slate-400">
-                    Confidence:
-                  </span>
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      response.confidence >= 0.7
-                        ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                        : response.confidence >= 0.5
-                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-                          : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
-                    }`}
-                  >
-                    {(response.confidence * 100).toFixed(0)}%
-                  </span>
-                </div>
+                {response.sources.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-slate-600 dark:text-slate-400">
+                      Confidence:
+                    </span>
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        response.confidence >= 0.7
+                          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                          : response.confidence >= 0.5
+                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                            : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+                      }`}
+                    >
+                      {(response.confidence * 100).toFixed(0)}%
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Answer Text */}
@@ -293,29 +295,32 @@ export default function AskPage() {
               </div>
 
               {/* Metadata */}
-              <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                  <span>
-                    📄 Based on{" "}
-                    {new Set(response.sources.map((s) => s.file_path)).size}{" "}
-                    documentation{" "}
-                    {new Set(response.sources.map((s) => s.file_path)).size ===
-                    1
-                      ? "file"
-                      : "files"}
-                  </span>
+              {response.sources.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                  <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                    <span>
+                      📄 Based on{" "}
+                      {new Set(response.sources.map((s) => s.file_path)).size}{" "}
+                      documentation{" "}
+                      {new Set(response.sources.map((s) => s.file_path)).size ===
+                      1
+                        ? "file"
+                        : "files"}
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
-            {/* Sources Section */}
-            <div
-              className={`rounded-lg shadow-lg overflow-hidden ${
-                response.confidence < 0.7
-                  ? "bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-300 dark:border-amber-700"
-                  : "bg-white dark:bg-slate-800"
-              }`}
-            >
+            {/* Sources Section - Only show if sources exist */}
+            {response.sources.length > 0 && (
+              <div
+                className={`rounded-lg shadow-lg overflow-hidden ${
+                  response.confidence < 0.7
+                    ? "bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-300 dark:border-amber-700"
+                    : "bg-white dark:bg-slate-800"
+                }`}
+              >
               <button
                 onClick={() => setShowSources(!showSources)}
                 className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
@@ -394,6 +399,7 @@ export default function AskPage() {
                 </div>
               )}
             </div>
+            )}
           </div>
         )}
 

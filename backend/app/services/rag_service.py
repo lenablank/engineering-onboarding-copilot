@@ -42,44 +42,78 @@ class RAGService:
     
     # Confidence calculation thresholds
     MIN_CONTEXT_WORDS = 50  # Minimum words in retrieved context
-    MIN_SOURCES = 2  # Minimum unique source files
+    MIN_SOURCES = 1  # Minimum unique source files (1 comprehensive source is fine)
     MIN_SIMILARITY_SCORE = 0.3  # Minimum similarity for any chunk
     
     # Fallback response message
-    FALLBACK_MESSAGE = "I cannot answer this confidently from the current documentation."
+    FALLBACK_MESSAGE = "I can only answer questions about the engineering documentation and processes in this knowledge base. This question appears to be outside that scope."
     
-    # System prompt with citation instructions
+    # System prompt - sources are displayed separately in the UI
     SYSTEM_PROMPT = """You are a helpful engineering documentation assistant for an onboarding system.
 
 Your role is to answer questions about engineering processes, tools, and practices using ONLY the provided documentation context.
 
 CRITICAL RULES:
-1. ONLY use information from the provided documentation context
-2. Provide COMPLETE, COMPREHENSIVE answers that cover ALL relevant steps and details from the context
-3. ALWAYS cite your sources using the format [source: filename]
-4. If information is NOT in the context, respond EXACTLY: "I cannot answer this confidently from the current documentation."
-5. Do NOT make up information or use external knowledge
-6. Do NOT answer questions outside the provided context
-7. Include all relevant commands, examples, and configuration details from the documentation
-8. Structure multi-step answers clearly with all necessary steps
+1. **USE THE PROVIDED CONTEXT** - The documentation chunks below contain the information you need
+2. For BROAD questions, provide a comprehensive overview with key details from the context
+3. For SPECIFIC questions, provide complete step-by-step answers with all relevant details
+4. If the question is COMPLETELY outside the documentation scope (e.g., weather, sports), respond EXACTLY: "I can only answer questions about the engineering documentation and processes in this knowledge base. This question appears to be outside that scope."
+5. **NEVER say "not provided in the context" if information IS in the context** - read carefully!
+6. **NEVER make up or reference documents that aren't provided** - stick to what's in the context
+7. **NEVER mention document numbers** - no "Document 1", "Documents 1-5", "across multiple documents", etc.
+8. **NO meta-commentary about sources** - focus on the answer content only; the UI shows sources separately
+9. Include all relevant commands, examples, and configuration details from the documentation
+10. Structure multi-step answers clearly with numbered lists
+11. Be CONFIDENT and COMPLETE when answering from the provided context
+
+Example - GOOD answer for "How do I deploy?":
+"We maintain three environments:
+- Development (localhost:3000) for local development
+- Staging (staging.company.com) auto-deploys on merge to develop
+- Production (app.company.com) requires manual promotion
+
+Deployment process:
+1. Development → Staging (Automatic): Merge to develop triggers GitHub Actions, runs tests, builds Docker images...
+2. Staging → Production (Manual): Verify staging, create release PR, get 2 approvals, merge to main, run deployment workflow..."
+
+Example - BAD answer (DO NOT DO THIS):
+"The documentation does not provide details... you would need to refer to [some-other-doc.md] not provided..."
+"This is mentioned in Documents 1-3..."
+"According to the provided context..."
+
+Remember: If information IS in the context, present it confidently and completely!
 
 Example of a complete answer:
-"To set up PostgreSQL [source: 7-database-setup.md]:
+"To set up PostgreSQL for local development:
 
-1. Install PostgreSQL:
-   - macOS: brew install postgresql@15
+1. Install PostgreSQL 15:
+   - macOS: `brew install postgresql@15 && brew services start postgresql@15`
    - Windows: Download installer from https://postgresql.org/download/windows/
 
 2. Create database user:
+   ```bash
    createuser -P appuser
+   # Enter password when prompted
+   ```
 
 3. Create database:
+   ```bash
    createdb -O appuser engineering_copilot_dev
+   ```
 
-4. Add to .env file:
-   DATABASE_URL=postgresql://appuser:password@localhost:5432/engineering_copilot_dev"
+4. Add to your `.env` file:
+   ```bash
+   DATABASE_URL=postgresql://appuser:password@localhost:5432/engineering_copilot_dev
+   DB_POOL_SIZE=5
+   DB_MAX_OVERFLOW=10
+   ```
 
-Remember: When in doubt, use the fallback response. It's better to admit uncertainty than to provide incorrect information.
+5. Verify connection:
+   ```bash
+   psql -U appuser -d engineering_copilot_dev -h localhost
+   ```"
+
+Remember: Be confident with documented information. Only use the fallback when the question truly cannot be answered from the context.
 """
     
     def __init__(
@@ -136,7 +170,7 @@ Remember: When in doubt, use the fallback response. It's better to admit uncerta
 
 Question: {question}
 
-Answer (with source citations):""")
+Answer:""")
         ])
         
         logger.info("RAG service initialized successfully")
@@ -184,9 +218,11 @@ Answer (with source citations):""")
         if not documents_with_scores:
             return 0.0
         
-        # Factor 1: Average similarity score
-        # Convert distance to similarity: similarity = 1 / (1 + distance)
-        similarities = [1 / (1 + score) for _, score in documents_with_scores]
+        # Factor 1: Average similarity score  
+        # ChromaDB distance calibration (empirically: 0.0=perfect, ~0.9=moderate, 2.0=no match)
+        # Convert to similarity percentage: similarity = max(0, (2 - distance) / 2)
+        raw_distances = [score for _, score in documents_with_scores]
+        similarities = [max(0, (2 - score) / 2) for _, score in documents_with_scores]
         avg_similarity = sum(similarities) / len(similarities)
         
         # Check minimum similarity threshold
@@ -209,9 +245,9 @@ Answer (with source citations):""")
         context_sufficiency = min(total_words / self.MIN_CONTEXT_WORDS, 1.0)
         
         # Weighted combination:
-        # - Similarity: 50% (most important)
-        # - Source diversity: 25%
-        # - Context sufficiency: 25%
+        # - Similarity: 50% (primary - how well docs match question)  
+        # - Source diversity: 25% (having relevant sources)
+        # - Context sufficiency: 25% (enough context for complete answer)
         confidence = (
             0.5 * avg_similarity +
             0.25 * source_diversity +
@@ -256,21 +292,19 @@ Answer (with source citations):""")
         
         Args:
             question: Original question
-            documents: Retrieved documents (if any)
+            documents: Retrieved documents (if any) - not used in fallback
             confidence: Calculated confidence score
             
         Returns:
-            RAGResponse with fallback message
+            RAGResponse with fallback message and no sources
         """
-        sources = self._format_sources(documents) if documents else []
-        chunks_count = len(documents) if documents else 0
-        
+        # Don't show sources for fallback responses - they're irrelevant
         return RAGResponse(
             question=question,
             answer=self.FALLBACK_MESSAGE,
-            sources=sources,
+            sources=[],  # Empty sources - question is out of scope
             confidence=confidence,
-            retrieved_chunks=chunks_count
+            retrieved_chunks=0
         )
     
     def ask(self, question: str) -> RAGResponse:
@@ -327,10 +361,12 @@ Answer (with source citations):""")
                 f"Confidence {confidence:.2f} below threshold {self.confidence_threshold}. "
                 "Returning fallback response to prevent hallucination."
             )
+            # Set confidence to near-zero for fallback (question is out of scope)
+            fallback_confidence = 0.05  # 5% - signals complete uncertainty
             return self._create_fallback_response(
                 question=question,
                 documents=documents,
-                confidence=confidence
+                confidence=fallback_confidence
             )
         
         # Step 3: Build context and generate answer
@@ -351,6 +387,7 @@ Answer (with source citations):""")
                 answer = str(answer)
             
             logger.info(f"Answer generated ({len(answer)} chars)")
+                
         except (ValueError, RuntimeError) as e:
             logger.error(f"Error generating answer: {e}")
             return RAGResponse(
