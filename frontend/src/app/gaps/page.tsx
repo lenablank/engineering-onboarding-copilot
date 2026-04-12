@@ -9,7 +9,7 @@ interface Gap {
   confidence_score: number;
   frequency: number;
   status: "NEW" | "REVIEWED" | "RESOLVED";
-  retrieval_context: Array<Record<string, any>>;
+  retrieval_context: Array<Record<string, unknown>>;
   created_at: string;
   updated_at: string;
 }
@@ -40,6 +40,7 @@ export default function GapsPage() {
   // Fetch gaps and statistics
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter]);
 
   const fetchData = async () => {
@@ -76,8 +77,8 @@ export default function GapsPage() {
 
   // Client-side sorting
   const sortedGaps = [...gaps].sort((a, b) => {
-    let aVal: any = a[sortField];
-    let bVal: any = b[sortField];
+    let aVal: number | string = a[sortField];
+    let bVal: number | string = b[sortField];
 
     // Handle date fields
     if (sortField === "created_at") {

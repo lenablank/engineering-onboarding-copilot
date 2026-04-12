@@ -6,7 +6,7 @@ interface Source {
   chunk_id: number;
   content: string;
   file_path: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 }
 
 interface AskResponse {
