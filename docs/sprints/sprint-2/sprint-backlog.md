@@ -315,75 +315,54 @@
 
 ### 📄 WEEK 4: Sources Page + Review (Apr 20-26)
 
-#### 10. ✅ DONE: Create /sources page
+#### 10. ❌ CANCELLED: Create /sources page
 
-**Status**: DONE (Apr 12)  
-**Priority**: HIGH  
+**Status**: CANCELLED (Apr 12)  
+**Priority**: WAS: HIGH  
 **Estimate**: 4-5 hours  
-**Actual**: 3 hours  
-**Due**: Apr 22  
-**Completion Notes**:
+**Actual**: 3 hours (then removed)  
+**Decision Date**: Apr 12  
+**Reason for Cancellation**:
 
-Backend Implementation:
-- Added `VectorStoreService.get_sources()` method to query ChromaDB collection metadata
-- Created new API route: `GET /api/sources/` returns all indexed docs
-- Response includes: sources list (file_name, file_path, chunk_count), total_files, total_chunks
-- Updated main.py to include sources router
-- Clean code: proper type hints, Pydantic models, router pattern
+Upon implementation and UX review, determined the Sources page provides no real user value:
+- Users don't need to see which files are indexed (they need answers to questions)
+- Nothing actionable or clickable (read-only list of file names)
+- Admins wouldn't use a UI for this (would use code, terminal, or logs)
+- Better to keep UI focused on core user journeys: Ask Question → Get Answer → Gap Radar
 
-Frontend Implementation:
-- Created `/sources` page (340 lines, production-ready)
-- Statistics cards: total files (15), total chunks (275), avg chunks/file (18.3)
-- Table displaying file names and chunk counts
-- Loading states, error handling, refresh button
-- Updated navigation bar to include "Sources" link
-- Responsive design with Tailwind CSS
+Engineering decision: Remove to maintain clean, purposeful UX. Sync functionality (Task #11) will be moved to a more appropriate location if needed.
 
-Code Quality:
-- Type-safe TypeScript (zero errors)
-- Simple, maintainable design (no over-engineering)
-- Following existing patterns (gaps page structure)
-- Proper error handling and user feedback
-- No unnecessary features (search, sorting, pagination for 15 files)
+**Code removed**:
+- Frontend: `/sources` page and navigation link
+- Backend: `/api/sources/` endpoint, routes/sources.py, get_sources() method
+- All changes reverted cleanly
 
-Technical Decisions:
-- No search/filter - not needed for 15 files (YAGNI principle)
-- No last_indexed_at - will add in Task #11 when sync button is implemented
-- Simple table - dataset fits on one screen, no pagination needed
-
-**Acceptance Criteria**: ✅
-
-- ✅ New frontend route: `frontend/src/app/sources/page.tsx`
-- ✅ Backend API: `GET /api/sources/` returns indexed docs metadata
-- ✅ Display: file name, chunk count per file
-- ✅ Show total docs count (15), total chunks count (275)
-- ✅ List all source files in indexed collection
-- ✅ Simple table layout (search/filter not implemented - not needed)
-
-**Implementation Notes**:
-
-- Query ChromaDB collection metadata
-- Store last_indexed_at in collection metadata (add in Task #11)
+**Lesson learned**: Question feature requirements early. "Admin page" features should solve real admin workflows, not just display debug data in a UI.
 
 ---
 
 #### 11. Manual sync button
 
 **Status**: Not Started  
-**Priority**: HIGH  
-**Estimate**: 3-4 hours  
-**Dependencies**: Task #10  
+**Priority**: MEDIUM (was HIGH)  
+**Estimate**: 2-3 hours (reduced from 3-4)  
+**Dependencies**: None (Task #10 removed)  
 **Due**: Apr 24
+
+**Re-scoped Approach**:
+Since Sources page removed, sync functionality will be implemented differently:
+- Option A: Add sync button to homepage with status indicator
+- Option B: CLI script: `python sync_docs.py` (simpler, more appropriate for admin task)
+- Decision to be made when implementing
 
 **Acceptance Criteria**:
 
-- [ ] "Sync Now" button on /sources page
+- [ ] Manual sync capability exists (UI or CLI)
 - [ ] Backend API: `POST /sync` triggers re-indexing
 - [ ] Clear existing Chroma collection (use delete_collection)
 - [ ] Re-load all markdown files from synthetic-docs/
 - [ ] Re-chunk and re-embed
 - [ ] Return sync status: success/failed, docs indexed, chunks created
-- [ ] Sync status indicator: "Syncing...", "Last synced 2 min ago"
 
 **Implementation Notes**:
 

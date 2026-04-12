@@ -20,7 +20,7 @@ from app.services.vector_store import VectorStoreService
 from app.services.rag_service import RAGService
 from app.utils.logging import setup_logging
 from app.models.database import init_db
-from app.routes import gaps, sources
+from app.routes import gaps
 import logging
 
 # Load environment variables and setup logging
@@ -70,7 +70,6 @@ app.add_middleware(
 
 # Include routers
 app.include_router(gaps.router)
-app.include_router(sources.router)
 
 
 @app.on_event("startup")
@@ -100,7 +99,6 @@ def root() -> dict[str, Any]:
             "gap_details": "/api/gaps/{id} (GET)",
             "gap_stats": "/api/gaps/stats (GET)",
             "update_gap": "/api/gaps/{id}/status (PATCH)",
-            "sources": "/api/sources (GET)",
             "docs": "/docs (Swagger UI)",
             "prove_pipeline": "/prove-pipeline",
         },
