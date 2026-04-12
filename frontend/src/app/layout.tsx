@@ -52,6 +52,12 @@ export default function RootLayout({
                 >
                   Gap Radar
                 </Link>
+                <Link
+                  href="/sources"
+                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                >
+                  Sources
+                </Link>
               </div>
             </div>
           </div>

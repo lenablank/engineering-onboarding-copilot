@@ -305,6 +305,59 @@ class VectorStoreService:
                 "error": str(e)
             }
     
+    def get_sources(self) -> Dict[str, Any]:
+        """
+        Get information about all source documents in the vector store.
+        
+        Returns:
+            Dictionary containing:
+            - sources: List of source files with their metadata
+            - total_files: Total number of unique source files
+            - total_chunks: Total number of chunks across all files
+        """
+        if self.vectorstore is None:
+            return {
+                "sources": [],
+                "total_files": 0,
+                "total_chunks": 0
+            }
+        
+        try:
+            # Get all documents with metadata
+            result = self.vectorstore._collection.get(include=["metadatas"])
+            
+            # Count chunks per source file
+            source_chunks: Dict[str, int] = {}
+            for metadata in result['metadatas']:
+                if metadata and 'source' in metadata:
+                    source_path = metadata['source']
+                    source_chunks[source_path] = source_chunks.get(source_path, 0) + 1
+            
+            # Build source list with file names and paths
+            sources = []
+            for source_path, chunk_count in sorted(source_chunks.items()):
+                # Extract just the filename from the full path
+                file_name = Path(source_path).name
+                sources.append({
+                    "file_name": file_name,
+                    "file_path": source_path,
+                    "chunk_count": chunk_count
+                })
+            
+            return {
+                "sources": sources,
+                "total_files": len(sources),
+                "total_chunks": sum(source_chunks.values())
+            }
+        except Exception as e:
+            logger.error(f"Error getting sources: {e}")
+            return {
+                "sources": [],
+                "total_files": 0,
+                "total_chunks": 0,
+                "error": str(e)
+            }
+    
     def close(self) -> None:
         """Close ChromaDB client and release resources."""
         try:
