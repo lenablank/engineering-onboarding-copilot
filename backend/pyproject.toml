@@ -51,4 +51,6 @@ ignore_missing_imports = true
 testpaths = ["."]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
+python_classes = ["Test*"]
 addopts = "-v --tb=short"
+norecursedirs = ["venv", "__pycache__", ".pytest_cache"]
