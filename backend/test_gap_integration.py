@@ -4,6 +4,7 @@ Integration test for Gap Logging with RAG Service
 Tests that low-confidence questions are automatically logged to the database.
 """
 import pytest
+from unittest.mock import Mock
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -11,6 +12,7 @@ from app.models.database import Base
 from app.models.gap import DocumentationGap, GapStatus
 from app.services.rag_service import RAGService
 from app.services.gap_service import GapService
+from langchain_core.documents import Document
 
 
 @pytest.fixture
@@ -29,10 +31,34 @@ def test_db():
 
 @pytest.fixture
 def rag_service(test_db):
-    """Create a RAG service instance with test database."""
+    """Create a RAG service instance with test database and mocked dependencies."""
+    from langchain_core.prompts import ChatPromptTemplate
+    
     service = RAGService()
     # Replace the gap_service with one using test database
     service.gap_service = GapService(db=test_db)
+    
+    # Mock LLM for test mode
+    mock_llm = Mock()
+    mock_llm.invoke.return_value = Mock(content="I can only answer questions about the engineering documentation and processes in this knowledge base. This question appears to be outside that scope.")
+    service.llm = mock_llm
+    
+    # Create prompt template (needed for test)
+    service.prompt = ChatPromptTemplate.from_messages([
+        ("system", "You are a helpful assistant."),
+        ("human", "Context: {context}\n\nQuestion: {question}\n\nAnswer:")
+    ])
+    
+    # Mock vector store for test mode
+    mock_vector_store = Mock()
+    # Return moderate-match result (confidence between 0.15 and 0.7)
+    # ChromaDB uses distance (lower=better): 0=perfect, ~0.9=moderate, 2.0=no match
+    # Distance 1.4 → similarity ~0.3, with limited words → confidence ~0.45-0.50
+    mock_vector_store.similarity_search_with_score.return_value = [
+        (Document(page_content="Some moderately relevant documentation context here.", metadata={"source": "test.md"}), 1.4)  # ~20 words
+    ]
+    service.vector_store.vectorstore = mock_vector_store
+    
     return service, test_db
 
 
@@ -90,9 +116,32 @@ def test_gap_frequency_incremented(rag_service):
         assert gap.confidence_score >= 0.15  # Above relevance threshold
 
 
-def test_no_gap_logged_for_high_confidence(rag_service):
+def test_no_gap_logged_for_high_confidence(test_db):
     """Test that gaps are NOT logged when confidence is above threshold."""
-    service, test_db = rag_service
+    from langchain_core.prompts import ChatPromptTemplate
+    
+    # Create RAG service with high-confidence mock
+    service = RAGService()
+    service.gap_service = GapService(db=test_db)
+    
+    # Mock LLM
+    mock_llm = Mock()
+    mock_llm.invoke.return_value = Mock(content="To set up the database, run the migrations with `alembic upgrade head`.")
+    service.llm = mock_llm
+    
+    # Create prompt template
+    service.prompt = ChatPromptTemplate.from_messages([
+        ("system", "You are a helpful assistant."),
+        ("human", "Context: {context}\n\nQuestion: {question}\n\nAnswer:")
+    ])
+    
+    # Mock vector store with HIGH similarity scores (high confidence)
+    mock_vector_store = Mock()
+    mock_vector_store.similarity_search_with_score.return_value = [
+        (Document(page_content="Database setup guide: Run migrations with alembic upgrade head", metadata={"source": "database-setup.md"}), 0.85),
+        (Document(page_content="First install PostgreSQL, then create a user", metadata={"source": "database-setup.md"}), 0.75)
+    ]
+    service.vector_store.vectorstore = mock_vector_store
     
     # Ask a question that should have high confidence (relevant to docs)
     question = "How do I set up the database?"
@@ -186,9 +235,32 @@ def test_multiple_different_gaps(rag_service):
     assert confidences == [0.40, 0.45, 0.50]
 
 
-def test_irrelevant_questions_not_logged(rag_service):
+def test_irrelevant_questions_not_logged(test_db):
     """Test that completely irrelevant questions (confidence < 0.15) are NOT logged as gaps."""
-    service, test_db = rag_service
+    from langchain_core.prompts import ChatPromptTemplate
+    
+    # Create RAG service with very low relevance results
+    service = RAGService()
+    service.gap_service = GapService(db=test_db)
+    
+    # Mock LLM
+    mock_llm = Mock()
+    mock_llm.invoke.return_value = Mock(content="I can only answer questions about the engineering documentation and processes in this knowledge base. This question appears to be outside that scope.")
+    service.llm = mock_llm
+    
+    # Create prompt template
+    service.prompt = ChatPromptTemplate.from_messages([
+        ("system", "You are a helpful assistant."),
+        ("human", "Context: {context}\n\nQuestion: {question}\n\nAnswer:")
+    ])
+    
+    # Mock vector store with VERY LOW similarity score (confidence < 0.15)
+    # Distance 1.8 → similarity = (2-1.8)/2 = 0.1 → confidence = 0.1 * 0.5 = 0.05
+    mock_vector_store = Mock()
+    mock_vector_store.similarity_search_with_score.return_value = [
+        (Document(page_content="Unrelated", metadata={"source": "test.md"}), 1.8)
+    ]
+    service.vector_store.vectorstore = mock_vector_store
     
     # Ask completely irrelevant questions (should have confidence < 0.15)
     irrelevant_questions = [

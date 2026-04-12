@@ -151,6 +151,14 @@ Remember: Be confident with documented information. Only use the fallback when t
         self.retrieval_top_k = retrieval_top_k
         self.confidence_threshold = confidence_threshold
         
+        # Skip LLM initialization in test mode (mocks will be used)
+        if os.getenv("TESTING") == "true":
+            logger.info("Test mode detected - skipping LLM initialization")
+            self.llm = None
+            self.prompt = None
+            logger.info("RAG service initialized in test mode")
+            return
+        
         # Initialize Groq LLM
         api_key = os.getenv("GROQ_API_KEY")
         if not api_key:

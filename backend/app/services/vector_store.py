@@ -54,6 +54,14 @@ class VectorStoreService:
         self.chunk_overlap = chunk_overlap
         self.chroma_client = None
         
+        # Skip real initialization in test mode (mocks will be used instead)
+        if os.getenv("TESTING") == "true":
+            logger.info("Test mode detected - skipping real initialization")
+            self.embeddings = None
+            self.text_splitter = None
+            self.vectorstore = None
+            return
+        
         # Initialize HuggingFace embeddings (FREE, local)
         logger.info("Loading HuggingFace embedding model (all-MiniLM-L6-v2)...")
         self.embeddings = HuggingFaceEmbeddings(
