@@ -3,7 +3,10 @@
 **RAG-powered internal knowledge assistant with Documentation Gap Radar**  
 **Solo Capstone Project for Quantic MSSE**
 
-> **Status:** Planning and implementation roadmap. Features marked ✅ indicate intended MVP capabilities, not completed features.
+[![Backend CI](https://github.com/lenablank/engineering-onboarding-copilot/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/lenablank/engineering-onboarding-copilot/actions/workflows/backend-ci.yml)
+[![Frontend CI](https://github.com/lenablank/engineering-onboarding-copilot/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/lenablank/engineering-onboarding-copilot/actions/workflows/frontend-ci.yml)
+
+> **Status:** Sprint 2 in progress (Apr 12, 2026). Core features implemented, deployment and evaluation in progress.
 
 ---
 
