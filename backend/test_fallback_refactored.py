@@ -43,9 +43,10 @@ print("✓ Fallback responses use consistent format")
 # Test prompt improvement
 print("\n=== Test 4: Improved system prompt ===")
 assert "EXACTLY:" in rag.SYSTEM_PROMPT, "Prompt should emphasize exact fallback message"
-assert "When in doubt" in rag.SYSTEM_PROMPT, "Prompt should encourage caution"
+assert "CRITICAL RULES:" in rag.SYSTEM_PROMPT, "Prompt should have clear rules"
+assert "COMPLETELY outside the documentation scope" in rag.SYSTEM_PROMPT, "Prompt should specify when to use fallback"
 print("✓ System prompt includes stricter fallback instructions")
-print("✓ Prompt emphasizes using fallback when uncertain")
+print("✓ Prompt emphasizes using fallback for out-of-scope questions")
 
 print("\n=== Test 5: Good confidence questions still work ===")
 response = rag.ask("How do I set up PostgreSQL?")
@@ -53,8 +54,9 @@ print(f"Question: How do I set up PostgreSQL?")
 print(f"Confidence: {response.confidence:.2f}")
 print(f"Answer: {response.answer[:80]}...")
 assert response.answer != rag.FALLBACK_MESSAGE, "Should provide real answer for confident questions"
-assert "[source:" in response.answer, "Should include citations"
-print("✓ High-confidence questions get proper answers with citations")
+assert response.confidence >= 0.7, "Should have high confidence"
+assert len(response.sources) > 0, "Should include source documents"
+print("✓ High-confidence questions get proper answers with sources")
 
 print("\n✅ Task #2 Complete - Fallback responses refactored successfully!")
 print("\nImprovements:")
