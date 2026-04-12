@@ -40,6 +40,7 @@ class RAGService:
     DEFAULT_MAX_TOKENS = 1000
     DEFAULT_RETRIEVAL_TOP_K = 5
     DEFAULT_CONFIDENCE_THRESHOLD = 0.7
+    MIN_RELEVANCE_THRESHOLD = 0.15  # Minimum confidence to be considered relevant (log gap)
     
     # Confidence calculation thresholds
     MIN_CONTEXT_WORDS = 50  # Minimum words in retrieved context
@@ -366,24 +367,32 @@ Answer:""")
                 "Returning fallback response to prevent hallucination."
             )
             
-            # Log this as a documentation gap for tracking
-            try:
-                retrieval_context = [
-                    {
-                        "content": doc.page_content[:200],  # First 200 chars
-                        "source": doc.metadata.get("source", "unknown"),
-                        "distance": score
-                    }
-                    for doc, score in docs_with_scores[:3]  # Top 3 chunks only
-                ]
-                self.gap_service.log_gap(
-                    question=question,
-                    confidence_score=confidence,
-                    retrieval_context=retrieval_context
+            # Only log gaps for questions showing some relevance to the knowledge base
+            # Completely irrelevant questions (e.g., "What's the weather?") are skipped
+            if confidence >= self.MIN_RELEVANCE_THRESHOLD:
+                try:
+                    retrieval_context = [
+                        {
+                            "content": doc.page_content[:200],  # First 200 chars
+                            "source": doc.metadata.get("source", "unknown"),
+                            "distance": score
+                        }
+                        for doc, score in docs_with_scores[:3]  # Top 3 chunks only
+                    ]
+                    self.gap_service.log_gap(
+                        question=question,
+                        confidence_score=confidence,
+                        retrieval_context=retrieval_context
+                    )
+                    logger.info(f"Documentation gap logged (confidence: {confidence:.2f})")
+                except Exception as e:
+                    # Don't fail the request if gap logging fails
+                    logger.error(f"Failed to log documentation gap: {e}")
+            else:
+                logger.info(
+                    f"Question appears irrelevant (confidence {confidence:.2f} < {self.MIN_RELEVANCE_THRESHOLD}). "
+                    "Skipping gap logging."
                 )
-            except Exception as e:
-                # Don't fail the request if gap logging fails
-                logger.error(f"Failed to log documentation gap: {e}")
             
             # Set confidence to near-zero for fallback (question is out of scope)
             fallback_confidence = 0.05  # 5% - signals complete uncertainty

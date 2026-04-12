@@ -206,7 +206,8 @@ class GapService:
         """
         db = self._get_db()
         
-        gap = self.get_gap_by_id(gap_id)
+        # Fetch gap in the same session
+        gap = db.query(DocumentationGap).filter(DocumentationGap.id == gap_id).first()
         if not gap:
             logger.warning(f"Gap not found: {gap_id}")
             return None

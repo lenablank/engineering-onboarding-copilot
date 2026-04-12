@@ -38,24 +38,33 @@ export default function Home() {
           </div>
 
           <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-lg">
-            <div className="text-4xl mb-3">⚡</div>
+            <div className="text-4xl mb-3">🎯</div>
             <h3 className="font-semibold text-slate-900 dark:text-white mb-2">
-              Fast & Free
+              Gap Radar
             </h3>
             <p className="text-sm text-slate-600 dark:text-slate-400">
-              Built with free-tier HuggingFace embeddings and Groq LLM
+              Automatically tracks documentation gaps to improve knowledge base
             </p>
           </div>
         </div>
 
-        {/* CTA Button */}
-        <Link
-          href="/ask"
-          className="inline-flex items-center gap-2 px-8 py-4 text-lg font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
-        >
-          Start Asking Questions
-          <span>→</span>
-        </Link>
+        {/* CTA Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link
+            href="/ask"
+            className="inline-flex items-center justify-center gap-2 px-8 py-4 text-lg font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
+          >
+            Start Asking Questions
+            <span>→</span>
+          </Link>
+          <Link
+            href="/gaps"
+            className="inline-flex items-center justify-center gap-2 px-8 py-4 text-lg font-semibold text-blue-600 bg-white border-2 border-blue-600 rounded-lg hover:bg-blue-50 transition-colors shadow-lg hover:shadow-xl"
+          >
+            View Gap Radar
+            <span>→</span>
+          </Link>
+        </div>
 
         {/* Tech Stack */}
         <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-700">
