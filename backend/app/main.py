@@ -363,7 +363,8 @@ async def startup_event():
         
     except Exception as e:
         logger.error(f"Failed to initialize RAG service: {e}")
-        raise
+        logger.warning("Application will start but RAG features may be unavailable")
+        # Don't raise - allow app to start so we can access health endpoint and debug
 
 
 @app.on_event("shutdown")
