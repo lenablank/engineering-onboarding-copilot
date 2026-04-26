@@ -74,15 +74,51 @@ app.include_router(gaps.router)
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize database and other startup tasks."""
+    """Initialize database and RAG service on application startup."""
+    global rag_service
+    
+    # Initialize database first
     logger.info("Initializing database...")
     try:
         init_db()
         logger.info("✓ Database initialized successfully")
     except Exception as e:
         logger.error(f"✗ Database initialization failed: {e}")
-        # Don't fail startup - allow app to run without database
-        # Gap Radar features will be unavailable but RAG still works
+        logger.warning("Gap Radar features will be unavailable but RAG still works")
+    
+    # Then initialize RAG service
+    try:
+        logger.info("Initializing RAG service...")
+        
+        # Path to synthetic documentation
+        docs_path = Path(__file__).parent.parent.parent / "synthetic-docs"
+        
+        # Initialize vector store service
+        vector_store = VectorStoreService(
+            persist_directory="./chroma_db",
+            collection_name="onboarding_docs"
+        )
+        
+        # Index documents from synthetic docs directory
+        logger.info(f"Indexing documents from {docs_path}")
+        num_chunks = vector_store.index_documents(
+            docs_directory=str(docs_path),
+            force_reindex=False  # Set to True to rebuild the entire index
+        )
+        logger.info(f"Indexed {num_chunks} document chunks")
+        
+        # Initialize RAG service with production confidence threshold
+        rag_service = RAGService(
+            vector_store=vector_store,
+            confidence_threshold=0.7  # Production: 70% minimum confidence
+        )
+        
+        logger.info("RAG service initialized successfully!")
+        
+    except Exception as e:
+        logger.error(f"Failed to initialize RAG service: {e}")
+        logger.warning("Application will start but RAG features may be unavailable")
+        # Don't raise - allow app to start so we can access health endpoint and debug
 
 
 @app.get("/")
@@ -323,48 +359,6 @@ def prove_pipeline() -> dict[str, Any]:
             "error": str(e),
             "error_type": type(e).__name__,
         }
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Initialize RAG service on application startup."""
-    global rag_service
-    
-    import logging
-    logger = logging.getLogger(__name__)
-    
-    try:
-        logger.info("Initializing RAG service...")
-        
-        # Path to synthetic documentation
-        docs_path = Path(__file__).parent.parent.parent / "synthetic-docs"
-        
-        # Initialize vector store service
-        vector_store = VectorStoreService(
-            persist_directory="./chroma_db",
-            collection_name="onboarding_docs"
-        )
-        
-        # Index documents from synthetic docs directory
-        logger.info(f"Indexing documents from {docs_path}")
-        num_chunks = vector_store.index_documents(
-            docs_directory=str(docs_path),
-            force_reindex=False  # Set to True to rebuild the entire index
-        )
-        logger.info(f"Indexed {num_chunks} document chunks")
-        
-        # Initialize RAG service with production confidence threshold
-        rag_service = RAGService(
-            vector_store=vector_store,
-            confidence_threshold=0.7  # Production: 70% minimum confidence
-        )
-        
-        logger.info("RAG service initialized successfully!")
-        
-    except Exception as e:
-        logger.error(f"Failed to initialize RAG service: {e}")
-        logger.warning("Application will start but RAG features may be unavailable")
-        # Don't raise - allow app to start so we can access health endpoint and debug
 
 
 @app.on_event("shutdown")
