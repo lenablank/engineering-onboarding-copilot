@@ -13,8 +13,8 @@ langchain-chroma>=0.1.0
 langchain-cohere>=0.1.0
 groq>=0.4.0
 
-# Vector store (client-only, no heavy dependencies)
-chromadb-client>=0.4.0
+# Vector store (full package for embedded use)
+chromadb>=0.4.0
 
 # Database
 sqlalchemy>=2.0.0
