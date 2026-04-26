@@ -244,17 +244,6 @@ def prove_pipeline() -> dict[str, Any]:
         "alternative": "POST /ask with {'question': 'your question here'}",
         "docs": "/docs"
     }
-                "Begin Sprint 1: Full RAG implementation",
-            ],
-        }
-
-    except Exception as e:
-        return {
-            "status": "error",
-            "pipeline_proven": False,
-            "error": str(e),
-            "error_type": type(e).__name__,
-        }
 
 
 @app.on_event("shutdown")
