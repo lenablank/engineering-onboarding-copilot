@@ -1,0 +1,259 @@
+# Sprint 3 Trello Cards
+
+Copy these cards into your Sprint 3 list on Trello. Each card has a checklist you can add.
+
+---
+
+## 🚀 WEEK 1: Deployment (Apr 27 - May 3)
+
+### Card: Deploy backend to Render
+**Priority**: CRITICAL  
+**Estimate**: 4-6 hours
+
+Checklist:
+- [ ] Create Render account
+- [ ] Create new Web Service from GitHub repo
+- [ ] Configure build and start commands
+- [ ] Set environment variables (GROQ_API_KEY, DATABASE_URL, etc.)
+- [ ] Deploy and verify health endpoint
+- [ ] Test /api/ask endpoint
+- [ ] Document URL in CAPSTONE_SUBMISSION_LINKS.md
+- [ ] Verify ChromaDB persistence
+
+---
+
+### Card: Deploy frontend to Vercel
+**Priority**: CRITICAL  
+**Estimate**: 2-3 hours
+
+Checklist:
+- [ ] Create Vercel account
+- [ ] Import GitHub repository
+- [ ] Configure Next.js build settings
+- [ ] Set NEXT_PUBLIC_API_URL environment variable
+- [ ] Deploy and verify frontend loads
+- [ ] Test Ask page with live backend
+- [ ] Test Gap Radar dashboard
+- [ ] Document URL in CAPSTONE_SUBMISSION_LINKS.md
+- [ ] Update backend CORS for Vercel domain
+
+---
+
+### Card: Verify end-to-end deployment
+**Priority**: CRITICAL  
+**Estimate**: 1-2 hours
+
+Checklist:
+- [ ] Test full user flow (Ask → Answer → Citations)
+- [ ] Test Gap Radar flow (Low confidence → Dashboard)
+- [ ] Test filtering and sorting
+- [ ] Test on mobile device
+- [ ] Test on different browsers
+- [ ] Check for console errors
+- [ ] Check Render logs for errors
+- [ ] Test cold start behavior
+- [ ] Document issues if any
+
+---
+
+### Card: Run formal evaluation (5-10 test questions)
+**Priority**: HIGH  
+**Estimate**: 3-4 hours
+
+Checklist:
+- [ ] Create 10 test questions (all scenarios)
+- [ ] Run through deployed system
+- [ ] Measure latency, confidence, accuracy
+- [ ] Test citation quality
+- [ ] Verify gap logging works
+- [ ] Calculate metrics (accuracy rate, fallback rate, avg latency)
+- [ ] Document results in /docs/evaluation/sprint-3-formal-evaluation.md
+- [ ] Identify any quality issues
+
+---
+
+## 📝 WEEK 2: Documentation + Demo Prep (May 4 - May 10)
+
+### Card: Complete DESIGN_AND_TESTING.md
+**Priority**: CRITICAL  
+**Estimate**: 3-4 hours
+
+Checklist:
+- [ ] Write Section 4: Testing Strategy
+- [ ] Write Section 6: Quality Assurance
+- [ ] Update Section 7: Deployment with production URLs
+- [ ] Review entire document for completeness
+- [ ] Verify matches Quantic rubric requirements
+- [ ] Commit to GitHub
+
+---
+
+### Card: Script demo video content
+**Priority**: HIGH  
+**Estimate**: 2-3 hours
+
+Checklist:
+- [ ] Write 15-20 minute demo script with sections
+- [ ] Introduction (30s)
+- [ ] Problem statement (1 min)
+- [ ] Architecture overview (2 min)
+- [ ] Ask Question demo (3 min)
+- [ ] Gap Radar demo ⭐ (5 min)
+- [ ] Code walkthrough (4 min)
+- [ ] Testing & CI/CD (2 min)
+- [ ] Deployment (1 min)
+- [ ] Conclusion (1 min)
+- [ ] Prepare ID for verification
+- [ ] List technical setup needed
+
+---
+
+### Card: Practice demo walkthrough
+**Priority**: HIGH  
+**Estimate**: 2-3 hours
+
+Checklist:
+- [ ] Do full dry run following script
+- [ ] Time each section
+- [ ] Prepare browser tabs
+- [ ] Test screen recording software
+- [ ] Test audio quality
+- [ ] Practice speaking clearly
+- [ ] Adjust script based on timing
+- [ ] Create backup plan for demo failures
+
+---
+
+## 🎥 WEEK 3: Demo Video + Final Docs (May 11 - May 17)
+
+### Card: Record demo video (15-20 min)
+**Priority**: CRITICAL  
+**Estimate**: 3-5 hours
+
+Checklist:
+- [ ] Set up recording environment
+- [ ] Show ID verification
+- [ ] Record full demo following script
+- [ ] Ensure clear audio and video quality
+- [ ] Show all features (Gap Radar prominently)
+- [ ] Show code walkthrough
+- [ ] Show tests and CI/CD
+- [ ] Keep video 15-20 minutes
+- [ ] Export as MP4
+- [ ] Upload to YouTube (unlisted)
+- [ ] Add URL to CAPSTONE_SUBMISSION_LINKS.md
+- [ ] Verify video plays correctly
+
+---
+
+### Card: Share repo with quantic-grader
+**Priority**: CRITICAL  
+**Estimate**: 30 minutes
+
+Checklist:
+- [ ] Add 'quantic-grader' as collaborator
+- [ ] Verify Read access granted
+- [ ] Ensure all files committed (DESIGN_AND_TESTING.md, etc.)
+- [ ] Verify repo is accessible
+- [ ] Send confirmation email if required
+- [ ] Document in CAPSTONE_SUBMISSION_LINKS.md
+
+---
+
+### Card: Final code cleanup and documentation review
+**Priority**: MEDIUM  
+**Estimate**: 2-3 hours
+
+Checklist:
+- [ ] Run Black formatter on backend
+- [ ] Run ESLint on frontend
+- [ ] Remove unused imports and commented code
+- [ ] Update .env.example files
+- [ ] Update README.md with deployment URLs
+- [ ] Verify all documentation links work
+- [ ] Fix typos
+- [ ] Remove TODO comments
+- [ ] Commit and push changes
+
+---
+
+### Card: Create submission checklist
+**Priority**: HIGH  
+**Estimate**: 1 hour
+
+Checklist:
+- [ ] Create /docs/delivery/SUBMISSION_CHECKLIST.md
+- [ ] List all 5 Quantic deliverables
+- [ ] Verify each item
+- [ ] Document submission date
+- [ ] Final verification on May 24
+
+---
+
+## ✅ WEEK 4: Final Sprint (May 18 - May 24)
+
+### Card: Sprint 3 retrospective
+**Priority**: HIGH  
+**Estimate**: 2-3 hours
+
+Checklist:
+- [ ] Create sprint-retrospective.md
+- [ ] Document sprint summary
+- [ ] What went well
+- [ ] What could be improved
+- [ ] Sprint metrics
+- [ ] Key learnings
+- [ ] Sprint goal assessment
+- [ ] Reflect on full capstone journey
+- [ ] Commit and push
+
+---
+
+### Card: Final testing on deployed environment
+**Priority**: HIGH  
+**Estimate**: 2-3 hours
+
+Checklist:
+- [ ] Re-run end-to-end tests
+- [ ] Verify no regressions
+- [ ] Test all user flows
+- [ ] Check error logs
+- [ ] Test cold starts
+- [ ] Test on mobile
+- [ ] Verify demo video is accurate
+- [ ] Fix critical issues only
+
+---
+
+### Card: ✅ PERSONAL DEADLINE - May 24
+**Priority**: CRITICAL
+
+Checklist:
+- [ ] All tasks complete
+- [ ] Submission checklist verified
+- [ ] Project ready for grading
+- [ ] Submit to Quantic portal
+- [ ] Backup project files
+- [ ] 🎉 CELEBRATE! 🎉
+
+---
+
+## Labels to Add (Optional)
+
+Create these labels in Trello for better organization:
+
+- 🔴 **Critical** (Tasks 1-4, 9-10, 13-14, 16)
+- 🟡 **High** (Tasks 5, 7-8, 12, 14)
+- 🟢 **Medium** (Tasks 6, 11, 15)
+- 🚀 **Week 1** (Tasks 1-4)
+- 📝 **Week 2** (Tasks 5-8)
+- 🎥 **Week 3** (Tasks 9-12)
+- ✅ **Week 4** (Tasks 13-16)
+- 📦 **Deployment**
+- 📹 **Demo**
+- 📄 **Documentation**
+- 🧪 **Testing**
+
+---
+
+Total: 13 main cards + 1 deadline milestone
