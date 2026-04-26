@@ -16,7 +16,7 @@ import chromadb
 from chromadb.config import Settings
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_cohere import CohereEmbeddings
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 
@@ -62,12 +62,15 @@ class VectorStoreService:
             self.vectorstore = None
             return
         
-        # Initialize HuggingFace embeddings (FREE, local)
-        logger.info("Loading HuggingFace embedding model (all-MiniLM-L6-v2)...")
-        self.embeddings = HuggingFaceEmbeddings(
-            model_name="all-MiniLM-L6-v2",
-            model_kwargs={'device': 'cpu'},
-            encode_kwargs={'normalize_embeddings': True}
+        # Initialize Cohere embeddings (FREE API - better quality than local)
+        logger.info("Loading Cohere embedding model (embed-english-v3.0)...")
+        cohere_api_key = os.getenv("COHERE_API_KEY")
+        if not cohere_api_key:
+            raise ValueError("COHERE_API_KEY environment variable is required")
+        
+        self.embeddings = CohereEmbeddings(
+            model="embed-english-v3.0",
+            cohere_api_key=cohere_api_key
         )
         
         # Initialize text splitter

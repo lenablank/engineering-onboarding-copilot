@@ -23,15 +23,19 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-**Sprint 0:** No API key needed! Using FREE local embeddings (HuggingFace).
-
-**Sprint 1+:** Get free Groq API key for LLM:
+Required environment variables:
 
 ```env
+# Cohere API (for embeddings - FREE 1M calls/month)
+COHERE_API_KEY=your_cohere_key_here
+
+# Groq API (for LLM - FREE 14,400 requests/day)
 GROQ_API_KEY=your_groq_key_here
 ```
 
-Get key from: https://console.groq.com/keys (14,400 free requests/day)
+Get API keys:
+- Cohere: https://dashboard.cohere.com/api-keys (free tier)
+- Groq: https://console.groq.com/keys (free tier)
 
 ### 4. Verify Setup (Sprint 0)
 
