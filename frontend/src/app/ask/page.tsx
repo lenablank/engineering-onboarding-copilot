@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Send, Zap, AlertTriangle, XCircle, FileText, X } from "lucide-react";
 
 interface Source {
   chunk_id: number;
@@ -33,6 +35,15 @@ export default function AskPage() {
     content: string;
   } | null>(null);
   const [loadingDoc, setLoadingDoc] = useState(false);
+  const answerRef = useRef<HTMLDivElement>(null);
+
+  // Quick suggestions
+  const suggestions = [
+    "How do I set up my development environment?",
+    "What is the CI/CD pipeline?",
+    "How do I run tests?",
+    "What are the security best practices?",
+  ];
 
   const viewFullDocument = async (filename: string) => {
     setLoadingDoc(true);
@@ -100,11 +111,7 @@ export default function AskPage() {
 
       const data: AskResponse = await res.json();
       setResponse(data);
-
-      // Save the submitted question to display with the answer
       setSubmittedQuestion(question.trim());
-
-      // Clear question field for next question
       setQuestion("");
 
       // Auto-expand sources if confidence is low
@@ -125,358 +132,356 @@ export default function AskPage() {
     }
   };
 
-  const handleClear = () => {
-    setQuestion("");
-    setSubmittedQuestion("");
-    setResponse(null);
-    setError(null);
-    setShowSources(false);
+  const handleSuggestionClick = (suggestion: string) => {
+    setQuestion(suggestion);
+  };
+
+  const getConfidenceColor = (confidence: number) => {
+    if (confidence >= 0.7) return "text-green-600 dark:text-green-400";
+    if (confidence >= 0.5) return "text-yellow-600 dark:text-yellow-400";
+    return "text-red-600 dark:text-red-400";
+  };
+
+  const getConfidenceBg = (confidence: number) => {
+    if (confidence >= 0.7) return "bg-green-100 dark:bg-green-900/30";
+    if (confidence >= 0.5) return "bg-yellow-100 dark:bg-yellow-900/30";
+    return "bg-red-100 dark:bg-red-900/30";
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">
-            Engineering Onboarding Copilot
-          </h1>
-          <p className="text-slate-600 dark:text-slate-400">
-            Ask questions about engineering processes, tools, and practices
-          </p>
-        </div>
-
-        {/* Question Input */}
-        <form onSubmit={handleSubmit} className="mb-6">
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
-            <label
-              htmlFor="question"
-              className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+    <div className="min-h-screen bg-[var(--background)] grid-pattern">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        {/* Chat Container */}
+        <div className="space-y-8">
+          {/* Initial State */}
+          {!response && !loading && !error && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-center space-y-12"
             >
-              Your Question
-            </label>
-            <textarea
-              id="question"
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              placeholder="How do I set up my development environment?"
-              className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-white resize-none"
-              rows={3}
-              disabled={loading}
-              maxLength={500}
-            />
-            <div className="flex items-center justify-between mt-3">
-              <span className="text-sm text-slate-500 dark:text-slate-400">
-                {question.length}/500 characters
-              </span>
-              <div className="flex gap-2">
-                {(question || response) && (
-                  <button
-                    type="button"
-                    onClick={handleClear}
-                    disabled={loading}
-                    className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-200 dark:bg-slate-700 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    Clear
-                  </button>
-                )}
-                <button
-                  type="submit"
-                  disabled={loading || !question.trim()}
-                  className="px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {loading ? "Thinking..." : "Ask"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </form>
-
-        {/* Loading State */}
-        {loading && (
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 mb-6">
-            <div className="flex items-center gap-3">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
-              <p className="text-slate-600 dark:text-slate-400">
-                Searching documentation and generating answer...
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Error State */}
-        {error && (
-          <div
-            className={`rounded-lg shadow-lg p-6 mb-6 ${
-              error.type === "error"
-                ? "bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800"
-                : "bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800"
-            }`}
-          >
-            <div className="flex items-start gap-3">
-              <span className="text-2xl">
-                {error.type === "error" ? "❌" : "⚠️"}
-              </span>
               <div>
-                <h3
-                  className={`font-semibold mb-1 ${
-                    error.type === "error"
-                      ? "text-red-800 dark:text-red-400"
-                      : "text-yellow-800 dark:text-yellow-400"
-                  }`}
-                >
-                  {error.type === "error" ? "Error" : "Warning"}
-                </h3>
-                <p
-                  className={
-                    error.type === "error"
-                      ? "text-red-700 dark:text-red-300"
-                      : "text-yellow-700 dark:text-yellow-300"
-                  }
-                >
-                  {error.message}
+                <h1 className="text-4xl sm:text-5xl font-bold text-[var(--foreground)] mb-4">
+                  What would you like to know?
+                </h1>
+                <p className="text-[var(--muted)] text-lg">
+                  Ask about processes, tools, or engineering practices
                 </p>
-                {error.type === "error" && (
-                  <p className="text-sm text-red-600 dark:text-red-400 mt-2">
-                    💡 Tip: Make sure the backend server is running on{" "}
-                    {process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}
-                  </p>
-                )}
               </div>
-            </div>
-          </div>
-        )}
 
-        {/* Answer Display */}
-        {response && !loading && (
-          <div className="space-y-4">
-            {/* Question Card */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg shadow p-6 border-l-4 border-blue-500">
-              <h2 className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-2">
-                Your Question
-              </h2>
-              <p className="text-slate-800 dark:text-slate-200 text-lg">
-                {submittedQuestion}
-              </p>
-            </div>
+              {/* Quick Suggestions */}
+              <div className="flex flex-wrap gap-3 justify-center">
+                {suggestions.map((suggestion, idx) => (
+                  <motion.button
+                    key={idx}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 * idx }}
+                    onClick={() => handleSuggestionClick(suggestion)}
+                    className="text-sm px-4 py-2 border border-[var(--border)] text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all rounded-none"
+                  >
+                    {suggestion}
+                  </motion.button>
+                ))}
+              </div>
+            </motion.div>
+          )}
 
-            {/* Main Answer Card */}
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6">
-              {/* Confidence Badge - Only show for actual answers with sources */}
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
-                  Answer
-                </h2>
-                {response.sources.length > 0 && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-slate-600 dark:text-slate-400">
-                      Confidence:
-                    </span>
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        response.confidence >= 0.7
-                          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                          : response.confidence >= 0.5
-                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-                            : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
-                      }`}
-                    >
-                      {(response.confidence * 100).toFixed(0)}%
-                    </span>
+          {/* Question Display (After submission) */}
+          <AnimatePresence>
+            {submittedQuestion && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className="flex justify-end"
+              >
+                <div className="max-w-[80%]">
+                  <div className="text-xs font-mono font-semibold tracking-tight text-[var(--subtle)] mb-2 text-right uppercase">
+                    YOU
                   </div>
-                )}
-              </div>
-
-              {/* Answer Text */}
-              <div className="prose dark:prose-invert max-w-none">
-                <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
-                  {response.answer}
-                </p>
-              </div>
-
-              {/* Metadata */}
-              {response.sources.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-                  <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                    <span>
-                      📄 Based on{" "}
-                      {new Set(response.sources.map((s) => s.file_path)).size}{" "}
-                      documentation{" "}
-                      {new Set(response.sources.map((s) => s.file_path))
-                        .size === 1
-                        ? "file"
-                        : "files"}
-                    </span>
+                  <div className="bg-black dark:bg-white text-white dark:text-black px-6 py-4 text-lg">
+                    {submittedQuestion}
                   </div>
                 </div>
-              )}
-            </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-            {/* Sources Section - Only show if sources exist */}
-            {response.sources.length > 0 && (
-              <div
-                className={`rounded-lg shadow-lg overflow-hidden ${
-                  response.confidence < 0.7
-                    ? "bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-300 dark:border-amber-700"
-                    : "bg-white dark:bg-slate-800"
+          {/* Loading State */}
+          {loading && (
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex justify-start"
+            >
+              <div className="max-w-[80%]">
+                <div className="text-xs font-mono font-semibold tracking-tight text-[var(--subtle)] mb-2 uppercase">
+                  COPILOT
+                </div>
+                <div className="bg-[var(--surface)] border-2 border-[var(--border)] px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex gap-1">
+                      <div className="w-2 h-2 bg-[var(--foreground)] rounded-full animate-pulse"></div>
+                      <div className="w-2 h-2 bg-[var(--foreground)] rounded-full animate-pulse [animation-delay:0.2s]"></div>
+                      <div className="w-2 h-2 bg-[var(--foreground)] rounded-full animate-pulse [animation-delay:0.4s]"></div>
+                    </div>
+                    <span className="text-[var(--muted)]">Thinking...</span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Error State */}
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className={`border-2 px-6 py-4 ${
+                  error.type === "error"
+                    ? "border-red-500 bg-red-50 dark:bg-red-900/20"
+                    : "border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20"
                 }`}
               >
-                <button
-                  onClick={() => setShowSources(!showSources)}
-                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
-                >
-                  <div className="flex-1 text-left">
+                <div className="flex items-start gap-3">
+                  {error.type === "error" ? (
+                    <XCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+                  )}
+                  <div>
                     <h3
-                      className={`text-lg font-semibold ${
-                        response.confidence < 0.7
-                          ? "text-amber-900 dark:text-amber-200"
-                          : "text-slate-900 dark:text-white"
+                      className={`font-bold mb-1 ${
+                        error.type === "error"
+                          ? "text-red-800 dark:text-red-400"
+                          : "text-yellow-800 dark:text-yellow-400"
                       }`}
                     >
-                      {response.confidence < 0.7
-                        ? "⚠️ Source Material (Review Recommended)"
-                        : "Source Material"}
+                      {error.type === "error" ? "Error" : "Warning"}
                     </h3>
                     <p
-                      className={`text-xs mt-1 ${
-                        response.confidence < 0.7
-                          ? "text-amber-700 dark:text-amber-400"
-                          : "text-slate-500 dark:text-slate-400"
-                      }`}
+                      className={
+                        error.type === "error"
+                          ? "text-red-700 dark:text-red-300"
+                          : "text-yellow-700 dark:text-yellow-300"
+                      }
                     >
-                      {response.confidence < 0.7
-                        ? "Low confidence - check sources to verify the answer"
-                        : "Optional: View documentation excerpts for additional context"}
+                      {error.message}
                     </p>
                   </div>
-                  <span className="text-slate-600 dark:text-slate-400">
-                    {showSources ? "▼" : "▶"}
-                  </span>
-                </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-                {showSources && (
-                  <div className="px-6 pb-4">
-                    <div className="space-y-2">
-                      {(() => {
-                        // Group by file to show unique documents
-                        const uniqueFiles = Array.from(
-                          new Set(response.sources.map((s) => s.file_path)),
-                        ).map((filePath) => {
-                          const filename =
-                            filePath.split("/").pop() || filePath;
-                          const count = response.sources.filter(
-                            (s) => s.file_path === filePath,
-                          ).length;
-                          return { filePath, filename, count };
-                        });
-
-                        return uniqueFiles.map((file) => (
-                          <button
-                            key={file.filePath}
-                            onClick={() => viewFullDocument(file.filename)}
-                            className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group"
-                          >
-                            <div className="flex items-center gap-2">
-                              <span className="text-blue-600 dark:text-blue-400 text-sm group-hover:scale-110 transition-transform">
-                                📘
-                              </span>
-                              <span className="font-medium text-blue-600 dark:text-blue-400 text-sm group-hover:underline">
-                                {file.filename}
-                              </span>
-                            </div>
-                          </button>
-                        ));
-                      })()}
+          {/* Answer Display */}
+          <AnimatePresence>
+            {response && !loading && (
+              <motion.div
+                ref={answerRef}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4 }}
+                className="flex justify-start"
+              >
+                <div className="max-w-[85%] w-full">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-xs font-mono font-semibold tracking-tight text-[var(--subtle)] uppercase">
+                      COPILOT
                     </div>
-                    {response.confidence < 0.6 && (
-                      <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                        <p className="text-sm text-yellow-800 dark:text-yellow-400">
-                          ℹ️ Low confidence score. The answer may not be fully
-                          accurate. Consider rephrasing your question or
-                          checking the source documents.
-                        </p>
+                    {response.sources.length > 0 && (
+                      <div
+                        className={`flex items-center gap-2 px-3 py-1 ${getConfidenceBg(response.confidence)} ${getConfidenceColor(response.confidence)} text-sm font-mono font-bold`}
+                      >
+                        {response.confidence >= 0.7 ? (
+                          <Zap className="w-4 h-4" />
+                        ) : response.confidence >= 0.5 ? (
+                          <AlertTriangle className="w-4 h-4" />
+                        ) : (
+                          <XCircle className="w-4 h-4" />
+                        )}
+                        {(response.confidence * 100).toFixed(0)}%
                       </div>
                     )}
                   </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
+                  <div className="bg-[var(--surface)] border-2 border-[var(--border)] px-6 py-6">
+                    <p className="text-[var(--foreground)] text-lg leading-relaxed whitespace-pre-wrap">
+                      {response.answer}
+                    </p>
 
-        {/* Help Text */}
-        {!response && !loading && !error && (
-          <div className="text-center text-slate-500 dark:text-slate-400 mt-12">
-            <p className="text-lg mb-4">👋 Welcome!</p>
-            <p className="text-sm">
-              Ask any question about engineering processes, tools, or practices.
-              <br />
-              The system will search through documentation and provide answers
-              with sources.
-            </p>
+                    {/* Sources */}
+                    {response.sources.length > 0 && (
+                      <div className="mt-6 pt-6 border-t border-[var(--border)]">
+                        <button
+                          onClick={() => setShowSources(!showSources)}
+                          className="flex items-center gap-2 text-sm text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
+                        >
+                          <FileText className="w-4 h-4" />
+                          <span>
+                            Sources: {new Set(response.sources.map((s) => s.file_path.split("/").pop())).size} file
+                            {new Set(response.sources.map((s) => s.file_path)).size !== 1 ? "s" : ""}
+                          </span>
+                          <span className="text-xs">{showSources ? "▼" : "▶"}</span>
+                        </button>
+
+                        <AnimatePresence>
+                          {showSources && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="mt-4 space-y-2 overflow-hidden"
+                            >
+                              {Array.from(
+                                new Set(response.sources.map((s) => s.file_path))
+                              ).map((filePath) => {
+                                const filename = filePath.split("/").pop() || filePath;
+                                return (
+                                  <button
+                                    key={filePath}
+                                    onClick={() => viewFullDocument(filename)}
+                                    className="w-full px-4 py-3 bg-[var(--background)] border border-[var(--border)] hover:border-[var(--accent)] transition-all text-left group"
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <FileText className="w-4 h-4 text-[var(--accent)] group-hover:scale-110 transition-transform" />
+                                      <span className="text-sm font-medium text-[var(--foreground)] group-hover:text-[var(--accent)]">
+                                        {filename}
+                                      </span>
+                                    </div>
+                                  </button>
+                                );
+                              })}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Input Form (Always at bottom) */}
+        <div className="fixed bottom-0 left-0 right-0 border-t-2 border-[var(--border)] bg-[var(--surface)]">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
+            <form onSubmit={handleSubmit} className="flex gap-3">
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                  placeholder="Ask another question..."
+                  className="w-full px-6 py-3 bg-[var(--background)] border-2 border-[var(--border)] text-[var(--foreground)] placeholder:text-[var(--subtle)] focus:border-[var(--foreground)] focus:outline-none transition-colors text-base font-normal"
+                  disabled={loading}
+                  maxLength={500}
+                />
+                <span className="absolute right-6 top-1/2 -translate-y-1/2 text-xs font-mono text-[var(--subtle)]">
+                  {question.length}/500
+                </span>
+              </div>
+              <button
+                type="submit"
+                disabled={loading || !question.trim()}
+                className="px-6 py-3 bg-black dark:bg-white text-white dark:text-black font-semibold hover:scale-[1.02] disabled:opacity-20 disabled:hover:scale-100 transition-all flex items-center justify-center"
+              >
+                <Send className="w-5 h-5" />
+              </button>
+            </form>
           </div>
-        )}
+        </div>
+
+        {/* Spacer for fixed input */}
+        <div className="h-24"></div>
       </div>
 
       {/* Document Viewer Modal */}
-      {viewingDocument && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">📘</span>
-                <div>
-                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                    {viewingDocument.filename}
-                  </h2>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
-                    Full documentation
-                  </p>
+      <AnimatePresence>
+        {viewingDocument && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => setViewingDocument(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-[var(--surface)] border-2 border-[var(--border)] w-full max-w-4xl max-h-[90vh] flex flex-col"
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-6 border-b border-[var(--border)]">
+                <div className="flex items-center gap-3">
+                  <FileText className="w-6 h-6 text-[var(--accent)]" />
+                  <div>
+                    <h2 className="text-xl font-bold text-[var(--foreground)]">
+                      {viewingDocument.filename}
+                    </h2>
+                    <p className="text-sm text-[var(--muted)]">
+                      Full documentation
+                    </p>
+                  </div>
                 </div>
+                <button
+                  onClick={() => setViewingDocument(null)}
+                  className="text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
               </div>
-              <button
-                onClick={() => setViewingDocument(null)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-2xl font-light"
-                title="Close"
-              >
-                ×
-              </button>
-            </div>
 
-            {/* Modal Content */}
-            <div className="flex-1 overflow-y-auto p-6">
-              <div className="prose dark:prose-invert max-w-none">
-                <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+              {/* Modal Content */}
+              <div className="flex-1 overflow-y-auto p-6">
+                <pre className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-[var(--foreground)]">
                   {viewingDocument.content}
                 </pre>
               </div>
-            </div>
 
-            {/* Modal Footer */}
-            <div className="flex items-center justify-end gap-3 p-6 border-t border-slate-200 dark:border-slate-700">
-              <button
-                onClick={() => setViewingDocument(null)}
-                className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+              {/* Modal Footer */}
+              <div className="flex items-center justify-end p-6 border-t border-[var(--border)]">
+                <button
+                  onClick={() => setViewingDocument(null)}
+                  className="px-6 py-3 bg-[var(--background)] border border-[var(--border)] text-[var(--foreground)] font-medium hover:border-[var(--accent)] transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Loading Document Overlay */}
-      {loadingDoc && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl p-6 flex items-center gap-3">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-            <span className="text-slate-700 dark:text-slate-300">
-              Loading document...
-            </span>
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {loadingDoc && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
+          >
+            <div className="bg-[var(--surface)] border-2 border-[var(--border)] p-6 flex items-center gap-3">
+              <div className="flex gap-1">
+                <div className="w-2 h-2 bg-[var(--foreground)] rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-[var(--foreground)] rounded-full animate-pulse [animation-delay:0.2s]"></div>
+                <div className="w-2 h-2 bg-[var(--foreground)] rounded-full animate-pulse [animation-delay:0.4s]"></div>
+              </div>
+              <span className="text-[var(--foreground)] font-medium">
+                Loading document...
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

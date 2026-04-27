@@ -1,97 +1,125 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { ArrowRight, BookOpen, Radar, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-8">
-      <div className="max-w-3xl text-center">
-        {/* Logo/Title */}
-        <div className="mb-8">
-          <h1 className="text-5xl sm:text-6xl font-bold text-slate-900 dark:text-white mb-4">
-            Engineering Onboarding Copilot
+    <div className="min-h-screen bg-[var(--background)] grid-pattern flex items-center justify-center p-4 sm:p-8">
+      <div className="max-w-5xl w-full text-center">
+        {/* Hero Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="mb-16 sm:mb-24 pt-16 sm:pt-24"
+        >
+          <h1 className="text-6xl sm:text-7xl lg:text-8xl font-mono font-bold text-[var(--foreground)] mb-6 tracking-tight leading-[0.9]">
+            ENGINEERING
+            <br />
+            ONBOARDING
+            <br />
+            COPILOT
           </h1>
-          <p className="text-xl text-slate-600 dark:text-slate-400">
-            Your AI-powered guide to engineering processes, tools, and best
-            practices
+          <p className="text-lg sm:text-xl text-[var(--muted)] max-w-2xl mx-auto font-light">
+            Your AI documentation companion
           </p>
-        </div>
-
-        {/* Features */}
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-lg">
-            <div className="text-4xl mb-3">🤖</div>
-            <h3 className="font-semibold text-slate-900 dark:text-white mb-2">
-              AI-Powered Answers
-            </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              Get instant answers using Groq LLM and semantic search
-            </p>
-          </div>
-
-          <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-lg">
-            <div className="text-4xl mb-3">📚</div>
-            <h3 className="font-semibold text-slate-900 dark:text-white mb-2">
-              Source Citations
-            </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              Every answer includes source documentation for verification
-            </p>
-          </div>
-
-          <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-lg">
-            <div className="text-4xl mb-3">🎯</div>
-            <h3 className="font-semibold text-slate-900 dark:text-white mb-2">
-              Gap Radar
-            </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              Automatically tracks documentation gaps to improve knowledge base
-            </p>
-          </div>
-        </div>
+        </motion.div>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+          className="flex flex-col sm:flex-row gap-4 justify-center mb-16 sm:mb-24"
+        >
           <Link
             href="/ask"
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 text-lg font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
+            className="group inline-flex items-center justify-center gap-3 px-8 py-5 text-lg font-mono font-semibold text-white bg-black dark:bg-white dark:text-black rounded-none hover:scale-[1.02] transition-all shadow-[4px_4px_0_0_rgba(0,0,0,1)] dark:shadow-[4px_4px_0_0_rgba(255,255,255,1)] hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] dark:hover:shadow-[6px_6px_0_0_rgba(255,255,255,1)] w-full sm:w-64"
           >
-            Start Asking Questions
-            <span>→</span>
+            Ask a Question
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
           <Link
             href="/gaps"
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 text-lg font-semibold text-blue-600 bg-white border-2 border-blue-600 rounded-lg hover:bg-blue-50 transition-colors shadow-lg hover:shadow-xl"
+            className="group inline-flex items-center justify-center gap-3 px-8 py-5 text-lg font-mono font-semibold text-black dark:text-white bg-white dark:bg-black border-2 border-black dark:border-white rounded-none hover:scale-[1.02] transition-all shadow-[4px_4px_0_0_rgba(0,0,0,1)] dark:shadow-[4px_4px_0_0_rgba(255,255,255,1)] hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] dark:hover:shadow-[6px_6px_0_0_rgba(255,255,255,1)] w-full sm:w-64"
           >
-            View Gap Radar
-            <span>→</span>
+            View Gaps
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
-        </div>
+        </motion.div>
 
-        {/* Tech Stack */}
-        <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-700">
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
-            Built with
+        {/* Feature Cards */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="grid md:grid-cols-3 gap-6 sm:gap-8 mb-16 sm:mb-24"
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.5 }}
+            className="group bg-[var(--surface)] border-2 border-[var(--border)] p-8 hover:border-[var(--accent)] transition-all text-center"
+          >
+            <div className="flex items-center justify-center gap-3 mb-3">
+              <Sparkles className="w-5 h-5 text-[var(--foreground)]" />
+              <h3 className="text-lg font-mono font-bold text-[var(--foreground)]">
+                AI-Powered Answers
+              </h3>
+            </div>
+            <p className="text-[var(--muted)] leading-relaxed">
+              Instant responses using Groq LLM and semantic search
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.6 }}
+            className="group bg-[var(--surface)] border-2 border-[var(--border)] p-8 hover:border-[var(--accent)] transition-all text-center"
+          >
+            <div className="flex items-center justify-center gap-3 mb-3">
+              <BookOpen className="w-5 h-5 text-[var(--foreground)]" />
+              <h3 className="text-lg font-mono font-bold text-[var(--foreground)]">
+                Source Citations
+              </h3>
+            </div>
+            <p className="text-[var(--muted)] leading-relaxed">
+              Every answer includes verifiable documentation sources
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.7 }}
+            className="group bg-[var(--surface)] border-2 border-[var(--border)] p-8 hover:border-[var(--accent)] transition-all text-center"
+          >
+            <div className="flex items-center justify-center gap-3 mb-3">
+              <Radar className="w-5 h-5 text-[var(--foreground)]" />
+              <h3 className="text-lg font-mono font-bold text-[var(--foreground)]">
+                Gap Radar
+              </h3>
+            </div>
+            <p className="text-[var(--muted)] leading-relaxed">
+              Automatically tracks documentation gaps
+            </p>
+          </motion.div>
+        </motion.div>
+
+        {/* Footer */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+          className="text-center"
+        >
+          <p className="text-sm text-[var(--subtle)] font-mono">
+            Powered by Groq • ChromaDB • Cohere
           </p>
-          <div className="flex flex-wrap justify-center gap-4 text-sm text-slate-600 dark:text-slate-400">
-            <span className="px-3 py-1 bg-slate-200 dark:bg-slate-700 rounded-full">
-              Next.js 14
-            </span>
-            <span className="px-3 py-1 bg-slate-200 dark:bg-slate-700 rounded-full">
-              FastAPI
-            </span>
-            <span className="px-3 py-1 bg-slate-200 dark:bg-slate-700 rounded-full">
-              LangChain
-            </span>
-            <span className="px-3 py-1 bg-slate-200 dark:bg-slate-700 rounded-full">
-              ChromaDB
-            </span>
-            <span className="px-3 py-1 bg-slate-200 dark:bg-slate-700 rounded-full">
-              Groq (Llama 3.1)
-            </span>
-            <span className="px-3 py-1 bg-slate-200 dark:bg-slate-700 rounded-full">
-              HuggingFace
-            </span>
-          </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

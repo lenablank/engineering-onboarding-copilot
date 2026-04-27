@@ -30,25 +30,25 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {/* Navigation Bar */}
-        <nav className="bg-white border-b border-gray-200 shadow-sm">
+        <nav className="border-b-2 border-[var(--border)] bg-[var(--surface)]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <Link
                 href="/"
-                className="text-xl font-bold text-gray-900 hover:text-blue-600"
+                className="text-xl font-mono font-bold text-[var(--foreground)] hover:text-[var(--accent)] transition-colors tracking-tight"
               >
-                Engineering Copilot
+                ENGINEERING COPILOT
               </Link>
-              <div className="flex gap-6">
+              <div className="flex gap-8">
                 <Link
                   href="/ask"
-                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                  className="text-[var(--foreground)] hover:text-[var(--accent)] font-mono font-semibold transition-colors tracking-tight"
                 >
                   Ask Question
                 </Link>
                 <Link
                   href="/gaps"
-                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                  className="text-[var(--foreground)] hover:text-[var(--accent)] font-mono font-semibold transition-colors tracking-tight"
                 >
                   Gap Radar
                 </Link>

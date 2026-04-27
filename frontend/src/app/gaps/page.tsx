@@ -130,47 +130,47 @@ export default function GapsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
+    <div className="min-h-screen bg-[var(--background)] grid-pattern p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Documentation Gap Radar
+        <div className="mb-12">
+          <h1 className="text-4xl sm:text-5xl font-mono font-bold text-[var(--foreground)] mb-3 tracking-tight">
+            DOCUMENTATION GAP RADAR
           </h1>
-          <p className="text-gray-600">
+          <p className="text-lg text-[var(--muted)]">
             Track questions where documentation coverage is insufficient
           </p>
         </div>
 
         {/* Statistics Cards */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="text-sm text-gray-600 mb-1">Total Gaps</div>
-              <div className="text-3xl font-bold text-gray-900">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div className="bg-[var(--surface)] border-2 border-[var(--border)] p-6">
+              <div className="text-xs font-mono font-semibold text-[var(--subtle)] mb-2 uppercase tracking-tight">Total Gaps</div>
+              <div className="text-3xl font-mono font-bold text-[var(--foreground)]">
                 {stats.total_gaps}
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="text-sm text-gray-600 mb-1">
+            <div className="bg-[var(--surface)] border-2 border-[var(--border)] p-6">
+              <div className="text-xs font-mono font-semibold text-[var(--subtle)] mb-2 uppercase tracking-tight">
                 Total Occurrences
               </div>
-              <div className="text-3xl font-bold text-gray-900">
+              <div className="text-3xl font-mono font-bold text-[var(--foreground)]">
                 {stats.total_occurrences}
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="text-sm text-gray-600 mb-1">New</div>
-              <div className="text-3xl font-bold text-red-600">
+            <div className="bg-[var(--surface)] border-2 border-[var(--border)] p-6">
+              <div className="text-xs font-mono font-semibold text-[var(--subtle)] mb-2 uppercase tracking-tight">New</div>
+              <div className="text-3xl font-mono font-bold text-red-600">
                 {stats.by_status.NEW || stats.by_status.new || 0}
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="text-sm text-gray-600 mb-1">Reviewed</div>
-              <div className="text-3xl font-bold text-yellow-600">
+            <div className="bg-[var(--surface)] border-2 border-[var(--border)] p-6">
+              <div className="text-xs font-mono font-semibold text-[var(--subtle)] mb-2 uppercase tracking-tight">Reviewed</div>
+              <div className="text-3xl font-mono font-bold text-yellow-600">
                 {stats.by_status.REVIEWED || stats.by_status.reviewed || 0}
               </div>
             </div>
@@ -178,16 +178,16 @@ export default function GapsPage() {
         )}
 
         {/* Filters and Controls */}
-        <div className="bg-white rounded-lg shadow p-4 mb-6">
+        <div className="bg-[var(--surface)] border-2 border-[var(--border)] p-4 mb-8">
           <div className="flex flex-wrap gap-4 items-center">
             <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-mono font-semibold text-[var(--foreground)]">
                 Status:
               </label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="border-2 border-[var(--border)] bg-[var(--background)] rounded-none px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-[var(--accent)]"
               >
                 <option value="all">All</option>
                 <option value="NEW">New</option>
@@ -197,13 +197,13 @@ export default function GapsPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-mono font-semibold text-[var(--foreground)]">
                 Sort by:
               </label>
               <select
                 value={sortField}
                 onChange={(e) => setSortField(e.target.value as SortField)}
-                className="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="border-2 border-[var(--border)] bg-[var(--background)] rounded-none px-3 py-1.5 text-sm font-mono focus:outline-none focus:border-[var(--accent)]"
               >
                 <option value="frequency">Frequency</option>
                 <option value="created_at">Date</option>
@@ -213,14 +213,14 @@ export default function GapsPage() {
 
             <button
               onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-              className="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+              className="px-3 py-1.5 text-sm font-mono font-semibold border-2 border-[var(--border)] rounded-none hover:border-[var(--accent)] transition-colors"
             >
               {sortOrder === "asc" ? "↑ Ascending" : "↓ Descending"}
             </button>
 
             <button
               onClick={fetchData}
-              className="ml-auto px-4 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="ml-auto px-4 py-1.5 text-sm font-mono font-semibold bg-[var(--foreground)] text-[var(--background)] rounded-none hover:bg-[var(--accent)] transition-colors"
             >
               Refresh
             </button>
@@ -229,27 +229,27 @@ export default function GapsPage() {
 
         {/* Loading State */}
         {loading && (
-          <div className="bg-white rounded-lg shadow p-12 text-center">
-            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent mb-4"></div>
-            <p className="text-gray-600">Loading gaps...</p>
+          <div className="bg-[var(--surface)] border-2 border-[var(--border)] p-12 text-center">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[var(--foreground)] border-r-transparent mb-4"></div>
+            <p className="text-[var(--muted)] font-mono">Loading gaps...</p>
           </div>
         )}
 
         {/* Error State */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <p className="text-red-800">{error}</p>
+          <div className="bg-red-50 border-2 border-red-600 rounded-none p-4 mb-6">
+            <p className="text-red-800 font-mono">{error}</p>
           </div>
         )}
 
         {/* Empty State */}
         {!loading && !error && sortedGaps.length === 0 && (
-          <div className="bg-white rounded-lg shadow p-12 text-center">
+          <div className="bg-[var(--surface)] border-2 border-[var(--border)] p-12 text-center">
             <div className="text-6xl mb-4">🎉</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            <h3 className="text-xl font-mono font-bold text-[var(--foreground)] mb-2">
               No documentation gaps found!
             </h3>
-            <p className="text-gray-600">
+            <p className="text-[var(--muted)]">
               {statusFilter !== "all"
                 ? `No gaps with status "${statusFilter}"`
                 : "All questions are well-documented."}
@@ -259,16 +259,16 @@ export default function GapsPage() {
 
         {/* Gaps Table */}
         {!loading && !error && sortedGaps.length > 0 && (
-          <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="bg-[var(--surface)] border-2 border-[var(--border)] overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y-2 divide-[var(--border)]">
+                <thead className="bg-[var(--background)]">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-mono font-bold text-[var(--foreground)] uppercase tracking-tight">
                       Question
                     </th>
                     <th
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      className="px-6 py-3 text-left text-xs font-mono font-bold text-[var(--foreground)] uppercase tracking-tight cursor-pointer hover:text-[var(--accent)]"
                       onClick={() => handleSort("frequency")}
                     >
                       Frequency{" "}
@@ -276,18 +276,18 @@ export default function GapsPage() {
                         (sortOrder === "asc" ? "↑" : "↓")}
                     </th>
                     <th
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      className="px-6 py-3 text-left text-xs font-mono font-bold text-[var(--foreground)] uppercase tracking-tight cursor-pointer hover:text-[var(--accent)]"
                       onClick={() => handleSort("confidence_score")}
                     >
                       Confidence{" "}
                       {sortField === "confidence_score" &&
                         (sortOrder === "asc" ? "↑" : "↓")}
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-mono font-bold text-[var(--foreground)] uppercase tracking-tight">
                       Status
                     </th>
                     <th
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      className="px-6 py-3 text-left text-xs font-mono font-bold text-[var(--foreground)] uppercase tracking-tight cursor-pointer hover:text-[var(--accent)]"
                       onClick={() => handleSort("created_at")}
                     >
                       First Seen{" "}
@@ -296,32 +296,32 @@ export default function GapsPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-[var(--surface)] divide-y-2 divide-[var(--border)]">
                   {sortedGaps.map((gap) => (
-                    <tr key={gap.id} className="hover:bg-gray-50">
+                    <tr key={gap.id} className="hover:bg-[var(--background)] transition-colors">
                       <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900 max-w-md">
+                        <div className="text-sm text-[var(--foreground)] max-w-md">
                           {gap.question}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-none text-xs font-mono font-bold bg-blue-100 text-blue-800 border border-blue-800">
                           {gap.frequency}x
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
+                        <div className="text-sm font-mono font-bold text-[var(--foreground)]">
                           {(gap.confidence_score * 100).toFixed(1)}%
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(gap.status)}`}
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-none text-xs font-mono font-bold ${getStatusColor(gap.status)}`}
                         >
                           {gap.status.toUpperCase()}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-[var(--muted)]">
                         {formatDate(gap.created_at)}
                       </td>
                     </tr>
@@ -334,7 +334,7 @@ export default function GapsPage() {
 
         {/* Footer Info */}
         {!loading && !error && sortedGaps.length > 0 && (
-          <div className="mt-4 text-sm text-gray-600 text-center">
+          <div className="mt-6 text-sm font-mono text-[var(--subtle)] text-center">
             Showing {sortedGaps.length} gap{sortedGaps.length !== 1 ? "s" : ""}
             {statusFilter !== "all" && ` with status "${statusFilter}"`}
           </div>
