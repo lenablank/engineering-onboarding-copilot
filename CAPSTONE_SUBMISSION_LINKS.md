@@ -26,15 +26,17 @@
 
 ### 2. Deployed Application
 
-**Frontend URL**: _To be added in Sprint 3 (May 4-10)_  
-**Backend URL**: _To be added in Sprint 3 (May 4-10)_  
-**Status**: ⏳ Not yet deployed
+**Frontend URL**: https://engineering-onboarding-copilot.vercel.app  
+**Backend URL**: https://engineering-onboarding-copilot.onrender.com  
+**Status**: ✅ Deployed (April 28, 2026)
 
 **Hosting:**
 
-- Frontend: Vercel (free tier)
-- Backend: Render (free tier)
-- Database: Neon Postgres (free tier)
+- Frontend: Vercel (free tier) - Auto-deploys from main branch
+- Backend: Render (free tier) - Auto-deploys from main branch
+- Database: SQLite (embedded) + ChromaDB (vector store)
+- Embeddings: Cohere API embed-english-v3.0 (1024-dim)
+- LLM: Groq Llama-3.1-8b-instant
 
 ---
 
