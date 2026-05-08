@@ -159,7 +159,7 @@ export default function AskPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="text-center space-y-12"
+              className="text-center space-y-12 pt-16 sm:pt-24"
             >
               <div>
                 <h1 className="text-4xl sm:text-5xl font-mono font-bold text-[var(--foreground)] mb-4">
