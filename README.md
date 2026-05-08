@@ -6,17 +6,18 @@
 [![Backend CI](https://github.com/lenablank/engineering-onboarding-copilot/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/lenablank/engineering-onboarding-copilot/actions/workflows/backend-ci.yml)
 [![Frontend CI](https://github.com/lenablank/engineering-onboarding-copilot/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/lenablank/engineering-onboarding-copilot/actions/workflows/frontend-ci.yml)
 
-> **Status:** Sprint 2 in progress (Apr 12, 2026). Core features implemented, deployment and evaluation in progress.
+> **Status:** Sprint 3 in progress (May 8, 2026). Core features complete, production deployed, evaluation complete (100% accuracy).
 
 ---
 
 ## 📍 Current Status
 
-- **Phase**: Sprint 0 Complete (Feb 25 - Mar 8, 2026)
-- **Last Updated**: Mar 8, 2026
-- **Current Focus**: Sprint 0 completed - FREE stack proven, ready for Sprint 1
-- **Cost**: $0 (using HuggingFace local embeddings + Groq free tier)
+- **Phase**: Sprint 3 (Week 1 Complete - 5 days ahead of schedule)
+- **Last Updated**: May 8, 2026
+- **Current Focus**: Demo preparation and final polish
+- **Cost**: $0 (using Cohere API embeddings + Groq free tier)
 - **Timeline**: 12 weeks implementation (Mar 2 - May 24) + protected buffer week (May 25-31)
+- **Deployment**: ✅ Live at https://engineering-onboarding-copilot.vercel.app
 
 ---
 
@@ -24,7 +25,7 @@
 
 - **System Architecture**: [docs/technical/SYSTEM_ARCHITECTURE.md](docs/technical/SYSTEM_ARCHITECTURE.md) - Tech stack, data flows, RAG pipeline
 - **Implementation Details**: [docs/technical/IMPLEMENTATION_DETAILS.md](docs/technical/IMPLEMENTATION_DETAILS.md) - Code patterns, API contracts, testing
-- **Design & Testing**: [docs/technical/DESIGN_AND_TESTING_TEMPLATE.md](docs/technical/DESIGN_AND_TESTING_TEMPLATE.md) - Architecture, patterns, testing strategy
+- **Design & Testing**: [DESIGN_AND_TESTING.md](DESIGN_AND_TESTING.md) - Architecture, patterns, testing strategy (641 lines, all 11 required sections)
 - **Sprint 0 Artifacts**: [docs/sprints/sprint-0/](docs/sprints/sprint-0/) - Sprint goal, backlog, review
 
 ---
@@ -56,11 +57,11 @@ An AI-powered onboarding assistant that:
 
 **Frontend**: Next.js 14 + TypeScript + Tailwind CSS  
 **Backend**: FastAPI + Python 3.11+  
-**AI/ML**: LangChain, HuggingFace (all-MiniLM-L6-v2 embeddings, local, FREE), Groq (Llama-3-8b-instant, free tier)  
-**Vector DB**: Chroma (local-first)  
-**Database**: PostgreSQL (Neon free tier)  
+**AI/ML**: LangChain, Cohere API (embed-english-v3.0, 1024-dim embeddings, free tier), Groq (Llama-3.1-8b-instant, free tier)  
+**Vector DB**: ChromaDB (persistent, embedded)  
+**Database**: SQLite (gaps.db for Gap Radar)  
 **Deployment**: Vercel (frontend) + Render (backend)  
-**CI/CD**: GitHub Actions
+**CI/CD**: GitHub Actions (backend + frontend workflows)
 
 _For detailed tech stack rationale, see [docs/technical/SYSTEM_ARCHITECTURE.md](docs/technical/SYSTEM_ARCHITECTURE.md)_
 
@@ -70,9 +71,9 @@ _For detailed tech stack rationale, see [docs/technical/SYSTEM_ARCHITECTURE.md](
 
 **Total Cost for 3.5-Month Capstone**: **$0** ✅
 
-- **Embeddings**: HuggingFace (local, unlimited, FREE)
+- **Embeddings**: Cohere API embed-english-v3.0 (1024-dim, free tier, 1000 req/min, $0)
 - **LLM**: Groq API (14,400 requests/day free tier, $0)
-- **Infrastructure**: $0 (Vercel, Render, Neon free tiers)
+- **Infrastructure**: $0 (Vercel, Render free tiers)
 
 **Cost-Conscious Engineering Decision**: Chose FREE stack over paid alternatives (OpenAI) because this is an academic capstone project, not a commercial product. This demonstrates engineering maturity in selecting appropriate technologies based on project context and shows fiscal responsibility.
 
@@ -107,12 +108,16 @@ npm install
 
 ```bash
 # Backend .env
-cp .env.example .env
-# Add your OpenAI API key, database URL
+GROQ_API_KEY=your_groq_key_here
+COHERE_API_KEY=your_cohere_key_here
+CORS_ORIGINS=http://localhost:3000
+
+# Get API keys (both FREE):
+# - Cohere: https://dashboard.cohere.com/api-keys
+# - Groq: https://console.groq.com/keys
 
 # Frontend .env.local
-# Create frontend/.env.local and add:
-# NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
 3. **Run locally (requires two terminals)**
@@ -184,16 +189,38 @@ _See [docs/technical/IMPLEMENTATION_DETAILS.md](docs/technical/IMPLEMENTATION_DE
 
 ---
 
-## 📦 Current Implementation Status
+## 📦 Implementation Status
 
-**Sprint 0 Complete** (Mar 8, 2026):
+**Sprint 3 Week 1 Complete** (May 8, 2026) - **5 days ahead of schedule** 🚀
 
-- ✅ Backend environment set up (Python 3.11.2 + FastAPI)
-- ✅ FREE stack implemented (HuggingFace + Groq)
-- ✅ RAG pipeline proven (5 docs → 65 chunks → embeddings → retrieval)
-- ✅ Test passed with $0 cost
-- ✅ Professional config (pyproject.toml, type checking, comprehensive docs)
+**Core Features (100% Complete)**:
 
-**Next: Sprint 1** - Full ingestion pipeline, Groq LLM integration, basic UI
+- ✅ Full-stack RAG application (Next.js + FastAPI + ChromaDB + Cohere + Groq)
+- ✅ Q&A with confidence scoring and fallback behavior
+- ✅ Documentation Gap Radar (differentiator feature)
+- ✅ Production deployment (Vercel + Render, both URLs live)
+- ✅ Formal evaluation: **10/10 test cases passed (100% accuracy)**
+- ✅ Comprehensive testing: 24 automated tests, multiple test levels
+- ✅ Professional UI (Berlin studio aesthetic, responsive, animations)
+- ✅ CI/CD pipelines (GitHub Actions: backend + frontend)
+- ✅ Complete documentation (DESIGN_AND_TESTING.md: 641 lines)
+
+**Remaining Work (Tasks 7-16)**:
+
+- ⏳ Script demo video (Task 7, 2-3 hours)
+- ⏳ Practice demo (Task 8, 2-3 hours)
+- ⏳ **Record demo video** (Task 9, 4 hours) - **CRITICAL for submission**
+- ⏳ Share repo with quantic-grader (Task 10, 5 min)
+- ⏳ Sprint 3 retrospective (Task 13, 2-3 hours)
+- ⏳ Final testing and polish (Task 14, 2-3 hours)
+- ⏳ Submit by May 24, 2026 (personal deadline)
+
+**System Metrics**:
+
+- **Accuracy**: 100% (10/10 evaluation test cases)
+- **Response Time**: 1.4s average (excluding cold start)
+- **Cost**: $0 (free tier infrastructure)
+- **Test Coverage**: 46+ test functions across 5 files (1,374 lines)
+- **Documentation**: 275 chunks indexed from 15 markdown files
 
 ---
