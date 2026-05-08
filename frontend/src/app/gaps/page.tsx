@@ -213,9 +213,17 @@ export default function GapsPage() {
 
             <button
               onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-              className="px-3 py-1.5 text-sm font-mono font-semibold border-2 border-[var(--border)] rounded-none hover:border-[var(--accent)] transition-colors"
+              className="px-3 py-1.5 text-sm font-mono border-2 border-[var(--border)] rounded-none hover:border-[var(--accent)] transition-colors"
             >
-              {sortOrder === "asc" ? "↑ Ascending" : "↓ Descending"}
+              {sortOrder === "desc" ? (
+                sortField === "frequency" ? "↓ Most frequent first" :
+                sortField === "created_at" ? "↓ Newest first" :
+                "↓ Highest first"
+              ) : (
+                sortField === "frequency" ? "↑ Least frequent first" :
+                sortField === "created_at" ? "↑ Oldest first" :
+                "↑ Lowest first"
+              )}
             </button>
 
             <button

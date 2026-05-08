@@ -15,15 +15,11 @@ export default function Home() {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="mb-16 sm:mb-24 pt-16 sm:pt-24"
         >
-          <h1 className="text-6xl sm:text-7xl lg:text-8xl font-mono font-bold text-[var(--foreground)] mb-6 tracking-tight leading-[0.9]">
-            ENGINEERING
-            <br />
-            ONBOARDING
-            <br />
-            COPILOT
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-mono font-bold text-[var(--foreground)] mb-6 tracking-tight leading-tight">
+            Onboarding Copilot
           </h1>
           <p className="text-lg sm:text-xl text-[var(--muted)] max-w-2xl mx-auto font-light">
-            Your AI documentation companion
+            Get instant answers from your engineering documentation
           </p>
         </motion.div>
 
@@ -66,11 +62,11 @@ export default function Home() {
             <div className="flex items-center justify-center gap-3 mb-3">
               <Sparkles className="w-5 h-5 text-[var(--foreground)]" />
               <h3 className="text-lg font-mono font-bold text-[var(--foreground)]">
-                AI-Powered Answers
+                Smart Answers
               </h3>
             </div>
             <p className="text-[var(--muted)] leading-relaxed">
-              Instant responses using Groq LLM and semantic search
+              Get instant, accurate answers from your documentation
             </p>
           </motion.div>
 
@@ -87,7 +83,7 @@ export default function Home() {
               </h3>
             </div>
             <p className="text-[var(--muted)] leading-relaxed">
-              Every answer includes verifiable documentation sources
+              Every answer links to source documentation
             </p>
           </motion.div>
 
@@ -104,22 +100,12 @@ export default function Home() {
               </h3>
             </div>
             <p className="text-[var(--muted)] leading-relaxed">
-              Automatically tracks documentation gaps
+              Track what's missing from your docs
             </p>
           </motion.div>
         </motion.div>
 
-        {/* Footer */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-          className="text-center"
-        >
-          <p className="text-sm text-[var(--subtle)] font-mono">
-            Powered by Groq • ChromaDB • Cohere
-          </p>
-        </motion.div>
+        {/* Footer - removed tech stack for cleaner user experience */}
       </div>
     </div>
   );

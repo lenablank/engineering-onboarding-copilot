@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Send, Zap, AlertTriangle, XCircle, FileText, X } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { AlertTriangle, FileText, Send, X, XCircle, Zap } from "lucide-react";
+import { useRef, useState } from "react";
 
 interface Source {
   chunk_id: number;
@@ -162,11 +162,11 @@ export default function AskPage() {
               className="text-center space-y-12"
             >
               <div>
-                <h1 className="text-4xl sm:text-5xl font-bold text-[var(--foreground)] mb-4">
+                <h1 className="text-4xl sm:text-5xl font-mono font-bold text-[var(--foreground)] mb-4">
                   What would you like to know?
                 </h1>
                 <p className="text-[var(--muted)] text-lg">
-                  Ask about processes, tools, or engineering practices
+                  Ask about processes, tools, or engineering practices.
                 </p>
               </div>
 
@@ -322,10 +322,23 @@ export default function AskPage() {
                         >
                           <FileText className="w-4 h-4" />
                           <span>
-                            Sources: {new Set(response.sources.map((s) => s.file_path.split("/").pop())).size} file
-                            {new Set(response.sources.map((s) => s.file_path)).size !== 1 ? "s" : ""}
+                            Sources:{" "}
+                            {
+                              new Set(
+                                response.sources.map((s) =>
+                                  s.file_path.split("/").pop(),
+                                ),
+                              ).size
+                            }{" "}
+                            file
+                            {new Set(response.sources.map((s) => s.file_path))
+                              .size !== 1
+                              ? "s"
+                              : ""}
                           </span>
-                          <span className="text-xs">{showSources ? "▼" : "▶"}</span>
+                          <span className="text-xs">
+                            {showSources ? "▼" : "▶"}
+                          </span>
                         </button>
 
                         <AnimatePresence>
@@ -338,9 +351,12 @@ export default function AskPage() {
                               className="mt-4 space-y-2 overflow-hidden"
                             >
                               {Array.from(
-                                new Set(response.sources.map((s) => s.file_path))
+                                new Set(
+                                  response.sources.map((s) => s.file_path),
+                                ),
                               ).map((filePath) => {
-                                const filename = filePath.split("/").pop() || filePath;
+                                const filename =
+                                  filePath.split("/").pop() || filePath;
                                 return (
                                   <button
                                     key={filePath}
