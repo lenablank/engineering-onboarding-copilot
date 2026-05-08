@@ -39,19 +39,19 @@
                 │                         │
                 ▼                         ▼
 ┌───────────────────────────┐  ┌──────────────────────────────────┐
-│  VECTOR DB (Chroma)       │  │  POSTGRES (Neon free tier)       │
-│  • Document chunks        │  │  • Query logs                    │
-│  • Embeddings             │  │  • Documentation gaps            │
-│  • Metadata (file paths)  │  │  • Sync history                  │
+│  VECTOR DB (Chroma)       │  │  SQLite (embedded, gaps.db)      │
+│  • Document chunks        │  │  • Documentation gaps            │
+│  • Embeddings (1024-dim)  │  │  • Gap frequency tracking        │
+│  • Metadata (file paths)  │  │  • Gap status (NEW/REVIEWED)     │
 └───────────────────────────┘  └──────────────────────────────────┘
                 ▲
                 │
                 │ LLM API (Sprint 1+)
                 ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│     FREE STACK: Groq API (Llama-3-8b) + HuggingFace (local)     │
-│  • Embeddings: all-MiniLM-L6-v2 (runs on CPU, $0 cost)          │
-│  • LLM: Groq Llama-3-8b-instant (14,400 requests/day free)      │
+│     FREE STACK: Groq API (Llama-3.1-8b) + Cohere API            │
+│  • Embeddings: Cohere embed-english-v3.0 (1024-dim, API, $0)    │
+│  • LLM: Groq Llama-3.1-8b-instant (14,400 requests/day free)    │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -72,8 +72,8 @@ User Question
                             ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │ 2. Embedding Generation                                          │
-│    • HuggingFace all-MiniLM-L6-v2 (FREE, runs locally)           │
-│    • Convert question → 384-dim vector                           │
+│    • Cohere embed-english-v3.0 (API-based, FREE tier)            │
+│    • Convert question → 1024-dim vector                          │
 └───────────────────────────┬─────────────────────────────────────┘
                             ▼
 ┌─────────────────────────────────────────────────────────────────┐
@@ -147,11 +147,10 @@ Trigger Sync (Manual Button)
                             ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │ 5. Embedding Generation (Batch)                                  │
-│    • HuggingFace all-MiniLM-L6-v2 (FREE, local, unlimited)       │
-│    • 384-dimensional vectors                                     │
-│    • Cost: $0, runs on CPU after first download                  │
+│    • Cohere embed-english-v3.0 (API-based, FREE tier)            │
+│    • 1024-dimensional vectors                                    │
+│    • Cost: $0 (free tier: 1000 requests/min)                     │
 │    • Batch process chunks (8192 tokens/request limit)            │
-│    • Cost: ~$0.10 per 1M tokens                                  │
 └───────────────────────────┬─────────────────────────────────────┘
                             ▼
 ┌─────────────────────────────────────────────────────────────────┐
@@ -164,7 +163,7 @@ Trigger Sync (Manual Button)
 ┌─────────────────────────────────────────────────────────────────┐
 │ 7. Update Sync Status                                            │
 │    • Log sync timestamp, file count, chunk count                 │
-│    • Store in Postgres for UI display                            │
+│    • Store in SQLite (gaps.db) for tracking                       │
 └───────────────────────────┬─────────────────────────────────────┘
                             ▼
                     Sync Complete ✓
@@ -204,14 +203,14 @@ Trigger Sync (Manual Button)
 
 ### AI/ML Stack
 
-- **LLM**: Groq Llama-3-8b-instant (FREE tier)
+- **LLM**: Groq Llama-3.1-8b-instant (FREE tier)
   - _Why_: FREE tier with 14,400 requests/day, extremely fast inference, cost-conscious engineering
   - _Cost_: $0 for entire capstone project
   - _Note_: Academic project, not commercial product - shows engineering maturity in cost decisions
-- **Embeddings**: HuggingFace all-MiniLM-L6-v2 (local, FREE)
-  - _Why_: Runs locally on CPU after first download, $0 cost, UNLIMITED usage, 97% quality of OpenAI
-  - _Cost_: FREE (~90MB model download once, then offline)
-  - _Dimensions_: 384 (vs 1536 for OpenAI, still highly effective)
+- **Embeddings**: Cohere embed-english-v3.0 (API-based, FREE tier)
+  - _Why_: API-based, 1024 dimensions (better quality than 384-dim local models), free tier sufficient
+  - _Cost_: FREE (1000 requests/min, sufficient for capstone)
+  - _Dimensions_: 1024 (vs 384 for local models, better semantic understanding)
 - **Orchestration**: LangChain
   - _Why_: RAG chains, prompt templates, proven patterns for production RAG
 - **Vector Database**: Chroma
@@ -224,9 +223,9 @@ Trigger Sync (Manual Button)
 
 - **Vector DB**: Chroma (persistent local → cloud)
   - _Why_: Embeddings optimized, semantic search, metadata filtering
-- **Relational DB**: PostgreSQL on Neon (free tier)
-  - _Why_: Structured data (logs, gaps, sync history), free tier sufficient, easy deployment
-  - Tables: query_logs, documentation_gaps, sync_history
+- **Relational DB**: SQLite (embedded, gaps.db)
+  - _Why_: Structured data (documentation gaps, frequency tracking), zero-config, easy to inspect
+  - Tables: documentation_gaps (question, confidence, status, frequency)
 
 ### Infrastructure & DevOps
 

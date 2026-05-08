@@ -306,7 +306,7 @@ async def log_documentation_gap(
    - Test end-to-end with fixtures
 
 4. **Real embeddings + real LLM integration**
-   - HuggingFace embeddings already working (Sprint 0)
+   - Cohere embeddings API integration (FREE tier)
    - Add Groq API calls (FREE tier)
    - Test with small corpus
    - Validate thresholds
@@ -531,10 +531,11 @@ def test_live_groq_call():
    - Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
 4. **Set environment variables**:
    - `GROQ_API_KEY` (get from console.groq.com, FREE tier)
-   - `DATABASE_URL` (Neon connection string)
+   - `COHERE_API_KEY` (get from dashboard.cohere.com/api-keys, FREE tier)
    - `CHROMA_PERSIST_DIRECTORY` (e.g., `/opt/render/project/chroma_data`)
+   - `CORS_ORIGINS` (frontend URL for production)
 
-**Note**: No API key needed for embeddings (HuggingFace runs locally)
+**Note**: Both API keys are FREE tier (Groq: 14,400 req/day, Cohere: 1000 req/min)
 
 **Chroma Persistence Caveat**: Render free tier may have ephemeral filesystem behavior. If Chroma index is lost on redeploy/restart, use one of these mitigations:
 
