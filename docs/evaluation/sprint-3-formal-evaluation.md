@@ -516,8 +516,6 @@ The system has **known limitations** with these question types (validated throug
 
 **Justification**:
 
-The Engineering Onboarding Copilot system exceeded expectations across all evaluation metrics:
-
 **Strengths**:
 
 - **100% accuracy rate** - All questions handled appropriately (answered or fallback)

@@ -206,7 +206,7 @@ Trigger Sync (Manual Button)
 - **LLM**: Groq Llama-3.1-8b-instant (FREE tier)
   - _Why_: FREE tier with 14,400 requests/day, extremely fast inference, cost-conscious engineering
   - _Cost_: $0 for entire capstone project
-  - _Note_: Academic project, not commercial product - shows engineering maturity in cost decisions
+  - _Note_: Academic project, not commercial product - free tier appropriate for this context
 - **Embeddings**: Cohere embed-english-v3.0 (API-based, FREE tier)
   - _Why_: API-based, 1024 dimensions (better quality than 384-dim local models), free tier sufficient
   - _Cost_: FREE (1000 requests/min, sufficient for capstone)
