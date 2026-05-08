@@ -53,6 +53,49 @@ This document presents the results of formal evaluation testing conducted on the
 
 ## 4. Test Plan
 
+### Evaluation Set Determination
+
+The 10 test cases were strategically selected to validate different system behaviors and stress test the confidence-based routing mechanism:
+
+**Selection Criteria**:
+
+1. **Coverage of documentation breadth**: Questions span all 15 synthetic documentation files (getting-started, testing, deployment, database, security, etc.)
+2. **Confidence spectrum testing**: Deliberately included questions expected to trigger high (≥70%), medium (50-69%), and low (<50%) confidence to validate the 0.7 threshold calibration
+3. **Realistic user scenarios**: Questions mirror actual new engineer onboarding queries (environment setup, testing, deployment commands)
+4. **Differentiator validation**: Included undocumented questions to test Gap Radar logging (salary, office location)
+5. **Robustness requirements**: Edge cases (empty input, oversized input) test input validation and error handling
+6. **Specificity variation**: Mix of broad ("How do I test?") and specific ("What are exact Alembic commands?") questions to test retrieval precision
+
+**Why These Specific Questions**:
+
+- **TC-001 (Dev setup)**: Most common onboarding question, validates baseline RAG accuracy
+- **TC-002 (Testing)**: Tests retrieval of procedural documentation (multi-step guides)
+- **TC-003 (Git workflow)**: Tests understanding of sequential processes
+- **TC-004 (Exception handling)**: Edge case - specific Python pattern, tests retrieval precision
+- **TC-005 (Alembic)**: Specific CLI commands, tests if system can retrieve exact syntax
+- **TC-006, TC-007 (Salary, Office)**: Intentionally undocumented, validates fallback + gap logging
+- **TC-008, TC-009 (Empty, Long)**: Input validation edge cases, tests defensive programming
+- **TC-010 (Pizza)**: Irrelevant spam, tests off-topic detection and appropriate rejection
+
+**Coverage Mapping**:
+
+| Test Case | Documentation Coverage     | Confidence Range | System Capability Tested     |
+| --------- | -------------------------- | ---------------- | ---------------------------- |
+| TC-001    | 1-getting-started.md       | High (≥70%)      | Baseline RAG accuracy        |
+| TC-002    | 3-testing-guide.md         | High (≥70%)      | Multi-step procedural        |
+| TC-003    | 11-git-workflow.md         | High (≥70%)      | Sequential process           |
+| TC-004    | 3-testing-guide.md         | Medium (50-69%)  | Specific technical pattern   |
+| TC-005    | 7-database-setup.md        | Medium (50-69%)  | Exact command syntax         |
+| TC-006    | Not documented             | Low (<50%)       | Fallback + gap logging       |
+| TC-007    | Not documented             | Low (<50%)       | Fallback + gap logging       |
+| TC-008    | N/A (empty input)          | N/A              | Input validation             |
+| TC-009    | N/A (oversized input)      | N/A              | Input validation             |
+| TC-010    | Not documented (off-topic) | Low (<50%)       | Spam filtering + gap logging |
+
+This systematic approach ensures the evaluation validates both the system's strengths (accurate answers for documented topics) and its intelligent fallback behavior (graceful degradation for gaps), which is the key differentiator of this project.
+
+---
+
 ### Test Case Categories
 
 | Category             | Count  | Purpose                                      |
@@ -404,6 +447,66 @@ https://engineering-onboarding-copilot.vercel.app/gaps
    - Test with special characters (emojis, non-Latin scripts)
    - Test concurrent requests
    - Load testing with multiple simultaneous users
+
+### 9.3 Question Types Analysis
+
+#### Questions the System Handles Well
+
+Based on this evaluation and the underlying RAG architecture, the system excels at:
+
+1. **Direct factual queries** with clear documentation coverage (TC-001, TC-002, TC-003)
+   - Example: "How do I set up my development environment?"
+   - Why it works: Strong semantic match to specific documentation sections
+
+2. **Procedural "how-to" questions** with step-by-step instructions (TC-002, TC-003)
+   - Example: "What is the git workflow for making changes?"
+   - Why it works: Documentation is structured as sequential guides
+
+3. **Specific technical patterns** even when granular (TC-004, TC-005 exceeded expectations)
+   - Example: "How do I test for exceptions in pytest?"
+   - Why it works: 1024-dimensional Cohere embeddings capture technical terminology effectively
+
+#### Question Types That Would Be Challenging
+
+The system has **known limitations** with these question types (validated through architecture analysis, not observed failures):
+
+1. **Multi-document synthesis questions** requiring information from 3+ unrelated files
+   - Example: "How does the testing strategy relate to the deployment pipeline and security practices?"
+   - Why challenging: Retrieval top-k=5 may miss distributed context, LLM must synthesize without full picture
+   - Mitigation: Increase top-k to 10-15 (tradeoff: slower retrieval, more noise)
+
+2. **Comparative or "what's the difference" questions**
+   - Example: "What's the difference between development and production database setup?"
+   - Why challenging: Requires retrieving and contrasting two separate procedures
+   - Mitigation: Query expansion to retrieve both contexts, or adjust prompt to ask for comparison explicitly
+
+3. **Ambiguous questions** with multiple valid interpretations
+   - Example: "How do I run the tests?" (unit tests? integration? which test file? CI or local?)
+   - Why challenging: Semantic search may retrieve mixed results, LLM must disambiguate or ask clarifying questions
+   - Mitigation: Prompt engineering to request clarification, or retrieve broader context
+
+4. **Temporal or version-specific questions**
+   - Example: "What changed in the deployment process since last month?"
+   - Why challenging: Documentation is a snapshot, no version history or changelog indexed
+   - Mitigation: Index git commit history or maintain changelog documents
+
+5. **"Why" questions requiring rationale not explicitly stated**
+   - Example: "Why do we use pytest instead of unittest?"
+   - Why challenging: Documentation may describe "what" and "how" but not "why" (design decisions)
+   - Mitigation: Enhance documentation with rationale sections (already done in DESIGN_AND_TESTING.md)
+
+6. **Questions requiring real-time or dynamic information**
+   - Example: "What's the current uptime of the production server?"
+   - Why challenging: RAG retrieves static documentation, not live system state
+   - Mitigation: Integrate with monitoring APIs or add "real-time data not available" fallback
+
+**Key Insight**: The system's confidence-based fallback mechanism **mitigates these limitations gracefully**. Even if the system cannot answer perfectly, it will:
+
+- Trigger fallback response if confidence drops below 0.7
+- Log the question to Gap Radar for documentation improvement
+- Avoid hallucinating incorrect answers
+
+**Observed Surprise**: TC-004 and TC-005 were expected to be challenging (specific technical details) but the system handled them with **higher confidence than predicted** (76% and 84%). This suggests the documentation quality and embedding model are better than initially estimated.
 
 ---
 
