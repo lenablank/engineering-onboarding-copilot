@@ -100,7 +100,7 @@ export default function Home() {
               </h3>
             </div>
             <p className="text-[var(--muted)] leading-relaxed">
-              Track what's missing from your docs
+              Track what&apos;s missing from your docs
             </p>
           </motion.div>
         </motion.div>
