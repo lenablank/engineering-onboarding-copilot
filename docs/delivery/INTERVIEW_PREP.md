@@ -20,9 +20,9 @@ This document contains interview talking points, learning outcomes, and how to p
 
 > "The unique part is the Documentation Gap Radar. Most RAG apps just try to answer everything and risk hallucinations. Mine uses a confidence heuristic based on retrieval scores, context sufficiency, and source diversity. Low-evidence queries get logged, prioritized by frequency, and surfaced to teams. That's the feedback loop companies actually need—not just answering questions, but identifying what's missing."
 
-#### **Berlin Market Alignment**:
+#### **Market Alignment**:
 
-> "I focused on RAG because every AI engineer job in Berlin requires it. I implemented chunking strategies, embedding optimization, semantic search, and production patterns like confidence gating, citation grounding, systematic evaluation, and AI safety controls. This isn't a tutorial project—it's designed like an internal tool you'd ship, with basic security (prompt injection resistance, input validation, secrets management), testing, CI/CD, and measurable quality metrics."
+> "I focused on RAG because most AI engineer jobs require it. I implemented chunking strategies, embedding optimization, semantic search, and production patterns like confidence gating, citation grounding, systematic evaluation, and AI safety controls. This isn't a tutorial project—it's designed like an internal tool you'd ship, with basic security (prompt injection resistance, input validation, secrets management), testing, CI/CD, and measurable quality metrics."
 
 #### **Metrics & Evaluation**:
 
@@ -107,7 +107,7 @@ By completing this project, you will demonstrate:
 
 ### Career Readiness
 
-✅ **Berlin AI market alignment** (RAG-first project)  
+✅ **AI market alignment** (RAG-first project)  
 ✅ **Internal tools expertise** (what employers need)  
 ✅ **Portfolio project** (GitHub stars potential, demo quality)  
 ✅ **Interview narrative** (clear STAR stories)

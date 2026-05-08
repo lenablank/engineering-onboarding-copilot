@@ -32,7 +32,7 @@ An AI-powered onboarding assistant that:
 
 ## 💡 Why This Is Strong
 
-✅ **RAG at its core** (strong Berlin AI market alignment)  
+✅ **RAG at its core** (strong AI engineering market alignment)  
 ✅ **Internal tool expertise** (what employers want to see)  
 ✅ **Clear differentiator** (Gap Radar is unique)  
 ✅ **Production-conscious thinking** (evidence-based gating, evaluation, citation grounding)  
@@ -59,7 +59,7 @@ An AI-powered onboarding assistant that:
 
 ### Career Goals
 
-- Build portfolio project aligned with Berlin AI job market
+- Build portfolio project aligned with AI engineering job market
 - Demonstrate internal tools engineering expertise
 - Show production thinking and systematic evaluation approach
 - Create compelling demo for interviews

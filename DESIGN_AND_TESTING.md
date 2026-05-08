@@ -129,7 +129,7 @@ New engineers joining software companies face significant onboarding friction. D
 | **Groq API**          | FREE LLM (Llama-3.1-8b-instant), 14,400 requests/day free tier, extremely fast inference (sub-second), cost-conscious choice |
 | **Vercel**            | Free tier frontend hosting, auto-deploy from GitHub, HTTPS by default, excellent Next.js support                             |
 | **Render**            | Free tier backend hosting, Python support, auto-deploy from GitHub, 750 hours/month                                          |
-| **Framer Motion**     | Smooth animations for studio aesthetic UI, declarative API                                                                   |
+| **Framer Motion**     | Smooth animations for modern UI, declarative API                                                                   |
 | **Lucide React**      | Modern icon set, tree-shakeable, consistent design                                                                           |
 
 ---
@@ -171,7 +171,7 @@ New engineers joining software companies face significant onboarding friction. D
   - **Reason**: Zero infrastructure cost, simpler setup, sufficient for demo scale, no external dependencies
 
 - **Strategic mono font design system**
-  - **Reason**: Studio aesthetic for modern, technical feel, consistency across all UI elements, enhances brand identity
+  - **Reason**: Modern, clean design for technical feel, consistency across all UI elements, professional appearance
 
 **Evidence (Implementation)**:
 
@@ -623,7 +623,7 @@ The system is ready for capstone demonstration and evaluation, with all requirem
 - Novel architecture combining RAG with confidence-based routing
 - Cost-conscious engineering decisions (FREE AI stack)
 - Comprehensive testing strategy (unit, integration, edge case, E2E)
-- Modern UI redesign (Berlin studio aesthetic with strategic mono fonts)
+- Modern UI redesign (minimal design with strategic mono fonts)
 - Production deployment with CI/CD
 
 **Future Enhancements** (post-capstone):
