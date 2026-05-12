@@ -405,7 +405,7 @@ Answer:""")
             # This filters spam (e.g., "What's the weather?") while capturing operational questions
             # that employees might legitimately ask (e.g., "What's the on-call schedule?")
             is_gap_logged = False
-            if confidence >= self.MIN_RELEVANCE_THRESHOLD:
+            if confidence > self.MIN_RELEVANCE_THRESHOLD:
                 try:
                     retrieval_context = [
                         {
@@ -427,7 +427,7 @@ Answer:""")
                     logger.error(f"Failed to log documentation gap: {e}")
             else:
                 logger.info(
-                    f"Question appears irrelevant (confidence {confidence:.2f} < {self.MIN_RELEVANCE_THRESHOLD}). "
+                    f"Question appears irrelevant (confidence {confidence:.2f} <= {self.MIN_RELEVANCE_THRESHOLD}). "
                     "Skipping gap logging to avoid spam."
                 )
             
