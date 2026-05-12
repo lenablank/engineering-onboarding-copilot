@@ -129,6 +129,50 @@ export default function GapsPage() {
     }
   };
 
+  const handleStatusChange = async (gapId: string, newStatus: Gap["status"]) => {
+    try {
+      const response = await fetch(`${apiUrl}/api/gaps/${gapId}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: newStatus.toLowerCase() }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update status");
+      }
+
+      // Refresh data after successful update
+      await fetchData();
+    } catch (err) {
+      console.error("Error updating status:", err);
+      setError("Failed to update gap status");
+    }
+  };
+
+  const handleDelete = async (gapId: string) => {
+    if (!confirm("Are you sure you want to delete this gap?")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${apiUrl}/api/gaps/${gapId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete gap");
+      }
+
+      // Refresh data after successful deletion
+      await fetchData();
+    } catch (err) {
+      console.error("Error deleting gap:", err);
+      setError("Failed to delete gap");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[var(--background)] grid-pattern p-8">
       <div className="max-w-7xl mx-auto">
@@ -146,7 +190,9 @@ export default function GapsPage() {
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             <div className="bg-[var(--surface)] border-2 border-[var(--border)] p-6">
-              <div className="text-xs font-mono font-semibold text-[var(--subtle)] mb-2 uppercase tracking-tight">Total Gaps</div>
+              <div className="text-xs font-mono font-semibold text-[var(--subtle)] mb-2 uppercase tracking-tight">
+                Total Gaps
+              </div>
               <div className="text-3xl font-mono font-bold text-[var(--foreground)]">
                 {stats.total_gaps}
               </div>
@@ -162,14 +208,18 @@ export default function GapsPage() {
             </div>
 
             <div className="bg-[var(--surface)] border-2 border-[var(--border)] p-6">
-              <div className="text-xs font-mono font-semibold text-[var(--subtle)] mb-2 uppercase tracking-tight">New</div>
+              <div className="text-xs font-mono font-semibold text-[var(--subtle)] mb-2 uppercase tracking-tight">
+                New
+              </div>
               <div className="text-3xl font-mono font-bold text-red-600">
                 {stats.by_status.NEW || stats.by_status.new || 0}
               </div>
             </div>
 
             <div className="bg-[var(--surface)] border-2 border-[var(--border)] p-6">
-              <div className="text-xs font-mono font-semibold text-[var(--subtle)] mb-2 uppercase tracking-tight">Reviewed</div>
+              <div className="text-xs font-mono font-semibold text-[var(--subtle)] mb-2 uppercase tracking-tight">
+                Reviewed
+              </div>
               <div className="text-3xl font-mono font-bold text-yellow-600">
                 {stats.by_status.REVIEWED || stats.by_status.reviewed || 0}
               </div>
@@ -215,15 +265,17 @@ export default function GapsPage() {
               onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
               className="px-3 py-1.5 text-sm font-mono border-2 border-[var(--border)] rounded-none hover:border-[var(--accent)] transition-colors"
             >
-              {sortOrder === "desc" ? (
-                sortField === "frequency" ? "↓ Most frequent first" :
-                sortField === "created_at" ? "↓ Newest first" :
-                "↓ Highest first"
-              ) : (
-                sortField === "frequency" ? "↑ Least frequent first" :
-                sortField === "created_at" ? "↑ Oldest first" :
-                "↑ Lowest first"
-              )}
+              {sortOrder === "desc"
+                ? sortField === "frequency"
+                  ? "↓ Most frequent first"
+                  : sortField === "created_at"
+                    ? "↓ Newest first"
+                    : "↓ Highest first"
+                : sortField === "frequency"
+                  ? "↑ Least frequent first"
+                  : sortField === "created_at"
+                    ? "↑ Oldest first"
+                    : "↑ Lowest first"}
             </button>
 
             <button
@@ -302,11 +354,17 @@ export default function GapsPage() {
                       {sortField === "created_at" &&
                         (sortOrder === "asc" ? "↑" : "↓")}
                     </th>
+                    <th className="px-6 py-3 text-left text-xs font-mono font-bold text-[var(--foreground)] uppercase tracking-tight">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-[var(--surface)] divide-y-2 divide-[var(--border)]">
                   {sortedGaps.map((gap) => (
-                    <tr key={gap.id} className="hover:bg-[var(--background)] transition-colors">
+                    <tr
+                      key={gap.id}
+                      className="hover:bg-[var(--background)] transition-colors"
+                    >
                       <td className="px-6 py-4">
                         <div className="text-sm text-[var(--foreground)] max-w-md">
                           {gap.question}
@@ -331,6 +389,26 @@ export default function GapsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-[var(--muted)]">
                         {formatDate(gap.created_at)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <div className="flex items-center gap-2">
+                          <select
+                            value={gap.status}
+                            onChange={(e) => handleStatusChange(gap.id, e.target.value as Gap["status"])}
+                            className="px-2 py-1 text-xs font-mono border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] rounded-none hover:border-[var(--accent)] focus:outline-none focus:border-[var(--accent)]"
+                          >
+                            <option value="NEW">NEW</option>
+                            <option value="REVIEWED">REVIEWED</option>
+                            <option value="RESOLVED">RESOLVED</option>
+                          </select>
+                          <button
+                            onClick={() => handleDelete(gap.id)}
+                            className="px-2 py-1 text-xs font-mono font-bold bg-red-100 text-red-800 border border-red-800 hover:bg-red-200 transition-colors"
+                            title="Delete gap"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

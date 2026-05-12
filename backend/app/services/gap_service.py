@@ -221,6 +221,29 @@ class GapService:
         
         return gap
     
+    def delete_gap(self, gap_id: str) -> bool:
+        """
+        Delete a documentation gap.
+        
+        Args:
+            gap_id: UUID of the gap to delete
+            
+        Returns:
+            True if deleted, False if not found
+        """
+        db = self._get_db()
+        
+        gap = db.query(DocumentationGap).filter(DocumentationGap.id == gap_id).first()
+        if not gap:
+            logger.warning(f"Gap not found for deletion: {gap_id}")
+            return False
+        
+        logger.info(f"Deleting gap {gap_id}: {gap.question[:50]}...")
+        db.delete(gap)
+        db.commit()
+        
+        return True
+    
     def get_gap_statistics(self) -> Dict[str, Any]:
         """
         Get statistics about documentation gaps.

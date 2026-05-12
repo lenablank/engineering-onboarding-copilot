@@ -134,3 +134,26 @@ async def update_gap_status(gap_id: str, update: GapStatusUpdate):
         raise HTTPException(status_code=404, detail=f"Gap {gap_id} not found")
     
     return _gap_to_response(gap)
+
+
+@router.delete("/{gap_id}")
+async def delete_gap(gap_id: str):
+    """
+    Delete a documentation gap.
+    
+    Args:
+        gap_id: UUID of the gap to delete
+    
+    Returns:
+        Success message
+        
+    Raises:
+        HTTPException: 404 if gap not found
+    """
+    gap_service = GapService()
+    success = gap_service.delete_gap(gap_id)
+    
+    if not success:
+        raise HTTPException(status_code=404, detail=f"Gap {gap_id} not found")
+    
+    return {"message": "Gap deleted successfully", "gap_id": gap_id}
