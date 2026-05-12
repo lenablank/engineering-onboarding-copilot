@@ -40,7 +40,7 @@ class RAGService:
     DEFAULT_MAX_TOKENS = 1000
     DEFAULT_RETRIEVAL_TOP_K = 5
     DEFAULT_CONFIDENCE_THRESHOLD = 0.7
-    MIN_RELEVANCE_THRESHOLD = 0.10  # 10% minimum to filter out completely irrelevant questions
+    MIN_RELEVANCE_THRESHOLD = 0.05  # 5% minimum - captures operational questions while filtering spam
     
     # Confidence calculation thresholds
     MIN_CONTEXT_WORDS = 50  # Minimum words in retrieved context
