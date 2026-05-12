@@ -51,7 +51,7 @@ def rag_service(test_db):
     
     # Mock vector store for test mode
     mock_vector_store = Mock()
-    # Return moderate-match result (confidence between 0.15 and 0.7)
+    # Return moderate-match result (confidence between 0.11 and 0.7)
     # ChromaDB uses distance (lower=better): 0=perfect, ~0.9=moderate, 2.0=no match
     # Distance 1.4 → similarity ~0.3, with limited words → confidence ~0.45-0.50
     mock_vector_store.similarity_search_with_score.return_value = [
@@ -67,13 +67,13 @@ def test_gap_logged_on_low_confidence(rag_service):
     service, test_db = rag_service
     
     # Ask a question that's somewhat relevant to engineering but not documented
-    # This should have confidence between MIN_RELEVANCE (0.15) and threshold (0.7)
+    # This should have confidence between MIN_RELEVANCE (0.11) and threshold (0.7)
     question = "How do I configure webpack for the frontend build?"
     
     response = service.ask(question)
     
-    # Verify fallback response was returned
-    assert "I can only answer questions" in response.answer
+    # Verify fallback response was returned (gap message, not spam message)
+    assert "valid engineering question" in response.answer or "logged to help us improve" in response.answer
     assert response.confidence < 0.70
     
     # Verify gap was logged
@@ -179,7 +179,7 @@ def test_gap_retrieval_context_structure(rag_service):
     # Directly use gap_service to create gap (bypassing uncertain RAG)
     gap = service.gap_service.log_gap(
         question=question,
-        confidence_score=0.45,  # In the 0.15-0.69 range
+        confidence_score=0.45,  # In the 0.11-0.69 range
         retrieval_context=test_context
     )
     
@@ -236,7 +236,7 @@ def test_multiple_different_gaps(rag_service):
 
 
 def test_irrelevant_questions_not_logged(test_db):
-    """Test that completely irrelevant questions (confidence < 0.15) are NOT logged as gaps."""
+    """Test that completely irrelevant questions (confidence < 0.11) are NOT logged as gaps."""
     from langchain_core.prompts import ChatPromptTemplate
     
     # Create RAG service with very low relevance results
@@ -254,7 +254,7 @@ def test_irrelevant_questions_not_logged(test_db):
         ("human", "Context: {context}\n\nQuestion: {question}\n\nAnswer:")
     ])
     
-    # Mock vector store with VERY LOW similarity score (confidence < 0.15)
+    # Mock vector store with VERY LOW similarity score (confidence < 0.11)
     # Distance 1.8 → similarity = (2-1.8)/2 = 0.1 → confidence = 0.1 * 0.5 = 0.05
     mock_vector_store = Mock()
     mock_vector_store.similarity_search_with_score.return_value = [
@@ -262,7 +262,7 @@ def test_irrelevant_questions_not_logged(test_db):
     ]
     service.vector_store.vectorstore = mock_vector_store
     
-    # Ask completely irrelevant questions (should have confidence < 0.15)
+    # Ask completely irrelevant questions (should have confidence < 0.11)
     irrelevant_questions = [
         "What is the weather like today?",
         "What is the capital of France?",
@@ -271,8 +271,8 @@ def test_irrelevant_questions_not_logged(test_db):
     
     for question in irrelevant_questions:
         response = service.ask(question)
-        # Should return fallback
-        assert "I can only answer questions" in response.answer
+        # Should return spam fallback message (not gap message)
+        assert "doesn't appear to relate" in response.answer or "This question doesn't" in response.answer
         assert response.confidence <= 0.15  # Very low confidence
     
     # Verify NO gaps were logged for these irrelevant questions
@@ -282,7 +282,7 @@ def test_irrelevant_questions_not_logged(test_db):
     # None of the irrelevant questions should be in the gaps
     for question in irrelevant_questions:
         assert question not in logged_questions, \
-            f"Irrelevant question '{question}' should not be logged as gap (confidence < 0.15)"
+            f"Irrelevant question '{question}' should not be logged as gap (confidence < 0.11)"
 
 
 if __name__ == "__main__":
