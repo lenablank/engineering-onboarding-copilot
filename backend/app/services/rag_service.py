@@ -40,15 +40,16 @@ class RAGService:
     DEFAULT_MAX_TOKENS = 1000
     DEFAULT_RETRIEVAL_TOP_K = 5
     DEFAULT_CONFIDENCE_THRESHOLD = 0.7
-    MIN_RELEVANCE_THRESHOLD = 0.05  # 5% minimum - captures operational questions while filtering spam
+    MIN_RELEVANCE_THRESHOLD = 0.11  # 11% minimum - filters spam (weather, etc.) while capturing legitimate operational questions
     
     # Confidence calculation thresholds
     MIN_CONTEXT_WORDS = 50  # Minimum words in retrieved context
     MIN_SOURCES = 1  # Minimum unique source files (1 comprehensive source is fine)
     MIN_SIMILARITY_SCORE = 0.3  # Minimum similarity for any chunk
     
-    # Fallback response message
-    FALLBACK_MESSAGE = "I can only answer questions about the engineering documentation and processes in this knowledge base. This question appears to be outside that scope."
+    # Fallback response messages
+    FALLBACK_MESSAGE_SPAM = "This question doesn't appear to relate to engineering documentation or processes."
+    FALLBACK_MESSAGE_GAP = "This appears to be a valid engineering question, but we don't have documentation covering it yet. Your question has been logged to help us improve our knowledge base."
     
     # System prompt - sources are displayed separately in the UI
     SYSTEM_PROMPT = """You are a helpful engineering documentation assistant for an onboarding system.
@@ -318,7 +319,8 @@ Answer:""")
         self,
         question: str,
         documents: Optional[List[Document]] = None,
-        confidence: float = 0.0
+        confidence: float = 0.0,
+        is_gap: bool = False
     ) -> RAGResponse:
         """
         Create a fallback response when unable to answer confidently.
@@ -327,14 +329,18 @@ Answer:""")
             question: Original question
             documents: Retrieved documents (if any) - not used in fallback
             confidence: Calculated confidence score
+            is_gap: Whether question was logged to Gap Radar (True) or filtered as spam (False)
             
         Returns:
-            RAGResponse with fallback message and no sources
+            RAGResponse with appropriate fallback message and no sources
         """
+        # Choose message based on whether this is a valid gap or spam
+        fallback_message = self.FALLBACK_MESSAGE_GAP if is_gap else self.FALLBACK_MESSAGE_SPAM
+        
         # Don't show sources for fallback responses - they're irrelevant
         return RAGResponse(
             question=question,
-            answer=self.FALLBACK_MESSAGE,
+            answer=fallback_message,
             sources=[],  # Empty sources - question is out of scope
             confidence=confidence,
             retrieved_chunks=0
@@ -398,6 +404,7 @@ Answer:""")
             # Log gaps only for questions showing minimal relevance to the knowledge base
             # This filters spam (e.g., "What's the weather?") while capturing operational questions
             # that employees might legitimately ask (e.g., "What's the on-call schedule?")
+            is_gap_logged = False
             if confidence >= self.MIN_RELEVANCE_THRESHOLD:
                 try:
                     retrieval_context = [
@@ -413,6 +420,7 @@ Answer:""")
                         confidence_score=confidence,
                         retrieval_context=retrieval_context
                     )
+                    is_gap_logged = True
                     logger.info(f"Documentation gap logged (confidence: {confidence:.2f})")
                 except Exception as e:
                     # Don't fail the request if gap logging fails
@@ -423,12 +431,13 @@ Answer:""")
                     "Skipping gap logging to avoid spam."
                 )
             
-            # Set confidence to near-zero for fallback (question is out of scope)
-            fallback_confidence = 0.05  # 5% - signals complete uncertainty
+            # Return fallback with actual confidence score (not hardcoded)
+            # This preserves the semantic distance information for the user
             return self._create_fallback_response(
                 question=question,
                 documents=documents,
-                confidence=fallback_confidence
+                confidence=confidence,
+                is_gap=is_gap_logged
             )
         
         # Step 3: Build context and generate answer
