@@ -3,7 +3,7 @@ Pytest configuration for backend tests.
 
 Mocking strategy:
 - Uses pytest_configure hook to install mocks BEFORE test collection
-- Mocks external dependencies: ChromaDB, Groq LLM, HuggingFace embeddings
+- Mocks external dependencies: ChromaDB, Groq LLM, Cohere embeddings
 - Makes tests fast, deterministic, and CI-friendly
 """
 import os
@@ -46,20 +46,18 @@ def pytest_configure(config):
     mock_groq.ChatGroq = Mock(return_value=mock_llm)
     sys.modules['langchain_groq'] = mock_groq
     
-    # Mock HuggingFace
-    mock_hf = Mock()
+    # Mock Cohere embeddings (current implementation)
+    mock_cohere = Mock()
     mock_embeddings = Mock()
-    mock_embeddings.embed_documents.return_value = [[0.1] * 384]
-    mock_embeddings.embed_query.return_value = [0.1] * 384
-    mock_hf.HuggingFaceEmbeddings = Mock(return_value=mock_embeddings)
-    sys.modules['langchain_community.embeddings'] = mock_hf
-    sys.modules['langchain_community.embeddings.huggingface'] = mock_hf
+    mock_embeddings.embed_documents.return_value = [[0.1] * 1024]  # 1024-dim Cohere vectors
+    mock_embeddings.embed_query.return_value = [0.1] * 1024
+    mock_cohere.CohereEmbeddings = Mock(return_value=mock_embeddings)
+    sys.modules['langchain_cohere'] = mock_cohere
     
-    # Mock Chroma vectorstore
-    mock_vs = Mock()
+    # Mock Chroma vectorstore (langchain_chroma - current implementation)
+    mock_chroma_vs = Mock()
     mock_vs_instance = Mock()
     mock_vs_instance.similarity_search_with_score.return_value = []
     mock_vs_instance._collection = mock_collection
-    mock_vs.Chroma = Mock(return_value=mock_vs_instance)
-    sys.modules['langchain_community.vectorstores'] = mock_vs
-    sys.modules['langchain_community.vectorstores.chroma'] = mock_vs
+    mock_chroma_vs.Chroma = Mock(return_value=mock_vs_instance)
+    sys.modules['langchain_chroma'] = mock_chroma_vs
