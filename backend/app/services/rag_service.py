@@ -40,7 +40,7 @@ class RAGService:
     DEFAULT_MAX_TOKENS = 1000
     DEFAULT_RETRIEVAL_TOP_K = 5
     DEFAULT_CONFIDENCE_THRESHOLD = 0.7
-    MIN_RELEVANCE_THRESHOLD = 0.15  # Minimum confidence to be considered relevant (log gap)
+    MIN_RELEVANCE_THRESHOLD = 0.10  # 10% minimum to filter out completely irrelevant questions
     
     # Confidence calculation thresholds
     MIN_CONTEXT_WORDS = 50  # Minimum words in retrieved context
@@ -395,8 +395,9 @@ Answer:""")
                 "Returning fallback response to prevent hallucination."
             )
             
-            # Only log gaps for questions showing some relevance to the knowledge base
-            # Completely irrelevant questions (e.g., "What's the weather?") are skipped
+            # Log gaps only for questions showing minimal relevance to the knowledge base
+            # This filters spam (e.g., "What's the weather?") while capturing operational questions
+            # that employees might legitimately ask (e.g., "What's the on-call schedule?")
             if confidence >= self.MIN_RELEVANCE_THRESHOLD:
                 try:
                     retrieval_context = [
@@ -419,7 +420,7 @@ Answer:""")
             else:
                 logger.info(
                     f"Question appears irrelevant (confidence {confidence:.2f} < {self.MIN_RELEVANCE_THRESHOLD}). "
-                    "Skipping gap logging."
+                    "Skipping gap logging to avoid spam."
                 )
             
             # Set confidence to near-zero for fallback (question is out of scope)
