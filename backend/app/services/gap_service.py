@@ -8,10 +8,11 @@ import hashlib
 import logging
 from typing import List, Dict, Any, Optional
 from datetime import datetime
+from contextlib import contextmanager
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
-from app.models.database import get_db
+from app.models.database import get_db, SessionLocal
 from app.models.gap import DocumentationGap, GapStatus
 
 logger = logging.getLogger(__name__)
@@ -59,11 +60,19 @@ class GapService:
         normalized = GapService._normalize_question(question)
         return hashlib.sha256(normalized.encode()).hexdigest()
     
-    def _get_db(self) -> Session:
-        """Get database session."""
+    @contextmanager
+    def _get_db_session(self):
+        """Context manager for database session that ensures proper cleanup."""
         if self._db:
-            return self._db
-        return next(get_db())
+            # If a session was provided, use it and don't close it
+            yield self._db
+        else:
+            # Create new session and ensure it's closed
+            db = SessionLocal()
+            try:
+                yield db
+            finally:
+                db.close()
     
     def log_gap(
         self,
@@ -85,55 +94,54 @@ class GapService:
         Returns:
             DocumentationGap: The created or updated gap entry
         """
-        db = self._get_db()
-        
-        try:
-            # Normalize question for comparison
-            normalized_question = self._normalize_question(question)
-            question_hash = self._hash_question(question)
-            
-            # Check for exact match by hash (fast lookup)
-            existing_gap = db.query(DocumentationGap).filter(
-                DocumentationGap.question_hash == question_hash
-            ).first()
-            
-            if existing_gap:
-                # Update existing gap
-                logger.info(f"Incrementing frequency for existing gap: {question[:50]}...")
-                existing_gap.frequency += 1
-                existing_gap.confidence_score = confidence_score
-                existing_gap.updated_at = datetime.utcnow()
+        with self._get_db_session() as db:
+            try:
+                # Normalize question for comparison
+                normalized_question = self._normalize_question(question)
+                question_hash = self._hash_question(question)
                 
-                # Update retrieval context if provided
-                if retrieval_context:
-                    existing_gap.retrieval_context = retrieval_context
+                # Check for exact match by hash (fast lookup)
+                existing_gap = db.query(DocumentationGap).filter(
+                    DocumentationGap.question_hash == question_hash
+                ).first()
                 
-                db.commit()
-                db.refresh(existing_gap)
-                return existing_gap
-            else:
-                # Create new gap entry
-                logger.info(f"Logging new documentation gap: {question[:50]}...")
-                new_gap = DocumentationGap(
-                    question=question,
-                    question_hash=question_hash,
-                    confidence_score=confidence_score,
-                    retrieval_context=retrieval_context or [],
-                    frequency=1,
-                    status=GapStatus.NEW
-                )
-                
-                db.add(new_gap)
-                db.commit()
-                db.refresh(new_gap)
-                
-                logger.info(f"Created gap entry with ID: {new_gap.id}")
-                return new_gap
-                
-        except Exception as e:
-            db.rollback()
-            logger.error(f"Error logging documentation gap: {e}")
-            raise
+                if existing_gap:
+                    # Update existing gap
+                    logger.info(f"Incrementing frequency for existing gap: {question[:50]}...")
+                    existing_gap.frequency += 1
+                    existing_gap.confidence_score = confidence_score
+                    existing_gap.updated_at = datetime.utcnow()
+                    
+                    # Update retrieval context if provided
+                    if retrieval_context:
+                        existing_gap.retrieval_context = retrieval_context
+                    
+                    db.commit()
+                    db.refresh(existing_gap)
+                    return existing_gap
+                else:
+                    # Create new gap entry
+                    logger.info(f"Logging new documentation gap: {question[:50]}...")
+                    new_gap = DocumentationGap(
+                        question=question,
+                        question_hash=question_hash,
+                        confidence_score=confidence_score,
+                        retrieval_context=retrieval_context or [],
+                        frequency=1,
+                        status=GapStatus.NEW
+                    )
+                    
+                    db.add(new_gap)
+                    db.commit()
+                    db.refresh(new_gap)
+                    
+                    logger.info(f"Created gap entry with ID: {new_gap.id}")
+                    return new_gap
+                    
+            except Exception as e:
+                db.rollback()
+                logger.error(f"Error logging documentation gap: {e}")
+                raise
     
     def get_all_gaps(
         self,
@@ -152,27 +160,26 @@ class GapService:
         Returns:
             List of DocumentationGap entries
         """
-        db = self._get_db()
-        
-        query = db.query(DocumentationGap)
-        
-        # Apply filters
-        if status:
-            query = query.filter(DocumentationGap.status == status)
-        
-        if min_frequency:
-            query = query.filter(DocumentationGap.frequency >= min_frequency)
-        
-        # Order by frequency (most common first), then by created date
-        query = query.order_by(
-            DocumentationGap.frequency.desc(),
-            DocumentationGap.created_at.desc()
-        )
-        
-        # Limit results
-        query = query.limit(limit)
-        
-        return query.all()
+        with self._get_db_session() as db:
+            query = db.query(DocumentationGap)
+            
+            # Apply filters
+            if status:
+                query = query.filter(DocumentationGap.status == status)
+            
+            if min_frequency:
+                query = query.filter(DocumentationGap.frequency >= min_frequency)
+            
+            # Order by frequency (most common first), then by created date
+            query = query.order_by(
+                DocumentationGap.frequency.desc(),
+                DocumentationGap.created_at.desc()
+            )
+            
+            # Limit results
+            query = query.limit(limit)
+            
+            return query.all()
     
     def get_gap_by_id(self, gap_id: str) -> Optional[DocumentationGap]:
         """
@@ -184,10 +191,10 @@ class GapService:
         Returns:
             DocumentationGap or None if not found
         """
-        db = self._get_db()
-        return db.query(DocumentationGap).filter(
-            DocumentationGap.id == gap_id
-        ).first()
+        with self._get_db_session() as db:
+            return db.query(DocumentationGap).filter(
+                DocumentationGap.id == gap_id
+            ).first()
     
     def update_gap_status(
         self,
@@ -204,22 +211,21 @@ class GapService:
         Returns:
             Updated DocumentationGap or None if not found
         """
-        db = self._get_db()
-        
-        # Fetch gap in the same session
-        gap = db.query(DocumentationGap).filter(DocumentationGap.id == gap_id).first()
-        if not gap:
-            logger.warning(f"Gap not found: {gap_id}")
-            return None
-        
-        logger.info(f"Updating gap {gap_id} status: {gap.status} → {new_status}")
-        gap.status = new_status
-        gap.updated_at = datetime.utcnow()
-        
-        db.commit()
-        db.refresh(gap)
-        
-        return gap
+        with self._get_db_session() as db:
+            # Fetch gap in the same session
+            gap = db.query(DocumentationGap).filter(DocumentationGap.id == gap_id).first()
+            if not gap:
+                logger.warning(f"Gap not found: {gap_id}")
+                return None
+            
+            logger.info(f"Updating gap {gap_id} status: {gap.status} → {new_status}")
+            gap.status = new_status
+            gap.updated_at = datetime.utcnow()
+            
+            db.commit()
+            db.refresh(gap)
+            
+            return gap
     
     def delete_gap(self, gap_id: str) -> bool:
         """
@@ -231,18 +237,17 @@ class GapService:
         Returns:
             True if deleted, False if not found
         """
-        db = self._get_db()
-        
-        gap = db.query(DocumentationGap).filter(DocumentationGap.id == gap_id).first()
-        if not gap:
-            logger.warning(f"Gap not found for deletion: {gap_id}")
-            return False
-        
-        logger.info(f"Deleting gap {gap_id}: {gap.question[:50]}...")
-        db.delete(gap)
-        db.commit()
-        
-        return True
+        with self._get_db_session() as db:
+            gap = db.query(DocumentationGap).filter(DocumentationGap.id == gap_id).first()
+            if not gap:
+                logger.warning(f"Gap not found for deletion: {gap_id}")
+                return False
+            
+            logger.info(f"Deleting gap {gap_id}: {gap.question[:50]}...")
+            db.delete(gap)
+            db.commit()
+            
+            return True
     
     def get_gap_statistics(self) -> Dict[str, Any]:
         """
@@ -251,42 +256,41 @@ class GapService:
         Returns:
             Dictionary with gap statistics
         """
-        db = self._get_db()
-        
-        total_gaps = db.query(DocumentationGap).count()
-        
-        new_gaps = db.query(DocumentationGap).filter(
-            DocumentationGap.status == GapStatus.NEW
-        ).count()
-        
-        reviewed_gaps = db.query(DocumentationGap).filter(
-            DocumentationGap.status == GapStatus.REVIEWED
-        ).count()
-        
-        resolved_gaps = db.query(DocumentationGap).filter(
-            DocumentationGap.status == GapStatus.RESOLVED
-        ).count()
-        
-        # Total number of times low-confidence questions were asked
-        total_frequency = db.query(
-            func.sum(DocumentationGap.frequency)
-        ).scalar() or 0
-        
-        # Most frequent gap
-        most_frequent = db.query(DocumentationGap).order_by(
-            DocumentationGap.frequency.desc()
-        ).first()
-        
-        return {
-            "total_gaps": total_gaps,
-            "total_occurrences": total_frequency,
-            "by_status": {
-                "new": new_gaps,
-                "reviewed": reviewed_gaps,
-                "resolved": resolved_gaps
-            },
-            "most_frequent": {
-                "question": most_frequent.question if most_frequent else None,
-                "frequency": most_frequent.frequency if most_frequent else 0
-            } if most_frequent else None
-        }
+        with self._get_db_session() as db:
+            total_gaps = db.query(DocumentationGap).count()
+            
+            new_gaps = db.query(DocumentationGap).filter(
+                DocumentationGap.status == GapStatus.NEW
+            ).count()
+            
+            reviewed_gaps = db.query(DocumentationGap).filter(
+                DocumentationGap.status == GapStatus.REVIEWED
+            ).count()
+            
+            resolved_gaps = db.query(DocumentationGap).filter(
+                DocumentationGap.status == GapStatus.RESOLVED
+            ).count()
+            
+            # Total number of times low-confidence questions were asked
+            total_frequency = db.query(
+                func.sum(DocumentationGap.frequency)
+            ).scalar() or 0
+            
+            # Most frequent gap
+            most_frequent = db.query(DocumentationGap).order_by(
+                DocumentationGap.frequency.desc()
+            ).first()
+            
+            return {
+                "total_gaps": total_gaps,
+                "total_occurrences": total_frequency,
+                "by_status": {
+                    "new": new_gaps,
+                    "reviewed": reviewed_gaps,
+                    "resolved": resolved_gaps
+                },
+                "most_frequent": {
+                    "question": most_frequent.question if most_frequent else None,
+                    "frequency": most_frequent.frequency if most_frequent else 0
+                } if most_frequent else None
+            }
