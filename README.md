@@ -1,226 +1,229 @@
 # Engineering Onboarding Copilot
 
-**RAG-powered internal knowledge assistant with Documentation Gap Radar**  
-**Solo Capstone Project for Quantic MSSE**
+**AI-powered documentation assistant with automated gap detection**
 
-[![Backend CI](https://github.com/lenablank/engineering-onboarding-copilot/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/lenablank/engineering-onboarding-copilot/actions/workflows/backend-ci.yml)
-[![Frontend CI](https://github.com/lenablank/engineering-onboarding-copilot/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/lenablank/engineering-onboarding-copilot/actions/workflows/frontend-ci.yml)
+> A production RAG system that answers engineering questions with cited sources and identifies documentation gaps to improve knowledge bases over time.
 
-> **Status:** Sprint 3 in progress (May 8, 2026). Core features complete, production deployed, evaluation complete (100% accuracy).
+🔗 **[Live Demo](https://engineering-onboarding-copilot.vercel.app)** | 📚 **[Documentation](docs/INDEX.md)** | 🏗️ **[Architecture](docs/technical/SYSTEM_ARCHITECTURE.md)**
 
 ---
 
-## 📍 Current Status
+## 🎯 What It Does
 
-- **Phase**: Sprint 3 (Week 1 Complete - 5 days ahead of schedule)
-- **Last Updated**: May 8, 2026
-- **Current Focus**: Demo preparation and final polish
-- **Cost**: $0 (using Cohere API embeddings + Groq free tier)
-- **Timeline**: 12 weeks implementation (Mar 2 - May 24) + protected buffer week (May 25-31)
-- **Deployment**: ✅ Live at https://engineering-onboarding-copilot.vercel.app
+An intelligent documentation assistant that:
 
----
+- **Answers questions** with source citations from your documentation
+- **Confidence scoring** - shows when answers are reliable vs. uncertain
+- **Gap detection** - automatically logs questions it can't answer confidently
+- **Gap Radar dashboard** - prioritizes documentation improvements by frequency
+- **Smart filtering** - distinguishes legitimate questions from spam/gibberish
 
-## 📋 Documentation
-
-- **System Architecture**: [docs/technical/SYSTEM_ARCHITECTURE.md](docs/technical/SYSTEM_ARCHITECTURE.md) - Tech stack, data flows, RAG pipeline
-- **Implementation Details**: [docs/technical/IMPLEMENTATION_DETAILS.md](docs/technical/IMPLEMENTATION_DETAILS.md) - Code patterns, API contracts, testing
-- **Design & Testing**: [DESIGN_AND_TESTING.md](DESIGN_AND_TESTING.md) - Architecture, patterns, testing strategy (641 lines, all 11 required sections)
-- **Sprint 0 Artifacts**: [docs/sprints/sprint-0/](docs/sprints/sprint-0/) - Sprint goal, backlog, review
+Perfect for engineering teams onboarding new developers or maintaining internal wikis.
 
 ---
 
-## 🎯 One-Sentence Pitch
+## ✨ Key Features
 
-A web-based onboarding assistant that syncs engineering docs from a GitHub repository, answers new-engineer questions with cited evidence, and logs low-evidence queries as documentation gaps to improve documentation over time.
+### Core Functionality
+- ✅ **RAG-powered Q&A** - Semantic search over markdown documentation
+- ✅ **Source citations** - Every answer links back to original docs
+- ✅ **Confidence gating** - Clear fallback when evidence is insufficient
+- ✅ **Gap Radar** - Track unanswered questions by frequency and confidence
 
----
-
-## 📖 Problem Statement
-
-New engineers waste hours asking teammates basic onboarding questions ("How do I run tests?", "Where's auth implemented?", "What's our deployment process?"). Existing docs are fragmented, outdated, or undiscoverable. Teams don't know which documentation gaps exist until someone asks.
-
----
-
-## ✨ Solution
-
-An AI-powered onboarding assistant that:
-
-- ✅ Auto-syncs engineering docs from GitHub (no manual uploads)
-- ✅ Answers questions with source citations and evidence-based fallback behavior when documentation support is insufficient
-- ✅ Detects and logs documentation gaps (improves knowledge base over time)
-- ✅ Provides transparency (shows retrieved chunks, confidence levels)
+### Engineering Quality
+- ✅ **Production deployment** - Live on Vercel (frontend) + Render (backend)
+- ✅ **Comprehensive testing** - 46 test functions, 1,374 lines of test code
+- ✅ **Zero infrastructure cost** - Built entirely on free tiers
+- ✅ **Type-safe** - TypeScript frontend, Python type hints in backend
 
 ---
 
-## 🛠️ Technology Stack (Summary)
+## 🛠️ Technology Stack
 
-**Frontend**: Next.js 14 + TypeScript + Tailwind CSS  
-**Backend**: FastAPI + Python 3.11+  
-**AI/ML**: LangChain, Cohere API (embed-english-v3.0, 1024-dim embeddings, free tier), Groq (Llama-3.1-8b-instant, free tier)  
-**Vector DB**: ChromaDB (persistent, embedded)  
-**Database**: SQLite (gaps.db for Gap Radar)  
-**Deployment**: Vercel (frontend) + Render (backend)  
-**CI/CD**: GitHub Actions (backend + frontend workflows)
+| Layer | Technology | Why |
+|-------|------------|-----|
+| **Frontend** | Next.js 14, TypeScript, Tailwind CSS | Modern React framework, type safety, rapid styling |
+| **Backend** | FastAPI, Python 3.11+ | Async performance, automatic OpenAPI docs |
+| **Embeddings** | Cohere embed-english-v3.0 (1024-dim) | Free tier, high-quality semantic understanding |
+| **LLM** | Groq Llama 3.1 8B | Free tier, extremely fast inference |
+| **Vector DB** | ChromaDB | Persistent local storage, Python-native |
+| **Database** | SQLite | Embedded, zero-config gap tracking |
+| **Deployment** | Vercel + Render | Free tiers, automatic deployments |
 
-_For detailed tech stack rationale, see [docs/technical/SYSTEM_ARCHITECTURE.md](docs/technical/SYSTEM_ARCHITECTURE.md)_
-
----
-
-## 💰 Budget
-
-**Total Cost for 3.5-Month Capstone**: **$0** ✅
-
-- **Embeddings**: Cohere API embed-english-v3.0 (1024-dim, free tier, 1000 req/min, $0)
-- **LLM**: Groq API (14,400 requests/day free tier, $0)
-- **Infrastructure**: $0 (Vercel, Render free tiers)
-
-**Cost-Conscious Engineering Decision**: Chose FREE stack over paid alternatives (OpenAI) because this is an academic capstone project, not a commercial product. This demonstrates engineering maturity in selecting appropriate technologies based on project context and shows fiscal responsibility.
+**Total infrastructure cost:** $0
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
-
 - Python 3.11+
 - Node.js 18+
-- Groq API key (FREE, sign up at console.groq.com - optional for Sprint 0, needed for Sprint 1)
-- Git + GitHub account
+- [Cohere API key](https://dashboard.cohere.com/api-keys) (free)
+- [Groq API key](https://console.groq.com/keys) (free)
 
-### Quick Setup
+### Installation
 
-1. **Clone repo and install dependencies**
-
+1. **Clone and setup backend**
 ```bash
-# Backend
 cd backend
 python -m venv venv
-source venv/bin/activate  # or `venv\Scripts\activate` on Windows
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
+```
 
-# Frontend
+2. **Configure environment**
+```bash
+# backend/.env
+COHERE_API_KEY=your_key_here
+GROQ_API_KEY=your_key_here
+```
+
+3. **Setup frontend**
+```bash
 cd ../frontend
 npm install
 ```
 
-2. **Set up environment variables**
-
+4. **Run locally** (two terminals)
 ```bash
-# Backend .env
-GROQ_API_KEY=your_groq_key_here
-COHERE_API_KEY=your_cohere_key_here
-CORS_ORIGINS=http://localhost:3000
-
-# Get API keys (both FREE):
-# - Cohere: https://dashboard.cohere.com/api-keys
-# - Groq: https://console.groq.com/keys
-
-# Frontend .env.local
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
-
-3. **Run locally (requires two terminals)**
-
-```bash
-# Terminal 1: Backend (from backend/)
+# Terminal 1: Backend
+cd backend
+source venv/bin/activate
 uvicorn app.main:app --reload
-# → Backend runs at http://localhost:8000
+# → http://localhost:8000
 
-# Terminal 2: Frontend (from frontend/)
+# Terminal 2: Frontend  
+cd frontend
 npm run dev
-# → Frontend runs at http://localhost:3000
+# → http://localhost:3000
 ```
-
-4. **Verify setup**
-
-- Backend health: `http://localhost:8000/health`
-- Frontend UI: `http://localhost:3000`
-
-5. **Start building!**
-
-Follow the week-by-week plan in [docs/planning/SPRINT_PLAN.md](docs/planning/SPRINT_PLAN.md)
 
 ---
 
-## � Repository Structure
+## 📖 How It Works
+
+### RAG Pipeline
+
+1. **Indexing**: Markdown files are chunked, embedded (Cohere 1024-dim), and stored in ChromaDB
+2. **Retrieval**: User question is embedded and matched against docs using cosine similarity
+3. **Confidence calculation**: Weighted score based on similarity, source diversity, and context sufficiency
+4. **Generation**: If confidence ≥ 70%, Groq LLM generates answer with citations
+5. **Fallback**: If confidence < 70%, returns clear message and logs to Gap Radar
+
+### Gap Detection
+
+Questions with confidence between 11-70% are analyzed:
+- **Engineering-related** → Logged as documentation gap
+- **Spam/gibberish** → Filtered out with different response
+
+Gap Radar dashboard shows:
+- Question text and confidence score
+- Frequency (how many times asked)
+- Status (NEW / REVIEWED / RESOLVED)
+- Sortable by frequency to prioritize fixes
+
+---
+
+## 🏗️ Project Structure
 
 ```
-├── backend/                    # FastAPI application
+├── backend/                # FastAPI application
 │   ├── app/
-│   │   ├── main.py            # API endpoints
-│   │   └── __init__.py
-│   ├── prove_pipeline_simple.py  # Sprint 0 RAG proof script
-│   ├── requirements.txt
-│   ├── pyproject.toml         # Project config
-│   └── README.md
-├── synthetic-docs/            # Test documentation corpus
-│   ├── 1-getting-started.md
-│   ├── 2-architecture-overview.md
-│   ├── 3-testing-guide.md
-│   ├── 4-deployment.md
-│   └── 5-api-reference.md
-├── docs/
-│   ├── technical/             # Architecture & implementation
-│   │   ├── SYSTEM_ARCHITECTURE.md
-│   │   ├── IMPLEMENTATION_DETAILS.md
-│   │   └── DESIGN_AND_TESTING_TEMPLATE.md
-│   └── sprints/               # Agile artifacts
-│       └── sprint-0/
-│           ├── sprint-goal.md
-│           ├── sprint-backlog.md
-│           └── sprint-review.md
-└── README.md
+│   │   ├── main.py        # API entry point
+│   │   ├── services/      # RAG pipeline, gap detection
+│   │   ├── models/        # Database models
+│   │   ├── routes/        # API endpoints
+│   │   └── utils/         # Logging, helpers
+│   └── tests/             # Pytest suite (46 test functions)
+│
+├── frontend/              # Next.js application
+│   └── src/app/
+│       ├── page.tsx       # Homepage with Ask interface
+│       └── gaps/          # Gap Radar dashboard
+│           └── page.tsx
+│
+├── synthetic-docs/        # Sample documentation corpus (15 MD files)
+├── docs/                  # Project documentation
+│   ├── technical/         # Architecture, implementation details
+│   ├── planning/          # Project overview, features
+│   ├── evaluation/        # Demo script, test results
+│   └── sprints/           # Development artifacts
+│
+└── DESIGN_AND_TESTING.md  # Comprehensive design document
 ```
+
+---
 
 ## 🔌 API Endpoints
 
-**Backend REST API**:
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/ask` | POST | Submit question, get answer with citations |
+| `/api/gaps/` | GET | List documentation gaps |
+| `/api/gaps/{id}/status` | PATCH | Update gap status |
+| `/api/gaps/{id}` | DELETE | Delete gap |
+| `/api/gaps/stats` | GET | Gap statistics |
+| `/health` | GET | Health check |
 
-- `POST /ask` - Submit question, get answer with citations
-- `POST /sync` - Trigger documentation sync
-- `GET /sources` - List indexed documents
-- `GET /gaps` - List documentation gaps
-- `PATCH /gaps/{id}` - Update gap status
-- `GET /metrics` - Get observability metrics
-- `GET /health` - Health check
+See [Implementation Details](docs/technical/IMPLEMENTATION_DETAILS.md) for complete API contracts.
 
-_See [docs/technical/IMPLEMENTATION_DETAILS.md](docs/technical/IMPLEMENTATION_DETAILS.md) for complete API contracts and response schemas._
+---
+
+## 📊 Evaluation Results
+
+**Test Set:** 10 diverse questions (well-documented, edge cases, spam)  
+**Accuracy:** 100% (10/10 correct behaviors)  
+**Avg Response Time:** 1.4 seconds  
+**Test Coverage:** 46 test functions across 5 test files
+
+Full evaluation: [docs/evaluation/sprint-3-formal-evaluation.md](docs/evaluation/sprint-3-formal-evaluation.md)
 
 ---
 
-## 📦 Implementation Status
+## 📚 Documentation
 
-**Sprint 3 Week 1 Complete** (May 8, 2026) - **5 days ahead of schedule** 🚀
-
-**Core Features (100% Complete)**:
-
-- ✅ Full-stack RAG application (Next.js + FastAPI + ChromaDB + Cohere + Groq)
-- ✅ Q&A with confidence scoring and fallback behavior
-- ✅ Documentation Gap Radar (differentiator feature)
-- ✅ Production deployment (Vercel + Render, both URLs live)
-- ✅ Formal evaluation: **10/10 test cases passed (100% accuracy)**
-- ✅ Comprehensive testing: 24 automated tests, multiple test levels
-- ✅ Professional UI (modern minimal design, responsive, animations)
-- ✅ CI/CD pipelines (GitHub Actions: backend + frontend)
-- ✅ Complete documentation (DESIGN_AND_TESTING.md: 641 lines)
-
-**Remaining Work (Tasks 7-16)**:
-
-- ⏳ Script demo video (Task 7, 2-3 hours)
-- ⏳ Practice demo (Task 8, 2-3 hours)
-- ⏳ **Record demo video** (Task 9, 4 hours) - **CRITICAL for submission**
-- ⏳ Share repo with quantic-grader (Task 10, 5 min)
-- ⏳ Sprint 3 retrospective (Task 13, 2-3 hours)
-- ⏳ Final testing and polish (Task 14, 2-3 hours)
-- ⏳ Submit by May 24, 2026 (personal deadline)
-
-**System Metrics**:
-
-- **Accuracy**: 100% (10/10 evaluation test cases)
-- **Response Time**: 1.4s average (excluding cold start)
-- **Cost**: $0 (free tier infrastructure)
-- **Test Coverage**: 46+ test functions across 5 files (1,374 lines)
-- **Documentation**: 275 chunks indexed from 15 markdown files
+- **[System Architecture](docs/technical/SYSTEM_ARCHITECTURE.md)** - Tech stack, data flows, design decisions
+- **[Implementation Details](docs/technical/IMPLEMENTATION_DETAILS.md)** - Code patterns, API contracts, testing strategy
+- **[Design & Testing](DESIGN_AND_TESTING.md)** - Comprehensive architecture and test documentation
+- **[Demo Script](docs/evaluation/DEMO_SCRIPT.md)** - Full product demonstration walkthrough
+- **[Repository Structure](docs/delivery/REPOSITORY_STRUCTURE.md)** - File organization guide
 
 ---
+
+## 🎓 What I Learned
+
+Building this project taught me:
+
+1. **Confidence scoring is essential** - RAG systems need to know when they don't know
+2. **Gap detection creates feedback loops** - Every "I don't know" becomes actionable data
+3. **Free tiers are viable** - $0 infrastructure for a production-quality AI system
+4. **Type safety matters** - TypeScript + Python type hints caught bugs early
+5. **Testing RAG is hard** - Mocking LLM responses, evaluating semantic quality
+
+---
+
+## 🔮 Future Enhancements
+
+- **GitHub integration** - Auto-sync docs from repositories
+- **User authentication** - Track who's asking what
+- **Slack bot** - Answer questions where engineers already are
+- **Weekly reports** - Automated gap prioritization emails
+- **Multi-repo support** - Index docs from multiple sources
+
+---
+
+## 📝 License
+
+MIT License - See [LICENSE](LICENSE) for details
+
+---
+
+## 👤 Author
+
+**Elena Blank**  
+[GitHub](https://github.com/lenablank) | [LinkedIn](https://linkedin.com/in/elenablank)
+
+---
+
+**Built with ❤️ using free-tier AI services to demonstrate that production-quality RAG systems don't require expensive infrastructure.**

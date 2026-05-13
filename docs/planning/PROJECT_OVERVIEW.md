@@ -7,7 +7,7 @@
 
 ## 📋 One-Sentence Pitch
 
-A web-based onboarding assistant that syncs engineering docs from a GitHub repository, answers new-engineer questions with cited evidence, and logs low-evidence queries as documentation gaps to improve documentation over time.
+A web-based onboarding assistant that indexes markdown documentation files, answers new-engineer questions with cited evidence, and logs low-evidence queries as documentation gaps to improve documentation over time.
 
 ---
 
@@ -21,12 +21,12 @@ New engineers waste hours asking teammates basic onboarding questions ("How do I
 
 An AI-powered onboarding assistant that:
 
-- Syncs engineering docs from a GitHub repository (manual trigger in MVP, no manual file uploads)
+- Indexes markdown documentation files from a local corpus (synthetic-docs/ folder in MVP)
 - Answers questions with source citations and evidence-based fallback behavior when documentation support is insufficient
 - Detects and logs documentation gaps (improves knowledge base over time)
 - Provides transparency (shows retrieved chunks, confidence levels)
 
-**MVP Scope Note**: The capstone MVP targets a configured repository/path with manual sync trigger (no GitHub OAuth or scheduled sync).
+**Future Enhancement:** Could be extended to sync directly from GitHub repositories.
 
 ---
 
