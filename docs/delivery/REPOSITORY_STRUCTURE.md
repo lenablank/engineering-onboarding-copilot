@@ -1,6 +1,6 @@
 # Repository Structure & Key Documentation Files
 
-This document outlines the GitHub repository structure and key documentation files for the capstone.
+This document outlines the GitHub repository structure and key files for the capstone project.
 
 ---
 
@@ -8,76 +8,165 @@ This document outlines the GitHub repository structure and key documentation fil
 
 ```
 engineering-onboarding-copilot/
-├── README.md                          # Project overview, setup, LINKS TO ALL DELIVERABLES
-├── DESIGN_AND_TESTING.md              # ⭐ Quantic requirement: architecture + testing
-├── EVALUATION.md                      # Evaluation plan, question set, results
-├── CAPSTONE_SUBMISSION_LINKS.md       # ⭐ Quick ref: deployed app, Trello, demo video
-├── AI_TOOLING_AND_ATTRIBUTION.md      # AI usage, code sources, plagiarism compliance
+├── README.md                          # Project overview, setup instructions, deployment links
+├── DESIGN_AND_TESTING.md              # ⭐ Quantic requirement: architecture + testing documentation
+├── CAPSTONE_SUBMISSION_LINKS.md       # ⭐ Quick ref: deployed app, Trello, demo video, GitHub
+├── .gitignore                         # Git ignore patterns
 ├── .github/
-│   └── workflows/
-│       └── ci.yml                     # GitHub Actions (test, lint, build)
-├── docs/
-│   ├── sprints/                       # Sprint artifacts (goals, reviews, retros, backlogs)
-│   │   ├── sprint-1/
-│   │   │   ├── sprint-goal.md
-│   │   │   ├── sprint-backlog.md
-│   │   │   ├── sprint-review.md
-│   │   │   └── sprint-retro.md
-│   │   ├── sprint-2/
-│   │   └── sprint-3/
-│   ├── demo/                          # Demo preparation artifacts
-│   │   ├── demo-script.md
-│   │   ├── demo-checklist.md
-│   │   ├── sample-questions.md
-│   │   └── backup-plan.md
-│   ├── api/                           # API contract documentation
-│   │   └── endpoints.md               # API endpoint specs
-│   └── architecture-diagram.png       # System architecture visual
-├── frontend/                          # Next.js application
+│   └── workflows/                     # GitHub Actions CI/CD pipelines (not yet implemented)
+├── docs/                              # 📚 All project documentation
+│   ├── INDEX.md                       # Documentation navigation guide
+│   ├── planning/                      # Project planning documents
+│   │   ├── PROJECT_OVERVIEW.md
+│   │   ├── CAPSTONE_REQUIREMENTS.md
+│   │   ├── MVP_FEATURES.md
+│   │   └── SPRINT_PLAN.md
+│   ├── technical/                     # Technical documentation
+│   │   ├── SYSTEM_ARCHITECTURE.md
+│   │   ├── IMPLEMENTATION_DETAILS.md
+│   │   └── DESIGN_AND_TESTING_TEMPLATE.md
+│   ├── evaluation/                    # Testing and demo materials
+│   │   ├── DEMO_SCRIPT.md            # 15-20 minute demo presentation script
+│   │   ├── sprint-2-edge-cases.md
+│   │   └── sprint-3-formal-evaluation.md
+│   ├── delivery/                      # Submission and career materials
+│   │   ├── REPOSITORY_STRUCTURE.md   # This file
+│   │   └── INTERVIEW_PREP.md
+│   └── sprints/                       # Sprint artifacts (goals, backlogs, reviews)
+│       ├── sprint-0/
+│       ├── sprint-1/
+│       └── sprint-2/
+├── frontend/                          # Next.js application (deployed on Vercel)
 │   ├── src/
-│   │   ├── app/
-│   │   │   ├── page.tsx              # Home/Ask page
-│   │   │   ├── sources/page.tsx      # Sources page
-│   │   │   ├── gaps/page.tsx         # Documentation Gaps dashboard
-│   │   │   └── layout.tsx
-│   │   ├── components/
-│   │   │   ├── AskInterface.tsx
-│   │   │   ├── AnswerDisplay.tsx
-│   │   │   ├── SourcesList.tsx
-│   │   │   ├── GapsDashboard.tsx
-│   │   │   └── SyncButton.tsx
-│   │   └── lib/
-│   │       └── api.ts                # API client
-│   ├── public/
+│   │   └── app/
+│   │       ├── page.tsx              # Homepage with Ask interface
+│   │       ├── layout.tsx            # Root layout
+│   │       ├── globals.css           # Global styles
+│   │       ├── ask/
+│   │       │   └── page.tsx          # Ask question page
+│   │       ├── gaps/
+│   │       │   └── page.tsx          # Gap Radar dashboard
+│   │       └── fonts/                # Custom fonts
+│   ├── public/                        # Static assets
 │   ├── package.json
 │   ├── tsconfig.json
 │   ├── tailwind.config.ts
-│   └── .env.example                  # Frontend env vars (NEXT_PUBLIC_API_URL)
-├── backend/                           # FastAPI application
+│   ├── postcss.config.mjs
+│   ├── next.config.mjs
+│   └── next-env.d.ts
+├── backend/                           # FastAPI application (deployed on Render)
 │   ├── app/
-│   │   ├── main.py                   # FastAPI app entry
-│   │   ├── api/
-│   │   │   ├── routes/
-│   │   │   │   ├── ask.py           # /ask endpoint
-│   │   │   │   ├── sync.py          # /sync endpoint
-│   │   │   │   ├── sources.py       # /sources endpoint
-│   │   │   │   ├── gaps.py          # /gaps endpoint
-│   │   │   │   └── health.py        # /health endpoint
-│   │   ├── services/
-│   │   │   ├── ingestion.py         # GitHub sync, chunking, embedding
-│   │   │   ├── rag.py               # RAG pipeline, semantic search
-│   │   │   ├── gap_detection.py     # Confidence gating, gap logging
-│   │   │   └── metrics.py           # Query logging, analytics
-│   │   ├── models/
-│   │   │   ├── database.py          # SQLAlchemy models
-│   │   │   └── schemas.py           # Pydantic schemas
-│   │   ├── db/
-│   │   │   └── connection.py        # Postgres connection
-│   │   └── config.py                # Environment config
-│   ├── tests/
-│   │   ├── fixtures/
-│   │   │   ├── test-docs/           # Mock documentation
-│   │   │   └── evaluation_questions.json
+│   │   ├── main.py                   # FastAPI app entry point
+│   │   ├── __init__.py
+│   │   ├── routes/                   # API endpoints
+│   │   │   ├── __init__.py
+│   │   │   └── gaps.py              # /api/gaps endpoints
+│   │   ├── services/                 # Business logic
+│   │   │   ├── __init__.py
+│   │   │   ├── rag_service.py       # RAG pipeline, confidence calculation
+│   │   │   ├── gap_service.py       # Gap detection and management
+│   │   │   └── vector_store.py      # ChromaDB vector store operations
+│   │   ├── models/                   # Data models
+│   │   │   ├── __init__.py
+│   │   │   ├── database.py          # SQLAlchemy database configuration
+│   │   │   └── gap.py               # DocumentationGap model
+│   │   └── utils/
+│   │       ├── __init__.py
+│   │       └── logging.py           # Logging configuration
+│   ├── tests/                         # Test files
+│   │   ├── conftest.py
+│   │   ├── test_rag_pipeline.py
+│   │   ├── test_gap_service.py
+│   │   ├── test_confidence_enhanced.py
+│   │   └── test_fallback_refactored.py
+│   ├── chroma_db/                     # ChromaDB vector database (persistent)
+│   ├── requirements.txt               # Python dependencies
+│   ├── pyproject.toml                # Python project metadata
+│   ├── pyrightconfig.json            # Type checking configuration
+│   ├── prove_pipeline_simple.py      # Development testing script
+│   └── README.md                     # Backend setup instructions
+├── synthetic-docs/                    # Sample documentation corpus
+│   ├── 1-getting-started.md
+│   ├── 2-architecture-overview.md
+│   ├── 3-testing-guide.md
+│   └── ... (15 total markdown files)
+├── chroma_db/                         # Root-level ChromaDB data (legacy, can be removed)
+├── render-build.sh                    # Render deployment build script
+├── render-start.sh                    # Render deployment start script
+└── test_production.sh                 # Production health check script
+```
+
+---
+
+## ⭐ Key Files for Quantic Submission
+
+### Required Deliverables (Top Level)
+
+1. **README.md** - Project overview with:
+   - Problem statement and solution
+   - Tech stack
+   - Setup instructions
+   - Deployment links
+   - Links to all documentation
+
+2. **DESIGN_AND_TESTING.md** - Formal design document with:
+   - System architecture
+   - Testing strategy
+   - Design decisions and trade-offs
+
+3. **CAPSTONE_SUBMISSION_LINKS.md** - Quick reference with:
+   - Deployed frontend URL (Vercel)
+   - Deployed backend URL (Render)
+   - GitHub repository
+   - Trello board
+   - Demo video (YouTube)
+
+### Core Documentation (docs/)
+
+4. **docs/evaluation/DEMO_SCRIPT.md** - Complete 15-20 minute demo script
+
+5. **docs/technical/SYSTEM_ARCHITECTURE.md** - Detailed architecture documentation
+
+6. **docs/evaluation/sprint-3-formal-evaluation.md** - Final evaluation results
+
+7. **docs/sprints/** - Sprint artifacts showing agile process
+
+---
+
+## 🚀 Deployment Configuration
+
+### Frontend (Vercel)
+- **Framework**: Next.js 14
+- **Deployment**: Automatic on push to `main`
+- **Environment Variables**: None required (API URL is production URL)
+
+### Backend (Render)
+- **Framework**: FastAPI + Uvicorn
+- **Build Command**: `./render-build.sh`
+- **Start Command**: `./render-start.sh`
+- **Environment Variables**:
+  - `COHERE_API_KEY` - Cohere embeddings API key
+  - `GROQ_API_KEY` - Groq LLM API key
+  - Database stored in SQLite (ephemeral on Render free tier)
+
+---
+
+## 📊 Testing Files
+
+- **backend/tests/test_rag_pipeline.py** - RAG pipeline unit tests
+- **backend/tests/test_gap_service.py** - Gap detection unit tests  
+- **backend/tests/test_confidence_enhanced.py** - Confidence calculation tests
+- **backend/tests/test_fallback_refactored.py** - Fallback behavior tests
+- **docs/evaluation/sprint-3-formal-evaluation.md** - Integration test results
+
+---
+
+## 📝 Notes
+
+- ChromaDB stores vector embeddings in `backend/chroma_db/` (gitignored)
+- SQLite database for gaps at `backend/gaps.db` (gitignored)
+- Synthetic documentation corpus in `synthetic-docs/` (15 markdown files)
+- Total infrastructure cost: **$0** (all free tiers)
 │   │   ├── test_ingestion.py
 │   │   ├── test_rag.py
 │   │   ├── test_gap_detection.py
