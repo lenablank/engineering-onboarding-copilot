@@ -205,11 +205,11 @@ Trigger Sync (Manual Button)
 
 - **LLM**: Groq Llama-3.1-8b-instant (FREE tier)
   - _Why_: FREE tier with 14,400 requests/day, extremely fast inference, cost-conscious engineering
-  - _Cost_: $0 for entire capstone project
-  - _Note_: Academic project, not commercial product - free tier appropriate for this context
+  - _Cost_: $0 for entire project
+  - _Note_: Demonstrates that production-quality AI systems can be built without expensive infrastructure
 - **Embeddings**: Cohere embed-english-v3.0 (API-based, FREE tier)
   - _Why_: API-based, 1024 dimensions (better quality than 384-dim local models), free tier sufficient
-  - _Cost_: FREE (1000 requests/min, sufficient for capstone)
+  - _Cost_: FREE (1000 requests/min)
   - _Dimensions_: 1024 (vs 384 for local models, better semantic understanding)
 - **Orchestration**: LangChain
   - _Why_: RAG chains, prompt templates, proven patterns for production RAG
@@ -238,7 +238,7 @@ Trigger Sync (Manual Button)
 - **CI/CD**: GitHub Actions
   - _Why_: Native GitHub integration, free for public repos, flexible workflows
 - **Version Control**: GitHub
-  - _Why_: Required for Quantic submission, industry standard
+  - _Why_: Industry standard, facilitates collaboration and CI/CD
 - **Environment Secrets**: GitHub Secrets + hosting platform env vars
   - _Why_: Secure secret management, no hardcoded keys
 

@@ -29,11 +29,11 @@
 
 **YOU SAY:**
 
-"Hello, my name is Elena Blank. I'm presenting my capstone project for Master of Science in Software Engineering program.
+"Hello, my name is Elena Blank. I'm presenting the Engineering Onboarding Copilot.
 
 **[ACTION: Pause while holding ID]**
 
-Today, I'll be demonstrating the Engineering Onboarding Copilot -- a RAG-powered documentation assistant with automated gap detection. This is a solo project that I've built over twelve weeks, from conception through production deployment.
+Today, I'll be demonstrating a RAG-powered documentation assistant with automated gap detection. This is a full-stack project that I've built over twelve weeks, from conception through production deployment.
 
 Let me share my screen and walk you through the entire system."
 
@@ -85,7 +85,7 @@ For documentation gap tracking, I'm using SQLite embedded in the backend—zero 
 
 What I also want to emphasize about technology choices: the total infrastructure cost for this entire project is zero dollars. Not just 'cheap' — it's actually zero.
 
-I made this decision deliberately, because this is an academic project, not a funded commercial product.
+I made this decision deliberately to demonstrate that you can build production-quality AI systems without expensive infrastructure.
 
 And because everything runs on free tiers, this system can stay deployed indefinitely without any recurring costs."
 
@@ -332,7 +332,7 @@ What I learned from this project: First, confidence scoring is essential for pro
 
 Second, the Gap Radar feature taught me that AI systems shouldn't just answer questions —- they should identify when they can't answer and show it as actionable data.
 
-Third, free tiers are completely fine for academic projects and many production use cases if you architect thoughtfully.
+Third, cost-conscious engineering matters. Free tiers are completely viable for many production use cases if you architect thoughtfully.
 
 If I were to extend this project, I'd add three things: user authentication so teams can track who's asking what, integration with Slack so engineers can ask questions without leaving their workflow, and maybe automated weekly reports showing the most frequent gaps so teams can prioritize documentation work.
 

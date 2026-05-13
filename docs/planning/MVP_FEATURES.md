@@ -1,31 +1,31 @@
 # MVP Feature List & Scope Management
 
-This document defines the **scope-frozen MVP features** required for capstone success.
+This document defines the **scope-frozen MVP features** for the Engineering Onboarding Copilot.
 
 ---
 
 ## 🚨 MVP Scope Freeze Statement
 
-**Priority Sequencing for High Scores:**
+**Priority Sequencing:**
 
-1. **First priority**: Deliver all 5 required submission components (repo, deployed app, Trello, design/testing doc, demo video)
-2. **Second priority**: Rubric-critical evidence (3+ sprints with agile artifacts, stable deployed demo, CI/CD, comprehensive testing)
-3. **Third priority**: Differentiators that show initiative (Gap Radar, evaluation metrics, AI safety controls)
+1. **First priority**: Core functionality (deployed app with documentation, agile workflow, design/testing docs, demo)
+2. **Second priority**: Engineering rigor (CI/CD, comprehensive testing, stable production deployment)
+3. **Third priority**: Differentiators (Gap Radar, evaluation metrics, AI safety controls)
 
 **Any feature not listed in the MVP section below is deferred until all MVP acceptance criteria pass and the deployed app is demo-ready.**
 
-This is non-negotiable scope protection to ensure capstone success.
+This is strict scope protection to ensure project success.
 
 ---
 
-## 🎯 MVP Feature List (Must Ship for Capstone Success)
+## 🎯 MVP Feature List (Must Ship)
 
-**Features 1-6 produce the core application experience and demo workflow. Features 7-9 are necessary to demonstrate rubric-critical engineering evidence (CI/CD, testing/documentation quality, and production-safe design) for a strong capstone score.**
+**Features 1-6 produce the core application experience and demo workflow. Features 7-9 demonstrate engineering rigor (CI/CD, testing/documentation quality, and production-safe design).**
 
 - Features 1-6: Core application functionality (Q&A, citations, fallback, gaps, UI, metrics)
-- Feature 7 (CI/CD): Rubric-critical engineering methodology evidence
-- Feature 8 (Testing & Docs): Required design/testing document + evaluation rigor
-- Feature 9 (Security): Production thinking and above-minimum initiative
+- Feature 7 (CI/CD): Automated deployment and quality checks
+- Feature 8 (Testing & Docs): Comprehensive testing and technical documentation
+- Feature 9 (Security): Production thinking and safety controls
 
 ---
 
@@ -88,7 +88,7 @@ _Note: MVP does not include user-authenticated GitHub OAuth integration; ingesti
 - GitHub Actions: linting, tests, build checks
 - Deployed to shareable URL (Vercel + Render free tiers)
 - Health check endpoint (`/health`)
-- Shared with `quantic-grader` GitHub account
+- Public repository for portfolio
 
 #### **8. Testing & Documentation**
 
