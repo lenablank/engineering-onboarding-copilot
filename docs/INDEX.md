@@ -43,15 +43,16 @@
 
 1. [Project Overview](planning/PROJECT_OVERVIEW.md) - Understand the problem and solution
 2. [System Architecture](technical/SYSTEM_ARCHITECTURE.md) - See how it's built
-3. [Implementation Details](technical/IMPLEMENTATION_DETAILS.md) - Technical deep-dive
+3. [Implementation Details](technical/IMPLEMENTATION_DETAILS.md) - RAG pipeline and deployment
+4. [Design & Testing](../DESIGN_AND_TESTING.md) - Comprehensive design document (681 lines)
 
 **Want to see it in action?**
 
 - Visit the [Live App](https://engineering-onboarding-copilot.vercel.app)
-- Read the [Evaluation Results](evaluation/sprint-3-formal-evaluation.md)
+- Read the [Evaluation Results](evaluation/sprint-3-formal-evaluation.md) - 10 test cases, 100% accuracy
 
-**Want technical details?**
+**Looking for something specific?**
 
-- [Implementation Details](technical/IMPLEMENTATION_DETAILS.md) - Technical deep-dive
-- [Design & Testing](../DESIGN_AND_TESTING.md) - Architecture and test strategy
-- [Sprint 3 Evaluation](evaluation/sprint-3-formal-evaluation.md) - Test results and metrics
+- [MVP Features](planning/MVP_FEATURES.md) - Feature scope and acceptance criteria
+- [Repository Structure](delivery/REPOSITORY_STRUCTURE.md) - File organization and key files
+- [Sprint Records](sprints/) - Development history and retrospectives
