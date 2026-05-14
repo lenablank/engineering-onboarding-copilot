@@ -1,5 +1,21 @@
 # Sprint Implementation Plan
 
+> ⚠️ **HISTORICAL PLANNING DOCUMENT**  
+> This represents the original sprint plan created during Sprint 0 (February 2026). Actual implementation differed significantly due to technology pivots and scope adjustments during development.  
+>   
+> **For actual implementation, see:**  
+> - [DESIGN_AND_TESTING.md](../../DESIGN_AND_TESTING.md) - Architecture as-built with actual technology choices  
+> - [Trello Board](https://trello.com/invite/b/69a427cee6ac597f2636cc22/ATTI574b510e4c3fe88d71fff3b5c25fc15e8B0CD9D4/capstone-engineering-onboarding-copilot) - Actual sprint execution and task tracking  
+> - `/docs/sprints/sprint-{0,1,2,3}/` folders - Sprint artifacts (goals, reviews, retrospectives)  
+>   
+> **Key deviations from plan:**  
+> - **Database**: SQLite (not Postgres/Neon as planned)  
+> - **Embeddings**: Cohere API embed-english-v3.0 (not HuggingFace local as planned)  
+> - **Chunking**: RecursiveCharacterTextSplitter only (MarkdownHeaderTextSplitter not implemented)  
+> - **Sync**: Local file indexing only (GitHub integration deferred)  
+> - **Features**: Sources page implemented then removed (Gap Radar + Ask pages sufficient)  
+> - **New features not planned**: Gap status management (NEW/REVIEWED/RESOLVED), spam filtering (11% threshold), delete gap functionality
+
 **Sprint 0 (Planning) + 3 Implementation Sprints over 12 Weeks**  
 **Protected Buffer Week Before May 31 Deadline**  
 **Solo Capstone Project - Structured for Quantic Requirements**
