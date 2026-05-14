@@ -1,6 +1,6 @@
 # Design and Testing Documentation
 
-**Status**: Final (Completed April 28, 2026)
+**Status**: Living Document (Last major update: April 28, 2026)
 
 ---
 
@@ -271,6 +271,7 @@ confidence = max_similarity_score
 
 - **High confidence**: ≥0.70 → Generate answer
 - **Low confidence**: <0.70 → Return fallback + log gap
+- **Spam filter**: ≤0.11 → Ignore completely (don't log)
 
 **Calibration basis**:
 
@@ -279,11 +280,20 @@ confidence = max_similarity_score
 - All 3 well-documented questions scored 0.75-0.82 (above threshold)
 - All 2 undocumented questions scored 0.05-0.15 (below threshold)
 
+**Spam Filtering (MIN_RELEVANCE_THRESHOLD = 0.11)**:
+
+To prevent logging irrelevant questions ("What's the weather?", "asdfasdf"), the system includes a spam filter below the main confidence threshold:
+
+- Questions with confidence ≤11% are considered completely irrelevant
+- These are rejected without logging to gap database
+- Prevents noise in Gap Radar dashboard
+- Balances comprehensive gap detection with spam prevention
+
 **Important**: Confidence score indicates evidence sufficiency, **not factual correctness guarantee**. High confidence means "sufficient documentation retrieved to attempt an answer."
 
 ### Fallback Behavior
 
-When confidence <0.70:
+When confidence <0.70 (but >0.11):
 
 1. Return message: _"I cannot answer this confidently from the current documentation. This question has been logged for review."_
 2. Log to `documentation_gaps` table with:
@@ -292,14 +302,43 @@ When confidence <0.70:
    - Retrieved sources (as context)
    - Timestamp
    - Frequency counter (increments on duplicate)
+   - Status: NEW (default)
 3. Frontend displays fallback message with explanation
 4. Question appears in Gap Radar dashboard
+
+When confidence ≤0.11:
+
+- Return message: _"This question appears unrelated to the documentation."_
+- Question is NOT logged (spam filter)
+- No gap entry created
+
+### Gap Status Management
+
+The Gap Radar dashboard includes a full lifecycle management system for documentation gaps:
+
+**Status States**:
+
+- **NEW**: Freshly logged gap, needs review
+- **REVIEWED**: Team has acknowledged, planning documentation
+- **RESOLVED**: Documentation added, gap closed
+
+**Management Features**:
+
+- Update status via dropdown (NEW → REVIEWED → RESOLVED)
+- Delete gaps (false positives, spam that slipped through)
+- Sort by frequency, date, or confidence
+- Filter by status to focus on actionable items
+- Frequency counter shows how many times question was asked
+
+**Implementation**: `frontend/src/app/gaps/page.tsx`, `backend/app/services/gap_service.py`
 
 **Implementation Evidence**:
 
 - Confidence calculation: `backend/app/services/rag_service.py`
-- Gap logging: Triggered in ask endpoint when confidence <0.70
-- Tests: `backend/test_gap_service.py` (19 test functions for gap logic)
+- Gap logging: Triggered in ask endpoint when 0.11 < confidence < 0.70
+- Spam filtering: `MIN_RELEVANCE_THRESHOLD = 0.11` in `rag_service.py`
+- Gap management: `gap_service.py` with status updates, delete operations
+- Tests: `backend/test_gap_service.py` (18 pytest functions for gap logic)
 
 ---
 
@@ -373,8 +412,8 @@ The testing strategy prioritizes **deterministic, fast, cost-free automated test
 
 **Test Files**:
 
-- `test_gap_service.py`: 19 unit tests for gap logging, deduplication, statistics
-- `test_database_setup.py`: Database initialization and schema validation
+- `test_gap_service.py`: 18 pytest functions for gap logging, deduplication, statistics (304 lines)
+- `test_database_setup.py`: Database initialization and schema validation (226 lines)
 - Total: ~530 lines of unit test code
 
 #### 2. Integration Tests (Component Interaction)
@@ -396,8 +435,8 @@ The testing strategy prioritizes **deterministic, fast, cost-free automated test
 
 **Test Files**:
 
-- `test_rag_pipeline.py`: RAG flow integration (92 lines)
-- `test_gap_integration.py`: Gap service with real database (289 lines)
+- `test_rag_pipeline.py`: RAG flow integration - manual test suite, not pytest (92 lines)
+- `test_gap_integration.py`: Gap service with real database (289 lines) - 7 pytest functions
 - Total: ~381 lines of integration test code
 
 #### 3. Edge Case Testing (Robustness)
@@ -419,7 +458,7 @@ The testing strategy prioritizes **deterministic, fast, cost-free automated test
 
 **Test Files**:
 
-- `test_edge_cases.py`: 463 lines testing boundary conditions, malformed input, error handling
+- `test_edge_cases.py`: Manual test suite (not pytest) - 463 lines testing boundary conditions, malformed input, error handling
 
 #### 4. End-to-End Evaluation (System Validation)
 
@@ -471,30 +510,31 @@ The testing strategy prioritizes **deterministic, fast, cost-free automated test
 
 **Test Execution Summary**:
 
-- **Test suites executed**: pytest (backend), manual evaluation (production)
+- **Test suites executed**: pytest (backend), manual test suites (backend), formal evaluation (production)
 - **Dates**: Sprint 2 (April 20-26, 2026), Sprint 3 formal evaluation (April 27, 2026)
 - **Environment**: Local macOS (pytest), Production Render+Vercel (evaluation)
 - **Results**: All tests passing, 100% accuracy on evaluation
 - **Test files**: 5 files, 1,374 lines of test code
-- **Test functions**: 40+ test functions across all suites
+- **Automated pytest functions**: ~27 pytest test functions
+- **Manual test suites**: 2 files (test_edge_cases.py, test_rag_pipeline.py) with comprehensive manual validation
 
 **Test File Breakdown**:
 
-| Test File                 | Lines | Purpose                                    | Test Count |
-| ------------------------- | ----- | ------------------------------------------ | ---------- |
-| `test_gap_service.py`     | 304   | Gap logging, deduplication, statistics     | 19         |
-| `test_edge_cases.py`      | 463   | Boundary conditions, error handling        | 12+        |
-| `test_gap_integration.py` | 289   | Gap service with database integration      | 8          |
-| `test_database_setup.py`  | 226   | Database initialization, schema validation | 3          |
-| `test_rag_pipeline.py`    | 92    | RAG flow end-to-end                        | 4          |
-| **Total**                 | 1,374 | **Comprehensive test coverage**            | **46+**    |
+| Test File                 | Lines | Purpose                                    | Type & Count              |
+| ------------------------- | ----- | ------------------------------------------ | ------------------------- |
+| `test_gap_service.py`     | 304   | Gap logging, deduplication, statistics     | 18 pytest functions       |
+| `test_gap_integration.py` | 289   | Gap service with database integration      | 7 pytest functions        |
+| `test_database_setup.py`  | 226   | Database initialization, schema validation | 1 pytest function         |
+| `test_edge_cases.py`      | 463   | Boundary conditions, error handling        | Manual test suite (class) |
+| `test_rag_pipeline.py`    | 92    | RAG flow end-to-end                        | Manual test suite (class) |
+| **Total**                 | 1,374 | **Comprehensive test coverage**            | **~27 pytest + 2 manual** |
 
 **Coverage Analysis**:
 
-- **Gap Detection**: Extensively tested (19 unit tests + 8 integration tests)
-- **RAG Pipeline**: Core flow validated (4 integration tests)
-- **Edge Cases**: Robust validation (12+ edge case tests)
-- **Database**: Schema and initialization verified (3 tests)
+- **Gap Detection**: Extensively tested (18 unit pytest + 7 integration pytest)
+- **RAG Pipeline**: Core flow validated (manual test suite)
+- **Edge Cases**: Robust validation (manual test suite with comprehensive scenarios)
+- **Database**: Schema and initialization verified (1 pytest)
 - **End-to-End**: Production validation (10 evaluation test cases)
 
 **Known Test Limitations**:
@@ -613,7 +653,7 @@ The Engineering Onboarding Copilot successfully demonstrates a production-ready 
 - **Zero infrastructure cost** ($0/month FREE stack)
 - **Fast performance** (1.4s average response time)
 - **Intelligent gap detection** (differentiator from standard RAG systems)
-- **Comprehensive testing** (46+ automated tests + formal evaluation)
+- **Comprehensive testing** (~27 pytest functions + 2 manual test suites + formal evaluation)
 - **Production deployment** (live on Vercel + Render with auto-deploy)
 
 The system is ready for capstone demonstration and evaluation, with all requirements satisfied.
@@ -637,5 +677,5 @@ The system is ready for capstone demonstration and evaluation, with all requirem
 
 ---
 
-**Document Status**: ✅ Final  
-**Last Updated**: April 28, 2026
+**Document Status**: ✅ Living Document  
+**Last Updated**: May 14, 2026
