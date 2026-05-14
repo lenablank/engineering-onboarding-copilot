@@ -4,7 +4,7 @@
 
 > A production RAG system that answers engineering questions with cited sources and identifies documentation gaps to improve knowledge bases over time.
 
-🔗 **[Live Demo](https://engineering-onboarding-copilot.vercel.app)** | 📚 **[Documentation](docs/INDEX.md)** | 🏗️ **[Architecture](docs/technical/SYSTEM_ARCHITECTURE.md)**
+🔗 **[Live Demo](https://engineering-onboarding-copilot.vercel.app)** | 🎥 **[Demo Video](https://drive.google.com/file/d/1ZO7LkoiAJLp1WnlxHjQv3U27Jh8xDndc/view?usp=sharing)** | 📚 **[Documentation](docs/INDEX.md)** | 🏗️ **[Architecture](docs/technical/SYSTEM_ARCHITECTURE.md)**
 
 ---
 

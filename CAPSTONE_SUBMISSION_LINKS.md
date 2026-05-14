@@ -48,7 +48,23 @@
 
 ---
 
-### 4. Design and Testing Document
+### 4. Demo Video
+
+**Link**: https://drive.google.com/file/d/1ZO7LkoiAJLp1WnlxHjQv3U27Jh8xDndc/view?usp=sharing  
+**Status**: ✅ Recorded and uploaded (May 14, 2026)  
+**Duration**: ~15-20 minutes  
+**Platform**: Google Drive
+
+**Content demonstrates:**
+- Live Q&A with documentation corpus
+- Source citations and confidence scoring
+- Gap Radar dashboard and gap management
+- Evidence-based fallback behavior
+- Spam filtering in action
+
+---
+
+### 5. Design and Testing Document
 
 **File**: [DESIGN_AND_TESTING.md](DESIGN_AND_TESTING.md)  
 **Template**: [docs/technical/DESIGN_AND_TESTING_TEMPLATE.md](docs/technical/DESIGN_AND_TESTING_TEMPLATE.md)  
@@ -56,27 +72,6 @@
 **Details**: 641 lines, all 11 sections complete, comprehensive testing documentation (5 files, 1,374 lines, 46+ tests)
 
 ---
-
-### 5. Demonstration/Presentation Recording
-
-**Video Link**: _To be recorded May 11-17, 2026 (Sprint 3 Week 3)_  
-**Status**: ⏳ **READY TO RECORD** (all features deployed and tested)  
-**Platform**: YouTube (unlisted) / Google Drive / Loom
-
-**Requirements:**
-
-- ✅ 15-20 minutes length
-- ✅ Voice over throughout (student speaks)
-- ✅ Government-issued ID shown clearly
-- ✅ Face visible throughout
-- ✅ Demonstrates deployed application (both URLs live)
-- ✅ Shows all core features working (Q&A, Gap Radar, confidence gating)
-
-**Formal Evaluation Completed**:
-
-- 10/10 test cases passed (100% accuracy)
-- 1.4s average response time
-- Documented in: `docs/evaluation/sprint-3-formal-evaluation.md`
 
 ---
 

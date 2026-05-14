@@ -2,6 +2,8 @@
 
 **Engineering Onboarding Copilot - Technical Documentation**
 
+🔗 **[Live Demo](https://engineering-onboarding-copilot.vercel.app)** | 🎥 **[Demo Video](https://drive.google.com/file/d/1ZO7LkoiAJLp1WnlxHjQv3U27Jh8xDndc/view?usp=sharing)**
+
 ---
 
 ## 📁 Documentation Structure
