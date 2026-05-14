@@ -18,7 +18,7 @@
 
 4. **[System Architecture](technical/SYSTEM_ARCHITECTURE.md)** - Architecture diagrams, tech stack, data models
 5. **[Implementation Details](technical/IMPLEMENTATION_DETAILS.md)** - RAG pipeline details, testing strategy, deployment
-6. **[Design & Testing](technical/DESIGN_AND_TESTING_TEMPLATE.md)** - Comprehensive design and testing documentation
+6. **[Design & Testing](../DESIGN_AND_TESTING.md)** - Comprehensive design and testing documentation
 
 ### Testing & Evaluation
 
@@ -53,5 +53,5 @@
 **Want technical details?**
 
 - [Implementation Details](technical/IMPLEMENTATION_DETAILS.md) - Technical deep-dive
-- [Design & Testing](technical/DESIGN_AND_TESTING_TEMPLATE.md) - Architecture and test strategy
+- [Design & Testing](../DESIGN_AND_TESTING.md) - Architecture and test strategy
 - [Sprint 3 Evaluation](evaluation/sprint-3-formal-evaluation.md) - Test results and metrics
