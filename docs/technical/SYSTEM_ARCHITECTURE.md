@@ -202,9 +202,8 @@ Application Startup (Automatic)
   - _Why_: RAG chains, prompt templates, proven patterns for production RAG
 - **Vector Database**: Chroma
   - _Why_: Local-first (easy development), persistent storage, Python-native, free
-- **Chunking**: LangChain text splitters
-  - MarkdownHeaderTextSplitter (semantic chunking by headers)
-  - RecursiveCharacterTextSplitter (split large sections further)
+- **Chunking**: LangChain RecursiveCharacterTextSplitter
+  - _Why_: Character-based chunking with recursive splitting, 500 char chunks, 50 char overlap
 
 ### Data Storage
 
@@ -218,12 +217,12 @@ Application Startup (Automatic)
 
 - **Frontend Hosting**: Vercel (free tier)
   - _Why_: Automatic Next.js deployment, global CDN, preview deployments, $0 cost
-- **Backend Hosting**: Render or Railway (free tier)
+- **Backend Hosting**: Render (free tier)
   - _Why_: Free tier supports Python, auto-deploy from GitHub, health checks
-- **Database**: Neon Postgres (free tier)
-  - _Why_: Serverless Postgres, $0 cost, auto-scaling (within limits)
-- **CI/CD**: GitHub Actions
-  - _Why_: Native GitHub integration, free for public repos, flexible workflows
+- **Database**: SQLite (embedded)
+  - _Why_: Zero-config, embedded database, no external service needed, $0 cost
+- **CI/CD**: None (manual deployments)
+  - _Why_: Automatic deployments via Vercel/Render GitHub integration
 - **Version Control**: GitHub
   - _Why_: Industry standard, facilitates collaboration and CI/CD
 - **Environment Secrets**: GitHub Secrets + hosting platform env vars
@@ -254,38 +253,61 @@ Application Startup (Automatic)
 }
 ```
 
-### QueryLog (Future Enhancement - Not Implemented)
+### QueryLog (Not Implemented)
 
-```sql
-CREATE TABLE query_logs (
-    id SERIAL PRIMARY KEY,
-    question TEXT NOT NULL,
-    answer TEXT,
-    confidence VARCHAR(20),  -- 'high', 'medium', 'low', 'gap'
-    sources_used JSONB,      -- [{file_path, snippet}, ...]
-    latency_ms INTEGER,
-    timestamp TIMESTAMPTZ DEFAULT NOW(),
-    INDEX idx_logs_timestamp (timestamp)
-);
-```
+_Future enhancement: Query logging for analytics and observability._
 
 ### DocumentationGap (SQLite)
 
-```sql
-CREATE TABLE documentation_gaps (
-    id SERIAL PRIMARY KEY,
-    question TEXT NOT NULL,
-    question_normalized TEXT NOT NULL,  -- Lowercase, trimmed, for deduplication
-    status VARCHAR(20) DEFAULT 'new',  -- 'new', 'reviewed', 'resolved'
-    topic_tag VARCHAR(100),             -- 'Local Setup', 'Testing', etc.
-    frequency INTEGER DEFAULT 1,        -- Count of times asked
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    first_asked TIMESTAMPTZ DEFAULT NOW(),
-    last_asked TIMESTAMPTZ DEFAULT NOW(),
-    notes TEXT,
-    INDEX idx_gaps_status (status),
-    INDEX idx_gaps_last_asked (last_asked)
-);
+```python
+from sqlalchemy import String, Float, Integer, DateTime, JSON, Enum as SQLEnum
+from sqlalchemy.orm import Mapped, mapped_column
+import enum
+from datetime import datetime
+import uuid
+
+class GapStatus(str, enum.Enum):
+    """Status of a documentation gap."""
+    NEW = "new"
+    REVIEWED = "reviewed"
+    RESOLVED = "resolved"
+
+class DocumentationGap(Base):
+    """Model for storing documentation gaps in SQLite."""
+    __tablename__ = "documentation_gaps"
+    
+    # Primary key - UUID as string for SQLite
+    id: Mapped[str] = mapped_column(
+        String(36),
+        primary_key=True,
+        default=lambda: str(uuid.uuid4()),
+    )
+    
+    # The question that triggered low confidence
+    question: Mapped[str] = mapped_column(String(500), index=True)
+    
+    # Hash of normalized question for fast duplicate detection
+    question_hash: Mapped[Optional[str]] = mapped_column(String(64), index=True, default=None)
+    
+    # Confidence score (0.0 to 1.0)
+    confidence_score: Mapped[float] = mapped_column(Float)
+    
+    # Frequency counter
+    frequency: Mapped[int] = mapped_column(Integer, default=1, index=True)
+    
+    # Status tracking
+    status: Mapped[GapStatus] = mapped_column(
+        SQLEnum(GapStatus),
+        default=GapStatus.NEW,
+        index=True
+    )
+    
+    # Optional: Store retrieval context as JSON
+    retrieval_context: Mapped[Optional[List[Dict[str, Any]]]] = mapped_column(JSON, default=None)
+    
+    # Timestamps
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 ```
 
 
@@ -323,38 +345,25 @@ chunk_metadata = {
 
 ### Retrieval Strategy
 
-**Basic semantic search (MVP)**:
+**Semantic search using LangChain + ChromaDB**:
 
 ```python
-from chromadb import Client
+from langchain_chroma import Chroma
 
-# Query vector DB
-results = chroma_collection.query(
-    query_embeddings=[question_embedding],
-    n_results=10,  # Top-k chunks
-    include=["documents", "metadatas", "distances"]
+# Query using LangChain wrapper (handles embedding automatically)
+retriever = vectorstore.as_retriever(
+    search_type="similarity",
+    search_kwargs={"k": 5}  # Top 5 chunks
 )
 
-# Normalize Chroma results into structured objects
-rows = []
-for doc, meta, dist in zip(
-    results["documents"][0],
-    results["metadatas"][0],
-    results["distances"][0],
-):
-    rows.append({
-        "text": doc,
-        "metadata": meta,
-        "distance": dist,
-        "relevance_score": 1 - dist  # Convert distance to score (validate for your metric!)
-    })
+# Retrieve with scores
+docs_with_scores = vectorstore.similarity_search_with_score(
+    question,
+    k=5
+)
 
-# Filter by confidence threshold
-threshold = 0.3  # Distance threshold (lower = more similar)
-confident_results = [
-    r for r in rows
-    if r['distance'] < threshold
-]
+# docs_with_scores is List[Tuple[Document, float]]
+# where float is ChromaDB's distance metric (lower = more similar)
 ```
 
 ---
@@ -391,91 +400,116 @@ Answer the question using ONLY the information above. Cite your sources.
 
 ---
 
-### Confidence Detection Logic
+### Confidence Calculation
 
 ```python
-from datetime import datetime, timezone
-
-def detect_confidence(question: str, retrieved_chunks: list) -> str:
+def _calculate_confidence(
+    self,
+    documents_with_scores: List[Tuple[Document, float]]
+) -> float:
     """
-    Evidence-based confidence heuristic for answering question.
-
-    This is NOT a guarantee of correctness, but a gating mechanism
-    to reduce unsupported answers by routing low-evidence queries
-    to safe fallback behavior.
-
-    Returns: 'high', 'medium', 'low', or 'gap'
+    Calculate confidence score based on retrieval quality.
+    
+    Factors:
+    1. Similarity scores (higher = better)
+    2. Number of unique sources (more = better)
+    3. Context sufficiency (enough words retrieved)
+    
+    Returns:
+        Confidence score between 0 and 1
     """
-    if not retrieved_chunks:
-        return 'gap'
-
-    # Normalize Chroma distances to relevance scores
-    # Note: Assumes cosine distance metric; validate for your configuration
-    for chunk in retrieved_chunks:
-        chunk['relevance_score'] = 1 - chunk.get('distance', 0)
-
-    max_score = max(chunk['relevance_score'] for chunk in retrieved_chunks)
-
-    # Check context sufficiency (character count as token proxy)
-    total_context_chars = sum(len(chunk['text']) for chunk in retrieved_chunks)
-    num_distinct_sources = len(set(chunk['metadata']['file_path'] for chunk in retrieved_chunks))
-
-    # Heuristic decision logic (tune thresholds on eval set)
-    if max_score > 0.85 and total_context_chars > 200 and num_distinct_sources >= 1:
-        return 'high'
-    elif max_score > 0.7 and total_context_chars > 100:
-        return 'medium'
-    elif max_score > 0.5:
-        return 'low'
-    else:
-        return 'gap'  # Route to gap logging
+    if not documents_with_scores:
+        return 0.0
+    
+    # ChromaDB distance calibration: 0.0=perfect, ~0.9=moderate, 2.0=no match
+    # Convert to similarity: similarity = max(0, (2 - distance) / 2)
+    similarities = [max(0, (2 - score) / 2) for _, score in documents_with_scores]
+    avg_similarity = sum(similarities) / len(similarities)
+    
+    # Check minimum similarity threshold
+    if avg_similarity < 0.3:  # MIN_SIMILARITY_SCORE
+        return round(avg_similarity * 0.5, 2)  # Penalize low similarity
+    
+    # Unique sources count
+    unique_sources = set(
+        doc.metadata.get("source", "unknown") 
+        for doc, _ in documents_with_scores
+    )
+    source_diversity = min(len(unique_sources) / 1, 1.0)  # MIN_SOURCES = 1
+    
+    # Context sufficiency (total words)
+    total_words = sum(
+        len(doc.page_content.split()) 
+        for doc, _ in documents_with_scores
+    )
+    context_sufficiency = min(total_words / 50, 1.0)  # MIN_CONTEXT_WORDS = 50
+    
+    # Weighted combination:
+    # - Similarity: 50% (how well docs match question)
+    # - Source diversity: 25%
+    # - Context sufficiency: 25%
+    confidence = (
+        0.5 * avg_similarity +
+        0.25 * source_diversity +
+        0.25 * context_sufficiency
+    )
+    
+    return round(confidence, 2)
 ```
 
-**Important**: Thresholds should be calibrated on your evaluation set. Document chosen values and rationale in `DESIGN_AND_TESTING.md`.
+**Confidence gating**:
+- If `confidence >= 0.70` (70%) → Generate answer with LLM
+- If `0.11 <= confidence < 0.70` → Check if engineering-related, log as gap
+- If `confidence < 0.11` (11%) → Spam filter, generic response
 
 ---
 
-### Gap Logging Service
+### Gap Logging
 
 ```python
-from datetime import datetime, timezone
+import hashlib
+from datetime import datetime
 
-async def log_documentation_gap(
+def log_gap(
     question: str,
-    confidence: str,
-    db: Session
-):
-    """Log question that couldn't be answered confidently."""
-
-    # Normalize question for better duplicate detection
-    question_normalized = question.lower().strip().replace("  ", " ").rstrip("?!.")
-
-    # Check if similar gap already exists (using normalized key)
+    confidence_score: float,
+    retrieval_context: Optional[List[Dict[str, Any]]] = None
+) -> None:
+    """
+    Log documentation gap to SQLite database.
+    
+    Uses question_hash for deduplication - increments frequency if exists.
+    """
+    # Create hash for deduplication
+    question_hash = hashlib.sha256(
+        question.lower().strip().encode('utf-8')
+    ).hexdigest()
+    
+    # Check if gap already exists
     existing_gap = db.query(DocumentationGap).filter(
-        DocumentationGap.question_normalized == question_normalized
+        DocumentationGap.question_hash == question_hash
     ).first()
-
+    
     if existing_gap:
         # Increment frequency
         existing_gap.frequency += 1
-        existing_gap.last_asked = datetime.now(timezone.utc)
+        existing_gap.updated_at = datetime.utcnow()
     else:
         # Create new gap
         new_gap = DocumentationGap(
             question=question,
-            question_normalized=question_normalized,
-            status='new',
-            topic_tag=extract_topic_tag(question),  # Optional
+            question_hash=question_hash,
+            confidence_score=confidence_score,
+            status=GapStatus.NEW,
             frequency=1,
-            created_at=datetime.now(timezone.utc),
-            last_asked=datetime.now(timezone.utc)
+            retrieval_context=retrieval_context,
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow()
         )
         db.add(new_gap)
-
+    
     db.commit()
 ```
-
-**Note**: Using `question_normalized` for exact match dedupe improves frequency counts without expensive fuzzy matching. Alternative fuzzy approaches (e.g., `ilike("%...")`) can produce unreliable matches.
 
 ---
 
@@ -483,14 +517,15 @@ async def log_documentation_gap(
 
 **Backend REST API**:
 
+- `GET /` - Root endpoint with API info
 - `GET /health` - Health check
-- `POST /ask` - Submit question, get answer + citations
-- `POST /sync` - Trigger documentation sync
-- `GET /sources` - List indexed documents
-- `GET /gaps` - List documentation gaps
-- `PATCH /gaps/{id}` - Update gap status
-- `GET /metrics` - Get observability metrics
-- `GET /query-logs` - Get recent query logs (or include in `/metrics`)
+- `POST /ask` - Submit question, get answer with citations
+- `GET /api/gaps/` - List all documentation gaps
+- `GET /api/gaps/{id}` - Get specific gap
+- `GET /api/gaps/stats` - Get gap statistics
+- `PATCH /api/gaps/{id}/status` - Update gap status
+- `DELETE /api/gaps/{id}` - Delete gap
+- `GET /docs/{filename}` - Retrieve documentation file
 
 ### API Response Contracts
 
@@ -498,80 +533,78 @@ async def log_documentation_gap(
 
 ```json
 {
-  "answer": "To run the backend locally, install dependencies with `pip install -r requirements.txt`, then run `uvicorn app.main:app --reload`. [docs/setup.md]",
-  "confidence": "high",
+  "question": "How do I run the backend locally?",
+  "answer": "To run the backend locally:\n\n1. Install dependencies: `pip install -r requirements.txt`\n2. Create .env file with API keys\n3. Run: `uvicorn app.main:app --reload`\n\nThe backend will be available at http://localhost:8000",
   "sources": [
     {
-      "file_path": "docs/setup.md",
-      "snippet": "## Local Development\n\nInstall dependencies: `pip install -r requirements.txt`",
-      "header_hierarchy": "Setup > Local Development"
-    },
-    {
-      "file_path": "README.md",
-      "snippet": "Run backend: `uvicorn app.main:app --reload`",
-      "header_hierarchy": "Getting Started"
+      "source": "synthetic-docs/1-getting-started.md",
+      "content": "## Local Development\n\nInstall dependencies: `pip install -r requirements.txt`...",
+      "score": 0.87
     }
   ],
-  "retrieved_chunks": [
-    {
-      "file_path": "docs/setup.md",
-      "relevance_score": 0.87
-    },
-    {
-      "file_path": "README.md",
-      "relevance_score": 0.82
-    }
-  ],
-  "latency_ms": 1840,
-  "gap_logged": false
+  "confidence": 0.85,
+  "retrieved_chunks": 3
 }
 ```
 
 #### Error Responses
 
-**Validation Error** (400):
+**Validation Error** (422):
 
 ```json
 {
-  "error": "validation_error",
-  "message": "Question must be between 1 and 500 characters"
+  "detail": [
+    {
+      "loc": ["body", "question"],
+      "msg": "field required",
+      "type": "value_error.missing"
+    }
+  ]
 }
 ```
 
-**Index Not Ready** (503):
+**Service Error** (500):
 
 ```json
 {
-  "error": "index_not_ready",
-  "message": "Documentation not yet synced. Please run /sync first."
-}
-```
-
-**LLM Failure** (500):
-
-```json
-{
-  "error": "upstream_failure",
-  "message": "Unable to generate answer. Please try again."
+  "detail": "Internal server error"
 }
 ```
 
 ---
 
-## 🚀 Deployment Notes
+## 🚀 Deployment
 
-### Chroma Persistence on Render
+### Architecture
 
-**Important Caveat**: Render free tier may have ephemeral filesystem behavior. The Chroma vector index stored in `CHROMA_PERSIST_DIRECTORY` may be lost on redeploy/restart.
+- **Frontend**: Vercel (Next.js, automatic deployments from main branch)
+- **Backend**: Render (FastAPI, automatic deployments from main branch)
+- **Database**: SQLite (embedded in backend, `gaps.db` file)
+- **Vector DB**: ChromaDB (embedded in backend, `chroma_db/` directory)
 
-**MVP Mitigations**:
+### Data Persistence
 
-- **Manual re-sync**: Trigger `/sync` endpoint after each deploy to rebuild index
-- **Startup re-index**: Check if index exists on startup; if missing, auto-trigger sync from configured docs source
-- **Accepted tradeoff**: Document this as a free-tier limitation in `DESIGN_AND_TESTING.md`
+**Important**: Both Render and Vercel free tiers have ephemeral filesystems:
 
-**Note**: Backend writes to Chroma and Postgres synchronously in MVP (no async/best-effort logging to keep implementation simple).
+- **ChromaDB index**: Regenerated on application startup (indexing happens automatically)
+- **SQLite database**: Persistent on Render (stored in persistent volume)
 
----
+### Environment Variables
 
-**See [SPRINT_PLAN.md](SPRINT_PLAN.md) for week-by-week implementation schedule and [TESTING_AND_EVALUATION_GUIDE.md](TESTING_AND_EVALUATION_GUIDE.md) for testing strategy.**
+Required on Render:
+
+```bash
+COHERE_API_KEY=your_cohere_api_key
+GROQ_API_KEY=your_groq_api_key
+DATABASE_URL=sqlite:///./gaps.db
+```
+
+### Cold Start Behavior
+
+On first request after deploy:
+1. Backend initializes ChromaDB
+2. Indexes all files from `synthetic-docs/` directory (automatic)
+3. Creates SQLite database if doesn't exist
+4. System ready to answer questions
+
+Indexing takes ~10-15 seconds on startup.
