@@ -92,92 +92,121 @@ Answer the question using ONLY the information above. Cite your sources.
 """
 ```
 
-### Confidence Detection Logic
+### Confidence Calculation
 
 ```python
-def detect_confidence(question: str, retrieved_chunks: list) -> str:
+def _calculate_confidence(
+    self,
+    documents_with_scores: List[Tuple[Document, float]]
+) -> float:
     """
-    Determine if we have sufficient evidence to answer question.
-
-    Returns: 'high', 'medium', 'low', 'gap'
+    Calculate confidence score based on retrieval quality.
+    
+    Factors:
+    1. Similarity scores (higher = better)
+    2. Number of unique sources (more = better)
+    3. Context sufficiency (enough words retrieved)
+    
+    Returns:
+        Confidence score between 0.0 and 1.0
     """
-    if not retrieved_chunks:
-        return 'gap'
-
-    # Check relevance scores (normalized from distance, see retrieval section)
-    max_relevance = max(chunk['relevance_score'] for chunk in retrieved_chunks)
-
-    # Check context sufficiency (word count as token proxy)
-    total_words = sum(len(chunk['text'].split()) for chunk in retrieved_chunks)
-
-    # Check source diversity
-    unique_sources = len(set(chunk['metadata']['file_path'] for chunk in retrieved_chunks))
-
-    # Heuristic thresholds (calibrate on your evaluation set!)
-    if max_relevance > 0.85 and total_words > 100 and unique_sources >= 2:
-        return 'high'
-    elif max_relevance > 0.7 and total_words > 50:
-        return 'medium'
-    elif max_relevance > 0.5:
-        return 'low'
-    else:
-        return 'gap'
+    if not documents_with_scores:
+        return 0.0
+    
+    # ChromaDB distance calibration: 0.0=perfect, ~0.9=moderate, 2.0=no match
+    # Convert to similarity: similarity = max(0, (2 - distance) / 2)
+    similarities = [max(0, (2 - score) / 2) for _, score in documents_with_scores]
+    avg_similarity = sum(similarities) / len(similarities)
+    
+    # Check minimum similarity threshold
+    if avg_similarity < 0.3:  # MIN_SIMILARITY_SCORE
+        return round(avg_similarity * 0.5, 2)  # Penalize low similarity
+    
+    # Unique sources count
+    unique_sources = set(
+        doc.metadata.get("source", "unknown") 
+        for doc, _ in documents_with_scores
+    )
+    source_diversity = min(len(unique_sources) / 1, 1.0)  # MIN_SOURCES = 1
+    
+    # Context sufficiency (total words)
+    total_words = sum(
+        len(doc.page_content.split()) 
+        for doc, _ in documents_with_scores
+    )
+    context_sufficiency = min(total_words / 50, 1.0)  # MIN_CONTEXT_WORDS = 50
+    
+    # Weighted combination:
+    # - Similarity: 50% (how well docs match question)
+    # - Source diversity: 25%
+    # - Context sufficiency: 25%
+    confidence = (
+        0.5 * avg_similarity +
+        0.25 * source_diversity +
+        0.25 * context_sufficiency
+    )
+    
+    return round(confidence, 2)
 ```
 
-**Important Notes**:
+**Confidence Thresholds**:
 
-- Distance thresholds depend on embedding model and metric (cosine vs. euclidean)
-- `relevance_score = 1 - distance` assumes cosine distance; validate for your chosen metric
-- Thresholds should be calibrated on your specific evaluation set
-- This is a **risk reduction** strategy, not a guarantee of correctness
-- Document chosen thresholds and empirical rationale in `DESIGN_AND_TESTING.md`
+- `confidence >= 0.70` (70%) → Generate answer with LLM
+- `0.11 <= confidence < 0.70` → Log as documentation gap
+- `confidence < 0.11` (11%) → Spam filter (generic response, not logged)
 
-**Implementation Requirement**:
-
-⚠️ **Before setting final thresholds**: Log raw retrieval outputs (similarity scores, distances) on 20 evaluation queries and calibrate thresholds empirically for your chosen Chroma distance metric. Do not use arbitrary values without validation.
+**Spam Filtering**: The 11% threshold filters out completely unrelated questions ("What's the weather?", "asdfasdf") while capturing legitimate operational questions that lack documentation ("What's the on-call schedule?").
 
 ### Gap Logging Service
 
 ```python
-from datetime import datetime, timezone
+import hashlib
+from datetime import datetime
 
-async def log_documentation_gap(
+def log_gap(
     question: str,
-    confidence_level: str,
-    db: Session
-):
-    """Log question that couldn't be answered confidently."""
-
-    # Normalize question for better duplicate detection
-    question_normalized = question.lower().strip().replace("  ", " ").rstrip("?!.")
-
-    # Check if similar question already exists
+    confidence_score: float,
+    retrieval_context: Optional[List[Dict[str, Any]]] = None
+) -> None:
+    """Log documentation gap to SQLite database."""
+    
+    # Create hash for deduplication
+    question_hash = hashlib.sha256(
+        question.lower().strip().encode('utf-8')
+    ).hexdigest()
+    
+    # Check if gap already exists
     existing_gap = db.query(DocumentationGap).filter(
-        DocumentationGap.question_normalized == question_normalized
+        DocumentationGap.question_hash == question_hash
     ).first()
-
+    
     if existing_gap:
         # Increment frequency
         existing_gap.frequency += 1
-        existing_gap.last_asked = datetime.now(timezone.utc)
+        existing_gap.updated_at = datetime.utcnow()
     else:
-        # Create new gap entry
+        # Create new gap
         new_gap = DocumentationGap(
             question=question,
-            question_normalized=question_normalized,
-            confidence_level=confidence_level,
+            question_hash=question_hash,
+            confidence_score=confidence_score,
+            status=GapStatus.NEW,
             frequency=1,
-            status='new',
-            topic=extract_topic(question),  # Optional: LLM or rule-based
-            created_at=datetime.now(timezone.utc),
-            last_asked=datetime.now(timezone.utc)
+            retrieval_context=retrieval_context,
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow()
         )
         db.add(new_gap)
-
+    
     db.commit()
 ```
 
-**Note**: Using `question_normalized` for duplicate detection improves frequency aggregation without expensive fuzzy matching. Exact string match on raw question would treat "How do I rotate API keys?" and "How do we rotate API keys in prod?" as separate gaps.
+**Gap Status Lifecycle**:
+- `NEW` → Newly detected gap
+- `REVIEWED` → Acknowledged by team
+- `RESOLVED` → Documentation added to address gap
+
+**Note**: Using SHA-256 hash of normalized question for fast duplicate detection and frequency tracking.
 
 ---
 
@@ -276,19 +305,20 @@ async def log_documentation_gap(
    - Add database models
    - Test gap frequency tracking
 
-6. **UI integration** (Ask/Sources/Gaps pages)
+6. **UI integration** (Ask page, Gap Radar page, Home page)
    - Build frontend components
    - Wire up API calls
    - Handle loading/error states
+   - Add Framer Motion animations
 
 7. **CI pipeline**
    - Add GitHub Actions workflow
    - Configure test runs
    - Set up linting
 
-8. **Deployment** (Vercel + Render + Neon)
-   - Deploy backend first
-   - Then frontend
+8. **Deployment** (Vercel + Render with SQLite)
+   - Deploy backend first (Render with embedded SQLite)
+   - Then frontend (Vercel)
    - Test end-to-end on production URLs
 
 ---
@@ -492,29 +522,16 @@ def test_live_groq_call():
 4. **Set environment variables**:
    - `GROQ_API_KEY` (get from console.groq.com, FREE tier)
    - `COHERE_API_KEY` (get from dashboard.cohere.com/api-keys, FREE tier)
-   - `CHROMA_PERSIST_DIRECTORY` (e.g., `/opt/render/project/chroma_data`)
    - `CORS_ORIGINS` (frontend URL for production)
 
 **Note**: Both API keys are FREE tier (Groq: 14,400 req/day, Cohere: 1000 req/min)
 
-**Chroma Persistence Caveat**: Render free tier may have ephemeral filesystem behavior. If Chroma index is lost on redeploy/restart, use one of these mitigations:
-
-- **MVP approach**: Manual re-sync after deploy via `/sync` endpoint
-- **Automated**: Re-index on startup from configured docs source (adds startup latency)
-- **Persistent disk**: Mount persistent volume if available (may not be free-tier)
+**Data Persistence**:
+- **SQLite database** (`gaps.db`): Persists on Render's disk (documentation gaps with frequency tracking)
+- **ChromaDB index**: Re-indexes automatically on startup from `synthetic-docs/` directory (~10-15 seconds)
+- **No external database needed**: Zero-config embedded storage, $0 cost
 
 5. **Deploy**: Auto-deploys on push to `main`
-
-### Database Setup (Neon)
-
-1. **Create Neon project** (free tier)
-2. **Run migration SQL**:
-   ```sql
-   CREATE TABLE query_logs (...);
-   CREATE TABLE documentation_gaps (...);
-   CREATE TABLE sync_history (...);
-   ```
-3. **Copy connection string** to Render env vars
 
 ### CI/CD Pipeline (GitHub Actions)
 
