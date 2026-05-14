@@ -202,26 +202,10 @@ Building this project taught me:
 
 ---
 
-## 🔮 Future Enhancements
-
-- **GitHub integration** - Auto-sync docs from repositories
-- **User authentication** - Track who's asking what
-- **Slack bot** - Answer questions where engineers already are
-- **Weekly reports** - Automated gap prioritization emails
-- **Multi-repo support** - Index docs from multiple sources
-
----
-
-## 📝 License
-
-MIT License - See [LICENSE](LICENSE) for details
-
----
-
-## 👤 Author
+## � Author
 
 **Elena Blank**  
-[GitHub](https://github.com/lenablank) | [LinkedIn](https://linkedin.com/in/elenablank)
+[GitHub](https://github.com/lenablank) | [LinkedIn](https://www.linkedin.com/in/elena-blank/)
 
 ---
 
