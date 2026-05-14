@@ -1,6 +1,6 @@
 # Repository Structure & Key Documentation Files
 
-This document outlines the GitHub repository structure and key files for the capstone project.
+This document outlines the GitHub repository structure and key files for the project.
 
 ---
 
@@ -9,18 +9,16 @@ This document outlines the GitHub repository structure and key files for the cap
 ```
 engineering-onboarding-copilot/
 ├── README.md                          # Project overview, setup instructions, deployment links
-├── DESIGN_AND_TESTING.md              # ⭐ Quantic requirement: architecture + testing documentation
-├── CAPSTONE_SUBMISSION_LINKS.md       # ⭐ Quick ref: deployed app, Trello, demo video, GitHub
+├── DESIGN_AND_TESTING.md              # Architecture + testing documentation
+├── CAPSTONE_SUBMISSION_LINKS.md       # Quick ref: deployed app, Trello, demo video, GitHub
 ├── .gitignore                         # Git ignore patterns
-├── .github/
-│   └── workflows/                     # GitHub Actions CI/CD pipelines (not yet implemented)
 ├── docs/                              # 📚 All project documentation
 │   ├── INDEX.md                       # Documentation navigation guide
 │   ├── planning/                      # Project planning documents
 │   │   ├── PROJECT_OVERVIEW.md
-│   │   ├── CAPSTONE_REQUIREMENTS.md
 │   │   ├── MVP_FEATURES.md
-│   │   └── SPRINT_PLAN.md
+│   │   ├── SPRINT_PLAN.md
+│   │   └── CRITICAL_PATH_SPRINT2_COMPLETION.md
 │   ├── technical/                     # Technical documentation
 │   │   ├── SYSTEM_ARCHITECTURE.md
 │   │   ├── IMPLEMENTATION_DETAILS.md
@@ -28,21 +26,19 @@ engineering-onboarding-copilot/
 │   ├── evaluation/                    # Testing and evaluation results
 │   │   ├── sprint-2-edge-cases.md
 │   │   └── sprint-3-formal-evaluation.md
-│   ├── delivery/                      # Submission and career materials
-│   │   ├── REPOSITORY_STRUCTURE.md   # This file
-│   │   └── INTERVIEW_PREP.md
+│   ├── delivery/                      # Delivery documentation
+│   │   └── REPOSITORY_STRUCTURE.md   # This file
 │   └── sprints/                       # Sprint artifacts (goals, backlogs, reviews)
 │       ├── sprint-0/
 │       ├── sprint-1/
-│       └── sprint-2/
+│       ├── sprint-2/
+│       └── sprint-3/
 ├── frontend/                          # Next.js application (deployed on Vercel)
 │   ├── src/
 │   │   └── app/
 │   │       ├── page.tsx              # Homepage with Ask interface
 │   │       ├── layout.tsx            # Root layout
 │   │       ├── globals.css           # Global styles
-│   │       ├── ask/
-│   │       │   └── page.tsx          # Ask question page
 │   │       ├── gaps/
 │   │       │   └── page.tsx          # Gap Radar dashboard
 │   │       └── fonts/                # Custom fonts
@@ -97,36 +93,41 @@ engineering-onboarding-copilot/
 
 ---
 
-## ⭐ Key Files for Quantic Submission
+## ⭐ Key Documentation Files
 
-### Required Deliverables (Top Level)
+### Project Overview (Top Level)
 
 1. **README.md** - Project overview with:
    - Problem statement and solution
-   - Tech stack
-   - Setup instructions
+   - Tech stack and technology choices
+   - Setup and installation instructions
    - Deployment links
-   - Links to all documentation
+   - Links to comprehensive documentation
 
-2. **DESIGN_AND_TESTING.md** - Formal design document with:
-   - System architecture
-   - Testing strategy
+2. **DESIGN_AND_TESTING.md** - Comprehensive design document with:
+   - System architecture and diagrams
+   - Testing strategy and coverage
    - Design decisions and trade-offs
+   - Deployment options analysis
 
 3. **CAPSTONE_SUBMISSION_LINKS.md** - Quick reference with:
-   - Deployed frontend URL (Vercel)
-   - Deployed backend URL (Render)
-   - GitHub repository
+   - Live frontend URL (Vercel)
+   - Live backend URL (Render)
+   - GitHub repository link
    - Trello board
    - Demo video (YouTube)
 
 ### Core Documentation (docs/)
 
-4. **docs/technical/SYSTEM_ARCHITECTURE.md** - Detailed architecture documentation
+4. **docs/technical/SYSTEM_ARCHITECTURE.md** - Detailed technical architecture
 
-5. **docs/evaluation/sprint-3-formal-evaluation.md** - Final evaluation results
+5. **docs/technical/IMPLEMENTATION_DETAILS.md** - Implementation patterns and API contracts
 
-7. **docs/sprints/** - Sprint artifacts showing agile process
+6. **docs/planning/PROJECT_OVERVIEW.md** - Problem statement and solution overview
+
+7. **docs/evaluation/sprint-3-formal-evaluation.md** - Final evaluation results (10 test questions, 100% accuracy)
+
+8. **docs/sprints/** - Sprint artifacts showing development process
 
 ---
 
