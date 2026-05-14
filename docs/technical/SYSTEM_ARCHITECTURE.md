@@ -16,9 +16,9 @@
                             ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                  FRONTEND (Next.js + TypeScript)                 │
-│  ┌──────────┬──────────────┬────────────────┬─────────────────┐ │
-│  │ Ask Page │ Sources Page │ Gaps Dashboard │ Sync Management │ │
-│  └──────────┴──────────────┴────────────────┴─────────────────┘ │
+│  ┌──────────┬────────────────┬──────────────────────────────┐   │
+│  │ Ask Page │ Gaps Dashboard │ Global Layout & Navigation   │   │
+│  └──────────┴────────────────┴──────────────────────────────┘   │
 └───────────────────────────┬─────────────────────────────────────┘
                             │ REST API
                             ▼
@@ -26,14 +26,13 @@
 │                 BACKEND (Python + FastAPI)                       │
 │  ┌─────────────────────────────────────────────────────────────┐│
 │  │                      API Endpoints                           ││
-│  │  /ask, /sync, /sources, /gaps, /metrics, /health            ││
+│  │  /ask, /api/gaps, /health                                    ││
 │  └─────────────────────────────────────────────────────────────┘│
 │  ┌─────────────────────────────────────────────────────────────┐│
 │  │                    Core Services                             ││
-│  │  • Ingestion Service (GitHub → chunks)                      ││
+│  │  • Vector Store Service (local markdown → chunks)           ││
 │  │  • RAG Service (query → answer + citations)                 ││
 │  │  • Gap Detection Service (confidence → log gaps)            ││
-│  │  • Metrics Service (observability)                          ││
 │  └─────────────────────────────────────────────────────────────┘│
 └───────────────┬─────────────────────────┬───────────────────────┘
                 │                         │
@@ -112,61 +111,49 @@ User Question
                       Return to User
 ```
 
-### Documentation Sync Flow
+### Documentation Indexing Flow
 
 ```
-Trigger Sync (Manual Button)
+Application Startup (Automatic)
     │
     ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│ 1. GitHub Repository Access                                      │
-│    • Clone repo or use GitHub API                                │
-│    • Access markdown files: README.md, docs/**/*.md              │
+│ 1. Local File Access                                             │
+│    • Load markdown files from synthetic-docs/ directory          │
+│    • Use LangChain DirectoryLoader with glob pattern **/*.md    │
 └───────────────────────────┬─────────────────────────────────────┘
                             ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│ 2. File Discovery & Filtering                                    │
-│    • Find all .md files                                          │
-│    • Filter onboarding-relevant paths                            │
-│    • Track file metadata (path, last modified)                   │
+│ 2. Document Processing                                           │
+│    • Read file contents with UTF-8 encoding                      │
+│    • Preserve markdown formatting and structure                  │
+│    • Extract file paths as metadata                              │
 └───────────────────────────┬─────────────────────────────────────┘
                             ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│ 3. Document Processing                                           │
-│    • Parse markdown (headers, code blocks, links)                │
-│    • Clean formatting, extract plain text                        │
+│ 3. Chunking Strategy                                             │
+│    • RecursiveCharacterTextSplitter (LangChain)                  │
+│    • Chunk size: 500 characters                                  │
+│    • Overlap: 50 characters                                      │
+│    • Separators: ["\n\n", "\n", " ", ""]                        │
 └───────────────────────────┬─────────────────────────────────────┘
                             ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│ 4. Chunking Strategy                                             │
-│    • Semantic chunking (by headers/sections)                     │
-│    • Max chunk size: ~500 tokens (~2000 chars)                   │
-│    • Overlap: 50-100 tokens                                      │
-│    • Preserve context (include header hierarchy)                 │
-└───────────────────────────┬─────────────────────────────────────┘
-                            ▼
-┌─────────────────────────────────────────────────────────────────┐
-│ 5. Embedding Generation (Batch)                                  │
+│ 4. Embedding Generation                                          │
 │    • Cohere embed-english-v3.0 (API-based, FREE tier)            │
 │    • 1024-dimensional vectors                                    │
 │    • Cost: $0 (free tier: 1000 requests/min)                     │
-│    • Batch process chunks (8192 tokens/request limit)            │
 └───────────────────────────┬─────────────────────────────────────┘
                             ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│ 6. Vector DB Indexing                                            │
-│    • Store chunks + embeddings in Chroma                         │
-│    • Store metadata: {file_path, repo, chunk_index, header}      │
-│    • Create searchable index                                     │
+│ 5. Vector DB Indexing                                            │
+│    • Store chunks + embeddings in ChromaDB                       │
+│    • Store metadata: {source: file_path}                         │
+│    • Create persistent searchable index                          │
 └───────────────────────────┬─────────────────────────────────────┘
                             ▼
-┌─────────────────────────────────────────────────────────────────┐
-│ 7. Update Sync Status                                            │
-│    • Log sync timestamp, file count, chunk count                 │
-│    • Store in SQLite (gaps.db) for tracking                       │
-└───────────────────────────┬─────────────────────────────────────┘
-                            ▼
-                    Sync Complete ✓
+                  Indexing Complete ✓
+                (Ready to answer questions)
 ```
 
 ---
@@ -260,18 +247,14 @@ Trigger Sync (Manual Button)
 {
     "id": "unique_chunk_id",
     "text": "chunk text content...",
-    "embedding": [0.123, -0.456, ...],  # 1536-dim vector
+    "embedding": [0.123, -0.456, ...],  # 1024-dim vector (Cohere)
     "metadata": {
-        "file_path": "docs/setup.md",
-        "repo_name": "acme-engineering-docs",
-        "chunk_index": 3,
-        "header_hierarchy": "Setup > Local Environment",
-        "last_sync": "2026-02-25T10:30:00Z"
+        "source": "synthetic-docs/2-architecture-overview.md"
     }
 }
 ```
 
-### QueryLog (Postgres)
+### QueryLog (Future Enhancement - Not Implemented)
 
 ```sql
 CREATE TABLE query_logs (
@@ -286,7 +269,7 @@ CREATE TABLE query_logs (
 );
 ```
 
-### DocumentationGap (Postgres)
+### DocumentationGap (SQLite)
 
 ```sql
 CREATE TABLE documentation_gaps (
@@ -305,20 +288,7 @@ CREATE TABLE documentation_gaps (
 );
 ```
 
-### SyncHistory (Postgres)
 
-```sql
-CREATE TABLE sync_history (
-    id SERIAL PRIMARY KEY,
-    repo_name VARCHAR(255),
-    files_processed INTEGER,
-    chunks_created INTEGER,
-    sync_started TIMESTAMPTZ,
-    sync_completed TIMESTAMPTZ,
-    status VARCHAR(20),  -- 'success', 'failed', 'in_progress'
-    error_message TEXT
-);
-```
 
 ---
 
@@ -326,41 +296,26 @@ CREATE TABLE sync_history (
 
 ### Chunking Strategy
 
-**Semantic chunking by markdown headers** (better than fixed-size):
+**Character-based chunking with recursive splitting**:
 
 ```python
-from langchain.text_splitter import MarkdownHeaderTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-# Split by markdown headers to preserve structure
-headers_to_split_on = [
-    ("#", "Header 1"),
-    ("##", "Header 2"),
-    ("###", "Header 3"),
-]
-
-markdown_splitter = MarkdownHeaderTextSplitter(
-    headers_to_split_on=headers_to_split_on
-)
-
-# Then split large sections further
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-
+# Split documents into manageable chunks
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=2000,      # ~2000 chars (roughly ~400-700 tokens depending on text)
-    chunk_overlap=100,    # Preserve context across boundaries
-    separators=["\n\n", "\n", " ", ""]
+    chunk_size=500,       # 500 characters per chunk
+    chunk_overlap=50,     # 50 character overlap between chunks
+    length_function=len,
+    separators=["\n\n", "\n", " ", ""]  # Try paragraph, then line, then word, then character
 )
 ```
 
 **Metadata preservation**:
 
 ```python
+# LangChain's DirectoryLoader automatically includes source file path
 chunk_metadata = {
-    "file_path": "docs/setup.md",
-    "header_hierarchy": "Setup > Local Environment > Install Dependencies",  # Display-friendly format
-    "chunk_index": 2,
-    "repo_name": "acme-engineering-docs",
-    "last_sync": "2026-02-25T10:30:00Z"
+    "source": "synthetic-docs/2-architecture-overview.md"
 }
 ```
 
