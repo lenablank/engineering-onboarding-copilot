@@ -296,7 +296,7 @@ This unplanned work significantly improves the professional presentation of the 
   - [x] Integration testing (RAG + Gap + Vector store)
   - [x] Edge case testing methodology (463 lines)
   - [x] Testing rationale documented
-  - [x] Test coverage: 5 files, 1,374 lines, 46+ test functions
+  - [x] Test coverage: 5 files, 1,374 lines, ~27 pytest + 2 manual test suites
 - [x] Section 9: Security and AI Safety
   - [x] Threat model documented
   - [x] Controls implemented (6/10)
@@ -766,7 +766,7 @@ Sprint 3 is complete when:
 - Additional UI features (Gap Radar is complete)
 - Database migration to Postgres (unless SQLite fails)
 - New Gap Radar features
-- Additional test coverage (40+ tests sufficient)
+- Additional test coverage (~27 pytest + 2 manual test suites sufficient)
 
 ---
 

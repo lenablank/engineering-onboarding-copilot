@@ -95,7 +95,7 @@ _Note: MVP uses local files for demonstration. Future enhancement could add GitH
 
 - Unit tests (backend services with mocked LLM calls)
 - Integration tests (RAG pipeline with test corpus)
-- 46 test functions across 5 test files, 1,374 lines of test code
+- ~27 pytest functions + 2 manual test suites across 5 test files, 1,374 lines of test code
 - Evaluation with 10 diverse questions (100% accuracy)
 - `DESIGN_AND_TESTING.md` with comprehensive architecture documentation
 

@@ -69,7 +69,7 @@
 **File**: [DESIGN_AND_TESTING.md](DESIGN_AND_TESTING.md)  
 **Template**: [docs/technical/DESIGN_AND_TESTING_TEMPLATE.md](docs/technical/DESIGN_AND_TESTING_TEMPLATE.md)  
 **Status**: ✅ **COMPLETE** (April 28, 2026 - commit cc426f6)  
-**Details**: 641 lines, all 11 sections complete, comprehensive testing documentation (5 files, 1,374 lines, 46+ tests)
+**Details**: 641 lines, all 11 sections complete, comprehensive testing documentation (5 files, 1,374 lines, ~27 pytest + 2 manual test suites)
 
 ---
 

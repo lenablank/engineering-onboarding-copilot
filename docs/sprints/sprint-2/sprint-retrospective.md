@@ -28,7 +28,7 @@
 - ✅ CI/CD pipeline with GitHub Actions (backend + frontend)
 - ✅ Modernized to SQLAlchemy 2.0 and langchain-chroma
 - ✅ Zero TypeScript/ESLint errors across frontend
-- ✅ Comprehensive test coverage (5 test files, 40+ tests)
+- ✅ Comprehensive test coverage (5 test files, ~27 pytest + 2 manual test suites)
 
 **Cancelled/Deferred:**
 
@@ -167,7 +167,7 @@
 | Tasks Completed | 9/19 (47%)   | 9/12 (75%)   | ⬆️ +28% |
 | Code Added      | ~1,500 lines | ~1,800 lines | ⬆️      |
 | Test Coverage   | 3 test files | 5 test files | ⬆️      |
-| Tests Passing   | ~15 tests    | 40+ tests    | ⬆️      |
+| Tests Passing   | ~15 tests    | ~27 pytest + 2 manual | ⬆️      |
 | GitHub Actions  | 0 workflows  | 2 workflows  | ⬆️      |
 | Type Errors     | ~5 warnings  | 0 errors     | ⬆️      |
 | Cost            | $0           | $0           | ✅      |
@@ -231,7 +231,7 @@
 
 - ✅ Confidence gating prevents hallucinations (fallback responses)
 - ✅ Gap Radar fully implemented (service + API + UI)
-- ✅ Comprehensive testing (40+ tests passing)
+- ✅ Comprehensive testing (~27 pytest + 2 manual test suites passing)
 - ✅ Production-quality code (zero type errors, CI/CD)
 - ✅ $0 cost maintained (demonstrates fiscal responsibility)
 - ✅ Differentiator complete (targets 4-5/5 rubric scores)
@@ -305,7 +305,7 @@
 
 2. **Code Quality Excellence**
    - Zero type errors across entire codebase
-   - Comprehensive test coverage (40+ tests)
+   - Comprehensive test coverage (~27 pytest + 2 manual test suites)
    - CI/CD automation working
 
 3. **On-Time Delivery**

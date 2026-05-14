@@ -32,7 +32,7 @@ Perfect for engineering teams onboarding new developers or maintaining internal 
 
 ### Engineering Quality
 - ✅ **Production deployment** - Live on Vercel (frontend) + Render (backend)
-- ✅ **Comprehensive testing** - 46 test functions, 1,374 lines of test code
+- ✅ **Comprehensive testing** - ~27 pytest functions + 2 manual test suites, 1,374 lines of test code
 - ✅ **Zero infrastructure cost** - Built entirely on free tiers
 - ✅ **Type-safe** - TypeScript frontend, Python type hints in backend
 
@@ -135,7 +135,7 @@ Gap Radar dashboard shows:
 │   │   ├── models/        # Database models
 │   │   ├── routes/        # API endpoints
 │   │   └── utils/         # Logging, helpers
-│   └── tests/             # Pytest suite (46 test functions)
+│   └── tests/             # Test suite (~27 pytest + 2 manual)
 │
 ├── frontend/              # Next.js application
 │   └── src/app/
@@ -175,7 +175,7 @@ See [Implementation Details](docs/technical/IMPLEMENTATION_DETAILS.md) for compl
 **Test Set:** 10 diverse questions (well-documented, edge cases, spam)  
 **Accuracy:** 100% (10/10 correct behaviors)  
 **Avg Response Time:** 1.4 seconds  
-**Test Coverage:** 46 test functions across 5 test files
+**Test Coverage:** ~27 pytest functions + 2 manual test suites across 5 test files
 
 Full evaluation: [docs/evaluation/sprint-3-formal-evaluation.md](docs/evaluation/sprint-3-formal-evaluation.md)
 
