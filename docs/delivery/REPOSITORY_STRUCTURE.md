@@ -21,8 +21,7 @@ engineering-onboarding-copilot/
 │   │   └── CRITICAL_PATH_SPRINT2_COMPLETION.md
 │   ├── technical/                     # Technical documentation
 │   │   ├── SYSTEM_ARCHITECTURE.md
-│   │   ├── IMPLEMENTATION_DETAILS.md
-│   │   └── DESIGN_AND_TESTING_TEMPLATE.md
+│   │   └── IMPLEMENTATION_DETAILS.md
 │   ├── evaluation/                    # Testing and evaluation results
 │   │   ├── sprint-2-edge-cases.md
 │   │   └── sprint-3-formal-evaluation.md
@@ -68,23 +67,41 @@ engineering-onboarding-copilot/
 │   │   └── utils/
 │   │       ├── __init__.py
 │   │       └── logging.py           # Logging configuration
-│   ├── tests/                         # Test files
-│   │   ├── conftest.py
-│   │   ├── test_rag_pipeline.py
-│   │   ├── test_gap_service.py
-│   │   ├── test_confidence_enhanced.py
-│   │   └── test_fallback_refactored.py
+│   ├── conftest.py                    # Pytest fixtures and configuration
+│   ├── test_rag_pipeline.py           # Manual RAG pipeline testing (not pytest)
+│   ├── test_gap_service.py            # Gap service pytest tests (18 tests)
+│   ├── test_gap_integration.py        # Gap integration pytest tests (7 tests)
+│   ├── test_database_setup.py         # Database setup pytest test (1 test)
+│   ├── test_edge_cases.py             # Manual edge case testing (not pytest)
+│   ├── manual_verify_confidence.py    # Manual confidence verification script
+│   ├── manual_verify_fallback.py      # Manual fallback verification script
+│   ├── prove_pipeline_simple.py       # Simple pipeline verification script
+│   ├── tests/                         # Empty directory (tests in backend/ root)
 │   ├── chroma_db/                     # ChromaDB vector database (persistent)
-│   ├── requirements.txt               # Python dependencies
-│   ├── pyproject.toml                # Python project metadata
-│   ├── pyrightconfig.json            # Type checking configuration
-│   ├── prove_pipeline_simple.py      # Development testing script
-│   └── README.md                     # Backend setup instructions
-├── synthetic-docs/                    # Sample documentation corpus
+│   ├── gaps.db                        # SQLite database for documentation gaps
+│   ├── requirements.txt               # Python dependencies (production)
+│   ├── requirements-deploy.txt        # Render deployment dependencies
+│   ├── runtime.txt                    # Python version for Render
+│   ├── pyproject.toml                 # Python project metadata
+│   ├── pyrightconfig.json             # Type checking configuration
+│   ├── .env.example                   # Environment variables template
+│   └── README.md                      # Backend setup instructions
+├── synthetic-docs/                    # Sample documentation corpus (15 markdown files)
 │   ├── 1-getting-started.md
 │   ├── 2-architecture-overview.md
 │   ├── 3-testing-guide.md
-│   └── ... (15 total markdown files)
+│   ├── 4-deployment.md
+│   ├── 5-api-reference.md
+│   ├── 6-ci-cd-pipeline.md
+│   ├── 7-database-setup.md
+│   ├── 8-security-practices.md
+│   ├── 9-monitoring-observability.md
+│   ├── 10-code-review-guidelines.md
+│   ├── 11-git-workflow.md
+│   ├── 12-environment-configuration.md
+│   ├── 13-troubleshooting.md
+│   ├── 14-api-authentication.md
+│   └── 15-performance-optimization.md
 ├── chroma_db/                         # Root-level ChromaDB data (legacy, can be removed)
 ├── render-build.sh                    # Render deployment build script
 ├── render-start.sh                    # Render deployment start script
@@ -151,43 +168,34 @@ engineering-onboarding-copilot/
 
 ## 📊 Testing Files
 
-- **backend/tests/test_rag_pipeline.py** - RAG pipeline unit tests
-- **backend/tests/test_gap_service.py** - Gap detection unit tests  
-- **backend/tests/test_confidence_enhanced.py** - Confidence calculation tests
-- **backend/tests/test_fallback_refactored.py** - Fallback behavior tests
-- **docs/evaluation/sprint-3-formal-evaluation.md** - Integration test results
+**Pytest Test Suite** (~27 automated test functions, 5 files, 1,374 lines):
+- `backend/test_gap_service.py` - Gap service unit tests (18 tests)
+- `backend/test_gap_integration.py` - Gap integration tests (7 tests)
+- `backend/test_database_setup.py` - Database setup test (1 test)
+- `backend/conftest.py` - Pytest fixtures and configuration
+
+**Manual Test Suites** (2 scripts for manual verification):
+- `backend/test_rag_pipeline.py` - Manual RAG pipeline testing
+- `backend/test_edge_cases.py` - Manual edge case testing
+
+**Verification Scripts**:
+- `backend/manual_verify_confidence.py` - Confidence threshold verification
+- `backend/manual_verify_fallback.py` - Fallback behavior verification
+- `backend/prove_pipeline_simple.py` - Simple pipeline proof
+
+**Evaluation Results**:
+- `docs/evaluation/sprint-2-edge-cases.md` - Edge case testing results
+- `docs/evaluation/sprint-3-formal-evaluation.md` - Final evaluation (10 test cases, 100% accuracy)
 
 ---
 
 ## 📝 Notes
 
-- ChromaDB stores vector embeddings in `backend/chroma_db/` (gitignored)
-- SQLite database for gaps at `backend/gaps.db` (gitignored)
+- ChromaDB stores vector embeddings in `backend/chroma_db/` (gitignored, re-indexed on startup)
+- SQLite database for gaps at `backend/gaps.db` (gitignored, persistent on Render)
 - Synthetic documentation corpus in `synthetic-docs/` (15 markdown files)
-- Total infrastructure cost: **$0** (all free tiers)
-│   │   ├── test_ingestion.py
-│   │   ├── test_rag.py
-│   │   ├── test_gap_detection.py
-│   │   ├── test_api_ask.py
-│   │   ├── test_api_gaps.py
-│   │   ├── test_metrics.py
-│   │   └── conftest.py              # Pytest fixtures, mocks
-│   ├── requirements.txt             # Runtime dependencies
-│   ├── requirements-dev.txt         # Development dependencies (pytest, ruff, black, httpx)
-│   └── .env.example
-├── synthetic-docs/                    # Mock company engineering docs
-│   ├── README.md
-│   └── docs/
-│       ├── setup.md
-│       ├── architecture.md
-│       ├── testing.md
-│       ├── deployment.md
-│       ├── api-guidelines.md
-│       └── troubleshooting.md
-├── scripts/
-│   ├── seed_db.sql                   # Initial database schema
-│   └── run_evaluation.py             # Execute evaluation question set
-└── .gitignore
+- Test files located in `backend/` root directory (not `backend/tests/` subdirectory)
+- Total infrastructure cost: **$0** (all free tiers: Vercel, Render, Cohere, Groq)
 ```
 
 ---
@@ -195,7 +203,9 @@ engineering-onboarding-copilot/
 ## 🔗 Related Documentation
 
 - [Project Overview](../planning/PROJECT_OVERVIEW.md) - Problem and solution
-- [Capstone Requirements](../planning/CAPSTONE_REQUIREMENTS.md) - Required deliverables
-- [MVP Features](../planning/MVP_FEATURES.md) - Feature scope
-- [System Architecture](../technical/SYSTEM_ARCHITECTURE.md) - Technical design
-- [Implementation Details](../technical/IMPLEMENTATION_DETAILS.md) - How to build
+- [MVP Features](../planning/MVP_FEATURES.md) - Feature scope and acceptance criteria
+- [Sprint Plan](../planning/SPRINT_PLAN.md) - Historical sprint planning (with disclaimer)
+- [System Architecture](../technical/SYSTEM_ARCHITECTURE.md) - Technical design and data flow
+- [Implementation Details](../technical/IMPLEMENTATION_DETAILS.md) - RAG pipeline and deployment
+- [Design & Testing](../../DESIGN_AND_TESTING.md) - Comprehensive design document (681 lines)
+- [Documentation Index](../INDEX.md) - Complete documentation navigation
