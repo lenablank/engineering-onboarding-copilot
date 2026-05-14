@@ -1,8 +1,11 @@
-# Design and Testing Documentation
+# Design and Testing Documentation Template
 
-**Required Quantic Deliverable**
+**⚠️ HISTORICAL DOCUMENT - Planning Template from Sprint 0**
 
-**Status**: Draft (to be completed during implementation with measured results and updated to Final before submission)
+This is the original planning template with proposed technologies (HuggingFace, Postgres, Neon).
+**For actual implementation details, see `/DESIGN_AND_TESTING.md` in the project root.**
+
+**Status**: Archived template (actual implementation differs)
 
 ---
 

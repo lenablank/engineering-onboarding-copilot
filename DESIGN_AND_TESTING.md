@@ -185,14 +185,14 @@ New engineers joining software companies face significant onboarding friction. D
 
 ### Chunking Strategy
 
-**Approach**: Semantic chunking by markdown headers + recursive character splitting
+**Approach**: Simple recursive character splitting for consistent, predictable chunks
 
-- **Primary**: Split by markdown headers (preserves semantic context)
-- **Secondary**: RecursiveCharacterTextSplitter with max 1000 chars, 200 char overlap
-- **Metadata preserved**: file path, header text, chunk index
+- **Splitter**: RecursiveCharacterTextSplitter with 500 chars, 50 char overlap
+- **Separators**: `["\n\n", "\n", " ", ""]` (respects document structure)
+- **Metadata preserved**: file path only (`{source: "path/to/file.md"}`)
 - **Code blocks**: Preserved intact when possible to maintain executable examples
 
-**Implementation**: LangChain MarkdownHeaderTextSplitter + RecursiveCharacterTextSplitter
+**Implementation**: LangChain `RecursiveCharacterTextSplitter` (see `backend/app/services/vector_store.py`)
 
 **Results**: 15 markdown files → 275 chunks (average ~360 chars/chunk)
 

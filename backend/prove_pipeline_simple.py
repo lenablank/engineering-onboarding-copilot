@@ -1,5 +1,8 @@
 """
-Sprint 0 Pipeline Proof Script
+"""\nSprint 0 Pipeline Proof Script (HISTORICAL - For Reference Only)
+
+⚠️ NOTE: This is a proof-of-concept from Sprint 0 using HuggingFace embeddings.
+Production app uses Cohere embeddings (see backend/app/services/vector_store.py).
 
 Simple demonstration that the core RAG pipeline works:
 - Load markdown documents

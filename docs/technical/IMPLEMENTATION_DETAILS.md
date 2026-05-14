@@ -314,17 +314,17 @@ def test_markdown_parsing():
 @patch('app.services.embeddings.generate_embedding')  # Mock your wrapper, not vendor SDK
 def test_embedding_generation_mocked(mock_embed):
     """Test embedding generation with mocked API."""
-    mock_embed.return_value = [0.1] * 1536
+    mock_embed.return_value = [0.1] * 1024  # Cohere 1024-dim
     result = generate_embedding("test text")
-    assert len(result) == 1536
+    assert len(result) == 1024
     mock_embed.assert_called_once()
 
-def test_github_sync_logic():
-    """Test sync pipeline with fixture data."""
-    test_docs = load_fixture('test-docs/')
-    sync_result = sync_documents(test_docs)
-    assert sync_result.success
-    assert sync_result.chunks_created > 0
+def test_document_indexing():
+    """Test document loading and chunking pipeline."""
+    test_docs = load_test_documents('test-docs/')
+    index_result = index_documents(test_docs)
+    assert index_result.success
+    assert index_result.chunks_created > 0
 ```
 
 #### **2. Integration Tests (Local Chroma + Test Corpus)** - _Real Retrieval Logic_
