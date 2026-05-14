@@ -31,15 +31,15 @@ This is strict scope protection to ensure project success.
 
 ### Core Features (Required)
 
-#### **1. GitHub Docs Sync (Manual Trigger for MVP)**
+#### **1. Documentation Indexing (Automatic on Startup)**
 
-- Connect to local/mock GitHub repository
-- Ingest markdown files: `README.md`, `/docs/**/*.md`
-- Parse, chunk, embed, and index content
-- Store source metadata (file path, chunk index, header hierarchy)
-- Manual "Sync Now" button in UI
+- Load markdown files from local `synthetic-docs/` directory
+- Ingest all `.md` files using LangChain DirectoryLoader
+- Parse, chunk (500 chars, 50 overlap), embed (Cohere 1024-dim), and index in ChromaDB
+- Store source metadata (file path only)
+- Automatic indexing on application startup (~10-15 seconds)
 
-_Note: MVP does not include user-authenticated GitHub OAuth integration; ingestion targets a configured repository/path._
+_Note: MVP uses local files for demonstration. Future enhancement could add GitHub repository sync._
 
 #### **2. RAG Q&A with Citations**
 
@@ -69,33 +69,35 @@ _Note: MVP does not include user-authenticated GitHub OAuth integration; ingesti
 
 #### **5. Web Dashboard (Next.js)**
 
-- **Ask Page**: Chat-style Q&A interface
-- **Sources Page**: List of indexed docs + last sync timestamp
-- **Gaps Page**: Documentation gaps dashboard
-- Simple, functional UI (polish is secondary to functionality)
+- **Ask Page**: Chat-style Q&A interface with source citations
+- **Gap Radar Dashboard**: View and manage documentation gaps
+- Simple, functional UI (Tailwind CSS)
+- Responsive design for desktop and mobile
 
-#### **6. Basic Observability**
+#### **6. Gap Management Features**
 
-- Query logging (question, answer, latency, sources, confidence level) for operational metrics
-- Basic metrics calculated from query logs:
-  - Average latency
-  - Citation rate (% answers with sources)
-  - Answerable vs. gap ratio
-- Export to CSV or display in simple table (not fancy dashboard)
+- View all logged documentation gaps
+- See gap frequency (how many times asked)
+- Update gap status (NEW → REVIEWED → RESOLVED)
+- Delete resolved gaps
+- Sort by frequency to prioritize improvements
+- Display confidence scores for debugging
 
-#### **7. CI/CD + Deployment**
+#### **7. Deployment**
 
-- GitHub Actions: linting, tests, build checks
-- Deployed to shareable URL (Vercel + Render free tiers)
+- Automatic deployments via Vercel (frontend) and Render (backend) free tiers
+- Production URLs: https://engineering-onboarding-copilot.vercel.app (frontend), https://engineering-onboarding-copilot.onrender.com (backend)
 - Health check endpoint (`/health`)
-- Public repository for portfolio
+- Public GitHub repository for portfolio
+- Zero infrastructure cost ($0)
 
 #### **8. Testing & Documentation**
 
 - Unit tests (backend services with mocked LLM calls)
 - Integration tests (RAG pipeline with test corpus)
-- Evaluation question set (20-30 questions)
-- `DESIGN_AND_TESTING.md` with architecture rationale, deployment options analysis, and cost implications
+- 46 test functions across 5 test files, 1,374 lines of test code
+- Evaluation with 10 diverse questions (100% accuracy)
+- `DESIGN_AND_TESTING.md` with comprehensive architecture documentation
 
 #### **9. Basic Security & AI Safety Controls** ⭐
 

@@ -1,7 +1,6 @@
 # Engineering Onboarding Copilot - Project Overview
 
-**RAG-powered internal knowledge assistant with Documentation Gap Radar**  
-**Solo Capstone Project**
+**RAG-powered internal knowledge assistant with Documentation Gap Radar**
 
 ---
 
@@ -68,11 +67,8 @@ An AI-powered onboarding assistant that:
 
 ## 📚 Related Documentation
 
-- [Capstone Requirements & Rubric](CAPSTONE_REQUIREMENTS.md) - Quantic deliverables and scoring
 - [MVP Features](MVP_FEATURES.md) - Feature list, scope, and acceptance criteria
-- [System Architecture](SYSTEM_ARCHITECTURE.md) - Technical architecture and design
-- [Implementation Details](IMPLEMENTATION_DETAILS.md) - RAG pipeline, testing, deployment
-- [Evaluation & Demo](EVALUATION_AND_DEMO.md) - Demo plan, evaluation metrics
+- [System Architecture](../technical/SYSTEM_ARCHITECTURE.md) - Technical architecture and design
+- [Implementation Details](../technical/IMPLEMENTATION_DETAILS.md) - RAG pipeline, testing, deployment
 - [Sprint Plan](SPRINT_PLAN.md) - Sprint breakdown and timeline
-- [Repository Structure](REPOSITORY_STRUCTURE.md) - Project organization
-- [Interview Prep](INTERVIEW_PREP.md) - Talking points and learning outcomes
+- [Repository Structure](../delivery/REPOSITORY_STRUCTURE.md) - Project organization
