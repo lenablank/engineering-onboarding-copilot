@@ -8,84 +8,61 @@ This document covers RAG pipeline implementation, testing strategy, and deployme
 
 ### Chunking Strategy
 
-**Approach**: Semantic chunking by headers (better than fixed-size)
+**Approach**: Character-based chunking with recursive splitting
 
 ```python
-from langchain.text_splitter import MarkdownHeaderTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-# Split by markdown headers to preserve structure
-headers_to_split_on = [
-    ("#", "Header 1"),
-    ("##", "Header 2"),
-    ("###", "Header 3"),
-]
-
-markdown_splitter = MarkdownHeaderTextSplitter(
-    headers_to_split_on=headers_to_split_on
-)
-
-# Then split large sections further
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-
+# Split documents into manageable chunks
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=2000,      # ~2000 chars (roughly ~400-700 tokens depending on text)
-    chunk_overlap=100,   # Preserve context across boundaries
-    separators=["\n\n", "\n", " ", ""]
+    chunk_size=500,       # 500 characters per chunk
+    chunk_overlap=50,     # 50 character overlap between chunks
+    length_function=len,
+    separators=["\n\n", "\n", " ", ""]  # Try paragraph, then line, then word, then character
 )
 ```
+
+**Why this approach:**
+- Simple and reliable for mixed documentation formats
+- Preserves sentence boundaries where possible
+- Small overlap ensures context continuity
+- No dependency on markdown structure consistency
 
 **Metadata preservation**:
 
 ```python
+# LangChain's DirectoryLoader automatically includes source file path
 chunk_metadata = {
-    "file_path": "docs/setup.md",
-    "repo": "engineering-docs",
-    "chunk_index": 0,
-    "header_hierarchy": "Setup > Installation",  # Display-friendly format
-    "last_sync": "2026-02-25T10:30:00Z"
+    "source": "synthetic-docs/2-architecture-overview.md"
 }
 ```
 
 ### Retrieval Strategy
 
-**Hybrid approach** (if time allows stretch goal):
-
-- **Primary**: Semantic search (vector similarity)
-- **Optional boost**: Keyword matching for exact terms (e.g., CLI commands, file names)
-
-**Basic retrieval** (MVP):
+**Using LangChain + ChromaDB integration**:
 
 ```python
-from chromadb import Client
+from langchain_chroma import Chroma
 
-# Query vector DB
-results = chroma_collection.query(
-    query_embeddings=[question_embedding],
-    n_results=10,
-    include=["documents", "metadatas", "distances"]
+# Query using LangChain wrapper (handles embedding automatically)
+docs_with_scores = vectorstore.similarity_search_with_score(
+    question,
+    k=5  # Top 5 most relevant chunks
 )
 
-# Normalize Chroma results into structured objects
-rows = []
-for doc, meta, dist in zip(
-    results["documents"][0],
-    results["metadatas"][0],
-    results["distances"][0],
-):
-    rows.append({
-        "text": doc,
-        "metadata": meta,
-        "distance": dist,
-        "relevance_score": 1 - dist  # Convert distance to score (validate for your metric!)
-    })
+# docs_with_scores is List[Tuple[Document, float]]
+# where float is ChromaDB's distance metric (lower = more similar)
 
-# Filter by confidence threshold
-threshold = 0.3  # Distance threshold (lower = more similar)
-confident_results = [
-    r for r in rows
-    if r['distance'] < threshold
-]
+# Documents contain:
+# - page_content: the chunk text
+# - metadata: {"source": "synthetic-docs/file.md"}
 ```
+
+**Why this approach:**
+- LangChain handles embedding generation automatically
+- ChromaDB computes cosine similarity
+- Returns both content and relevance scores
+- Simple, reliable, well-tested integration
 
 ### Answer Generation Prompt
 
@@ -241,46 +218,29 @@ async def log_documentation_gap(
 }
 ```
 
-### `/sync` Endpoint Response
+### `/api/gaps/` Endpoint Response
 
 ```json
-{
-  "status": "success",
-  "files_processed": 23,
-  "chunks_created": 187,
-  "sync_timestamp": "2026-02-25T10:30:00Z",
-  "errors": []
-}
+[
+  {
+    "id": "uuid-string",
+    "question": "How do we rotate API keys in production?",
+    "confidence_score": 0.45,
+    "frequency": 5,
+    "status": "new",
+    "retrieval_context": null,
+    "created_at": "2026-02-20T14:30:00Z",
+    "updated_at": "2026-02-25T09:15:00Z"
+  }
+]
 ```
 
-### `/gaps` Endpoint Response
+### `/health` Endpoint Response
 
 ```json
 {
-  "gaps": [
-    {
-      "id": 1,
-      "question": "How do we rotate API keys in production?",
-      "frequency": 5,
-      "status": "new",
-      "confidence_level": "gap",
-      "last_asked": "2026-02-25T09:15:00Z",
-      "created_at": "2026-02-20T14:30:00Z"
-    }
-  ],
-  "total": 12
-}
-```
-
-### `/metrics` Endpoint Response
-
-```json
-{
-  "avg_latency_ms": 1650,
-  "citation_rate": 0.94,
-  "answerable_rate": 0.78,
-  "total_queries": 342,
-  "time_period": "last_7_days"
+  "status": "healthy",
+  "vector_store_ready": true
 }
 ```
 
