@@ -129,7 +129,7 @@ New engineers joining software companies face significant onboarding friction. D
 | **Groq API**          | FREE LLM (Llama-3.1-8b-instant), 14,400 requests/day free tier, extremely fast inference (sub-second), cost-conscious choice |
 | **Vercel**            | Free tier frontend hosting, auto-deploy from GitHub, HTTPS by default, excellent Next.js support                             |
 | **Render**            | Free tier backend hosting, Python support, auto-deploy from GitHub, 750 hours/month                                          |
-| **Framer Motion**     | Smooth animations for modern UI, declarative API                                                                   |
+| **Framer Motion**     | Smooth animations for modern UI, declarative API                                                                             |
 | **Lucide React**      | Modern icon set, tree-shakeable, consistent design                                                                           |
 
 ---

@@ -147,7 +147,7 @@ Gap Radar dashboard shows:
 ├── docs/                  # Project documentation
 │   ├── technical/         # Architecture, implementation details
 │   ├── planning/          # Project overview, features
-│   ├── evaluation/        # Demo script, test results
+│   ├── evaluation/        # Test results and evaluation
 │   └── sprints/           # Development artifacts
 │
 └── DESIGN_AND_TESTING.md  # Comprehensive design document
@@ -186,7 +186,6 @@ Full evaluation: [docs/evaluation/sprint-3-formal-evaluation.md](docs/evaluation
 - **[System Architecture](docs/technical/SYSTEM_ARCHITECTURE.md)** - Tech stack, data flows, design decisions
 - **[Implementation Details](docs/technical/IMPLEMENTATION_DETAILS.md)** - Code patterns, API contracts, testing strategy
 - **[Design & Testing](DESIGN_AND_TESTING.md)** - Comprehensive architecture and test documentation
-- **[Demo Script](docs/evaluation/DEMO_SCRIPT.md)** - Full product demonstration walkthrough
 - **[Repository Structure](docs/delivery/REPOSITORY_STRUCTURE.md)** - File organization guide
 
 ---

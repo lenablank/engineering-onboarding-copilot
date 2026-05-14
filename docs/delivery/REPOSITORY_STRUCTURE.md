@@ -25,8 +25,7 @@ engineering-onboarding-copilot/
 │   │   ├── SYSTEM_ARCHITECTURE.md
 │   │   ├── IMPLEMENTATION_DETAILS.md
 │   │   └── DESIGN_AND_TESTING_TEMPLATE.md
-│   ├── evaluation/                    # Testing and demo materials
-│   │   ├── DEMO_SCRIPT.md            # 15-20 minute demo presentation script
+│   ├── evaluation/                    # Testing and evaluation results
 │   │   ├── sprint-2-edge-cases.md
 │   │   └── sprint-3-formal-evaluation.md
 │   ├── delivery/                      # Submission and career materials
@@ -123,11 +122,9 @@ engineering-onboarding-copilot/
 
 ### Core Documentation (docs/)
 
-4. **docs/evaluation/DEMO_SCRIPT.md** - Complete 15-20 minute demo script
+4. **docs/technical/SYSTEM_ARCHITECTURE.md** - Detailed architecture documentation
 
-5. **docs/technical/SYSTEM_ARCHITECTURE.md** - Detailed architecture documentation
-
-6. **docs/evaluation/sprint-3-formal-evaluation.md** - Final evaluation results
+5. **docs/evaluation/sprint-3-formal-evaluation.md** - Final evaluation results
 
 7. **docs/sprints/** - Sprint artifacts showing agile process
 

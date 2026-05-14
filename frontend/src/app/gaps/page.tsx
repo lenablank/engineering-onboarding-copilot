@@ -129,7 +129,10 @@ export default function GapsPage() {
     }
   };
 
-  const handleStatusChange = async (gapId: string, newStatus: Gap["status"]) => {
+  const handleStatusChange = async (
+    gapId: string,
+    newStatus: Gap["status"],
+  ) => {
     try {
       const response = await fetch(`${apiUrl}/api/gaps/${gapId}/status`, {
         method: "PATCH",
@@ -394,7 +397,12 @@ export default function GapsPage() {
                         <div className="flex items-center gap-2">
                           <select
                             value={gap.status}
-                            onChange={(e) => handleStatusChange(gap.id, e.target.value as Gap["status"])}
+                            onChange={(e) =>
+                              handleStatusChange(
+                                gap.id,
+                                e.target.value as Gap["status"],
+                              )
+                            }
                             className="px-2 py-1 text-xs font-mono border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] rounded-none hover:border-[var(--accent)] focus:outline-none focus:border-[var(--accent)]"
                           >
                             <option value="NEW">NEW</option>

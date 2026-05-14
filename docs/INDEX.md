@@ -20,9 +20,8 @@
 
 ### Testing & Evaluation
 
-7. **[Demo Script](evaluation/DEMO_SCRIPT.md)** - Complete product demonstration script
-8. **[Sprint 2 Edge Cases](evaluation/sprint-2-edge-cases.md)** - Edge case testing results
-9. **[Sprint 3 Formal Evaluation](evaluation/sprint-3-formal-evaluation.md)** - Final evaluation with 10 test cases
+7. **[Sprint 2 Edge Cases](evaluation/sprint-2-edge-cases.md)** - Edge case testing results
+8. **[Sprint 3 Formal Evaluation](evaluation/sprint-3-formal-evaluation.md)** - Final evaluation with 10 test cases
 
 ### Repository Info
 
@@ -42,7 +41,12 @@
 
 1. [Project Overview](planning/PROJECT_OVERVIEW.md) - Understand the problem and solution
 2. [System Architecture](technical/SYSTEM_ARCHITECTURE.md) - See how it's built
-3. [Demo Script](evaluation/DEMO_SCRIPT.md) - See it in action
+3. [Implementation Details](technical/IMPLEMENTATION_DETAILS.md) - Technical deep-dive
+
+**Want to see it in action?**
+
+- Visit the [Live Demo](https://engineering-onboarding-copilot.vercel.app)
+- Read the [Evaluation Results](evaluation/sprint-3-formal-evaluation.md)
 
 **Want technical details?**
 
