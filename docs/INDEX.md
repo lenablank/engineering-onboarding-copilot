@@ -2,7 +2,7 @@
 
 **Engineering Onboarding Copilot - Technical Documentation**
 
-🔗 **[Live Demo](https://engineering-onboarding-copilot.vercel.app)** | 🎥 **[Demo Video](https://drive.google.com/file/d/1ZO7LkoiAJLp1WnlxHjQv3U27Jh8xDndc/view?usp=sharing)**
+🔗 **[Live Demo](https://engineering-onboarding-copilot.vercel.app)** | 🎥 **[Demo Video](https://drive.google.com/file/d/1ZO7LkoiAJLp1WnlxHjQv3U27Jh8xDndc/view?usp=sharing)** | 📋 **[Trello Board](https://trello.com/invite/b/69a427cee6ac597f2636cc22/ATTIc2511c7490ba36570a3a9b5a708ac4d17EFCD003/engineering-onboarding-copilot-msse-capstone)**
 
 ---
 

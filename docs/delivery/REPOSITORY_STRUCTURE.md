@@ -207,7 +207,7 @@ engineering-onboarding-copilot/
 
 - **Deployed Application**: https://your-app.vercel.app
 - **GitHub Repository**: https://github.com/yourusername/engineering-onboarding-copilot
-- **Trello Board**: https://trello.com/b/your-board-id
+- **Trello Board**: https://trello.com/invite/b/69a427cee6ac597f2636cc22/ATTIc2511c7490ba36570a3a9b5a708ac4d17EFCD003/engineering-onboarding-copilot-msse-capstone
 - **Demo Video**: https://drive.google.com/file/d/1ZO7LkoiAJLp1WnlxHjQv3U27Jh8xDndc/view?usp=sharing
 - **Design & Testing Document**: [DESIGN_AND_TESTING.md](DESIGN_AND_TESTING.md)
 
